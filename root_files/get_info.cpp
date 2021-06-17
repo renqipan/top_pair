@@ -141,13 +141,114 @@ void get_info(){
 	            nevents++;
 	    	    mytree->Fill();
 	    	}
-	}  
+	       cout<<"parton level infomation is filled into tree."<<endl;
+	}
+    //////////////////////////////////////////////////////////////////////////////  
+    //get final state information at detector level
+	cout<<"getting information of final state at detector level"<<endl;
+	Float_t MET_pt, MET_phi;
+	Float_t Electron_eta[8], Electron_mass[8],Electron_pt[8],Electron_phi[8];
+	Float_t Muon_mass[9],Muon_phi[9],Muon_pt[9],Muon_eta[9];
+	Float_t lepton_mass[17], lepton_phi[17],lepton_eta[17],lepton_pt[17];
+	UInt_t nMuon, nElectron, nJet,nlepton;
+	Int_t Jet_partonFlavour[35],Muon_charge[9],Electron_charge[8],lepton_charge[17];
+	Float_t Jet_btagCSVV2[35], Jet_btagDeepB[35],Jet_eta[35],Jet_mass[35],Jet_phi[35],Jet_pt[35];
+	chain.SetBranchAddress("MET_pt",&MET_pt);
+	chain.SetBranchAddress("MET_phi",&MET_phi);
+	chain.SetBranchAddress("Electron_phi",Electron_phi);
+	chain.SetBranchAddress("Electron_pt",Electron_pt);
+	chain.SetBranchAddress("Electron_mass",Electron_mass);
+	chain.SetBranchAddress("Electron_eta",Electron_eta);
+	chain.SetBranchAddress("nElectron",&nElectron);
+	chain.SetBranchAddress("Electron_charge",Electron_charge);
+	chain.SetBranchAddress("nMuon",&nMuon);
+	chain.SetBranchAddress("nJet",&nJet);
+	chain.SetBranchAddress("Muon_eta",Muon_eta);
+	chain.SetBranchAddress("Muon_pt",Muon_pt);
+	chain.SetBranchAddress("Muon_phi",Muon_phi);
+	chain.SetBranchAddress("Muon_mass",Muon_mass);
+	chain.SetBranchAddress("Muon_charge",Muon_charge);
+	chain.SetBranchAddress("Jet_partonFlavour",Jet_partonFlavour);
+	chain.SetBranchAddress("Jet_btagCSVV2",Jet_btagCSVV2);
+	chain.SetBranchAddress("Jet_btagDeepB",Jet_btagDeepB);
+	chain.SetBranchAddress("Jet_eta",Jet_eta);
+	chain.SetBranchAddress("Jet_pt",Jet_pt);
+	chain.SetBranchAddress("Jet_phi",Jet_phi);
+	chain.SetBranchAddress("Jet_mass",Jet_mass);
+	mytree->Branch("MET_phi",&MET_phi,"MET_phi/F");
+	mytree->Branch("MET_pt",&MET_pt,"MET_pt/F");
+	mytree->Branch("lepton_eta",lepton_eta,"lepton_eta/F");
+	mytree->Branch("lepton_pt",lepton_pt,"lepton_pt/F");
+	mytree->Branch("lepton_mass",lepton_mass,"lepton_mass/F");
+	mytree->Branch("lepton_phi",lepton_phi,"lepton_phi/F");
+	mytree->Branch("lepton_charge",lepton_charge,"lepton_charge/I");
+	//mytree->Branch("nMuon",&nMuon,"nMuon/F");
+	//mytree->Branch("nElectron",&nElectron,"nElectron/F");
+	mytree->Branch("nlepton",&nlepton,"nlepton/I");
+	mytree->Branch("nJet",&nJet,"nJet/I");
+	mytree->Branch("Jet_btagCSVV2",Jet_btagCSVV2,"Jet_btagCSVV2/F");
+	mytree->Branch("Jet_btagDeepB",Jet_btagDeepB,"Jet_btagDeepB/F");
+	mytree->Branch("Jet_partonFlavour",Jet_partonFlavour,"Jet_partonFlavour/I");
+	mytree->Branch("Jet_eta",Jet_eta,"Jet_eta/F");
+	mytree->Branch("Jet_mass",Jet_mass,"Jet_mass/F");
+	mytree->Branch("Jet_phi",Jet_phi,"Jet_phi/F");
+	mytree->Branch("Jet_pt",Jet_pt,"Jet_pt/F");
+ //loop over events in the NanoAOD file
+	cout<<"information at dectector level is reading. wait for a while."<<endl;
+	Int_t events_dec=0;
+	for(Int_t event=0;event<chain.GetEntries();event++){
+		chain.GetEntry(event);
+		//MET and Jets are filled automaticly;
+		//consider muons and electrons as leptons and sort leptons according to their pt
+		nlepton=nMuon+nElectron;
+		TLorentzVector p4_lepton[17];
+		for(int i=0;i<nlepton;i++){
+			if(i<nElectron){
+			p4_lepton[i].SetPtEtaPhiM(Electron_pt[i],Electron_eta[i],Electron_phi[i],Electron_mass[i]);
+			lepton_charge[i]=Electron_charge[i];
+			} 
+			else {
+				p4_lepton[i].SetPtEtaPhiM(Muon_pt[i-nElectron],Muon_eta[i-nElectron],Muon_phi[i-nElectron],Muon_mass[i-nElectron]);
+				lepton_charge[i]=Muon_charge[i-nElectron];			
+			}
+		}
+		//sort leptons according to their pt and make the first jet has maximum pt
+		for(int k=0;k<nlepton;k++){
+			for(int j=k+1;j<nlepton;j++)
+			{
+				if(p4_lepton[k].Pt() > p4_lepton[j].Pt())
+				{   TLorentzVector temp; Int_t temp_charge;
+					temp=p4_lepton[k];
+					p4_lepton[k]=p4_lepton[j];
+					p4_lepton[j]=temp;
+					temp_charge=lepton_charge[k];
+					lepton_charge[k]=lepton_charge[j];
+					lepton_charge[j]=temp_charge;
 
-	//get final state information at detector level
+
+				}
+			}
+		}
+		for(int i=0;i<nlepton;i++){
+			lepton_pt[i]=p4_lepton[i].Pt();
+			lepton_eta[i]=p4_lepton[i].Eta();
+			lepton_phi[i]=p4_lepton[i].Phi();
+			lepton_mass[i]=p4_lepton[i].M();
+		}
+
+	  events_dec++;
+	  mytree->Fill();
+
+	}
+	cout<<"the information of final state at detector level is filled. "<<endl;
+
+
 	mytree->Write();
     cout<<inputFile<<" has "<<chain.GetEntries()<<" events"<<endl;
     cout<<output<<" is created"<<endl;
-    cout<<nevents<<" events are written into "<<output<<endl;
+    cout<<nevents<<" events at parton level are written into "<<output<<endl;
+    cout<<events_dec<<" events at detector level are written into "<<output<<endl;
+
 }
 
 
