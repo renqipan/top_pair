@@ -98,24 +98,26 @@ void get_info(){
 	chain.SetBranchAddress("Jet_mass",Jet_mass);
 	mytree->Branch("MET_phi",&MET_phi,"MET_phi/F");
 	mytree->Branch("MET_pt",&MET_pt,"MET_pt/F");
-	mytree->Branch("lepton_eta",lepton_eta,"lepton_eta/F");
-	mytree->Branch("lepton_pt",lepton_pt,"lepton_pt/F");
-	mytree->Branch("lepton_mass",lepton_mass,"lepton_mass/F");
-	mytree->Branch("lepton_phi",lepton_phi,"lepton_phi/F");
-	mytree->Branch("lepton_charge",lepton_charge,"lepton_charge/I");
+	mytree->Branch("nlepton",&nlepton,"nlepton/I");
+	mytree->Branch("lepton_eta",lepton_eta,"lepton_eta[nlepton]/F");
+	mytree->Branch("lepton_pt",lepton_pt,"lepton_pt[nlepton]/F");
+	mytree->Branch("lepton_mass",lepton_mass,"lepton_mass[nlepton]/F");
+	mytree->Branch("lepton_phi",lepton_phi,"lepton_phi[nlepton]/F");
+	mytree->Branch("lepton_charge",lepton_charge,"lepton_charge[nlepton]/I");
 	//mytree->Branch("nMuon",&nMuon,"nMuon/F");
 	//mytree->Branch("nElectron",&nElectron,"nElectron/F");
-	mytree->Branch("nlepton",&nlepton,"nlepton/I");
 	mytree->Branch("nJet",&nJet,"nJet/I");
-	mytree->Branch("Jet_btagCSVV2",Jet_btagCSVV2,"Jet_btagCSVV2/F");
-	mytree->Branch("Jet_btagDeepB",Jet_btagDeepB,"Jet_btagDeepB/F");
-	mytree->Branch("Jet_partonFlavour",Jet_partonFlavour,"Jet_partonFlavour/I");
-	mytree->Branch("Jet_eta",Jet_eta,"Jet_eta/F");
-	mytree->Branch("Jet_mass",Jet_mass,"Jet_mass/F");
-	mytree->Branch("Jet_phi",Jet_phi,"Jet_phi/F");
-	mytree->Branch("Jet_pt",Jet_pt,"Jet_pt/F");
+	mytree->Branch("Jet_btagCSVV2",Jet_btagCSVV2,"Jet_btagCSVV2[nJet]/F");
+	mytree->Branch("Jet_btagDeepB",Jet_btagDeepB,"Jet_btagDeepB[nJet]/F");
+	mytree->Branch("Jet_partonFlavour",Jet_partonFlavour,"Jet_partonFlavour[nJet]/I");
+	mytree->Branch("Jet_eta",Jet_eta,"Jet_eta[nJet]/F");
+	mytree->Branch("Jet_mass",Jet_mass,"Jet_mass[nJet]/F");
+	mytree->Branch("Jet_phi",Jet_phi,"Jet_phi[nJet]/F");
+	mytree->Branch("Jet_pt",Jet_pt,"Jet_pt[nJet]/F");
 	   //loop over entry
 	    cout<<"infomation is writing. Please wait for a while"<<endl;
+	    cout<<"infomation is writing. Please wait for a while"<<endl;
+
 	    for(Int_t entry = 0; entry < chain.GetEntries(); entry++){
 	    	chain.GetEntry(entry);
 	    	if(inputFile.Contains("ttbar_semi")||inputFile.Contains("TTToSemiLeptonic")){ 
@@ -226,7 +228,9 @@ void get_info(){
 			}
 
 	        nevents++;
-	    	mytree->Fill();
+	    	mytree->Fill(); 
+	    	//cout<<"nlepton: "<<nlepton<<" lepton_pt[0]: "<<lepton_pt[0]<<" lepton_pt[1]: "<<lepton_pt[1]<<" lepton_pt[2]: "<<lepton_pt[2]<<endl;
+	    	//cout<<"nJet: "<<nJet<<" Jet_pt[0]: "<<Jet_pt[0]<<" Jet_pt[1]: "<<Jet_pt[1]<<" Jet_pt[2]: "<<Jet_pt[2]<<endl;
 	    }
 
 	mytree->Write();
