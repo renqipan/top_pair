@@ -124,16 +124,16 @@ void get_info(){
 	    	//get information of ttbar process at parton level from LHEPart	
 		    	int index_b,index_antib,index_up,index_down,index_lep,index_nu;
 		    	for(int i=0;i<9;i++){
-		    		//cout<<Form("LHEPart_pdgId[%d]: ",i)<<LHEPart_pdgId[i]<<endl;
-		    		if(LHEPart_pdgId[i]==5) index_b=i;
-		    		else if(LHEPart_pdgId[i]==-5) index_antib=i;
-		    		else if(LHEPart_pdgId[i]==2||LHEPart_pdgId[i]==4||LHEPart_pdgId[i]==-2||LHEPart_pdgId[i]==-4) 
+		    	//	cout<<Form("LHEPart_pdgId[%d]: ",i)<<LHEPart_pdgId[i]<<" staus: "<<LHEPart_status[i]<<endl;
+		    		if(LHEPart_pdgId[i]==5&&LHEPart_status[i]==1) index_b=i;
+		    		else if(LHEPart_pdgId[i]==-5&&LHEPart_status[i]==1) index_antib=i;
+		    		else if((LHEPart_pdgId[i]==2||LHEPart_pdgId[i]==4||LHEPart_pdgId[i]==-2||LHEPart_pdgId[i]==-4)&&LHEPart_status[i]==1) 
 		    				index_up=i;
-		    		else if(LHEPart_pdgId[i]==1||LHEPart_pdgId[i]==3||LHEPart_pdgId[i]==-1||LHEPart_pdgId[i]==-3) 
+		    		else if((LHEPart_pdgId[i]==1||LHEPart_pdgId[i]==3||LHEPart_pdgId[i]==-1||LHEPart_pdgId[i]==-3)&&LHEPart_status[i]==1) 
 		    				index_down=i;
-		    		else if(LHEPart_pdgId[i]==11||LHEPart_pdgId[i]==13||LHEPart_pdgId[i]==15||LHEPart_pdgId[i]==-11||LHEPart_pdgId[i]==-13||LHEPart_pdgId[i]==-15) 
+		    		else if(LHEPart_pdgId[i]==11||LHEPart_pdgId[i]==13||LHEPart_pdgId[i]==15||LHEPart_pdgId[i]==-11||LHEPart_pdgId[i]==-13||LHEPart_pdgId[i]==-15)
 		    				index_lep=i;
-		    		else if(LHEPart_pdgId[i]==12||LHEPart_pdgId[i]==14||LHEPart_pdgId[i]==16||LHEPart_pdgId[i]==-12||LHEPart_pdgId[i]==-14||LHEPart_pdgId[i]==-16) 
+		    		else if(LHEPart_pdgId[i]==12||LHEPart_pdgId[i]==14||LHEPart_pdgId[i]==16||LHEPart_pdgId[i]==-12||LHEPart_pdgId[i]==-14||LHEPart_pdgId[i]==-16)
 		    				index_nu=i;
 	    	   }
 	    	   TLorentzVector p4_b, p4_antib,p4_up,p4_down,p4_lep,p4_nu,p4_top,p4_antitop;
