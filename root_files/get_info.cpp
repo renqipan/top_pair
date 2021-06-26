@@ -3,9 +3,9 @@
 // written by Renqi Pan in 16th June, 2021.
 
 void get_info(){
-	TChain chain("Events");
-	TString inputFile="ttbar_semi1.root";
-	chain.Add("ttbar_semi1.root");
+    TChain chain("Events");
+	TString inputFile="TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_1TopNanoAODv6p1_2018.root";
+	chain.Add(inputFile);	
 	TString output="new_"+inputFile;
   	TFile *file=new TFile(output,"RECREATE");
   	TTree *mytree=new TTree("mytree"," tree with branches");
@@ -15,6 +15,7 @@ void get_info(){
     cout<<"total number of events: "<<chain.GetEntries()<<endl;
     Float_t LHEPart_eta[9],LHEPart_mass[9],LHEPart_phi[9],LHEPart_pt[9];
 	Int_t LHEPart_pdgId[9],LHEPart_status[9];
+	UInt_t nLHEPart;
 	Float_t M_tt_gen,delta_rapidity_gen,lep_charge;
 	Float_t top_pt,top_eta,top_mass,top_phi,antitop_pt,antitop_eta,antitop_phi,antitop_mass;
 	Float_t b_pt,b_eta,b_mass,b_phi,antib_pt,antib_eta,antib_phi,antib_mass;
@@ -28,7 +29,8 @@ void get_info(){
 	    chain.SetBranchAddress("LHEPart_pt", LHEPart_pt);
 	    chain.SetBranchAddress("LHEPart_phi", LHEPart_phi);
 	    chain.SetBranchAddress("LHEPart_pdgId",LHEPart_pdgId);
-	    chain.SetBranchAddress("LHEPart_status",LHEPart_status);
+	    chain.SetBranchAddress("nLHEPart",&nLHEPart);
+	   // chain.SetBranchAddress("LHEPart_status",LHEPart_status);
 	    mytree->Branch("M_tt_gen",&M_tt_gen,"M_tt_gen/F");
 	    mytree->Branch("delta_rapidity_gen",&delta_rapidity_gen,"delta_rapidity_gen/F");
 	    mytree->Branch("lep_charge",&lep_charge,"lep_charge/F");
@@ -123,13 +125,13 @@ void get_info(){
 	    	if(inputFile.Contains("ttbar_semi")||inputFile.Contains("TTToSemiLeptonic")){ 
 	    	//get information of ttbar process at parton level from LHEPart	
 		    	int index_b,index_antib,index_up,index_down,index_lep,index_nu;
-		    	for(int i=0;i<9;i++){
-		    	//	cout<<Form("LHEPart_pdgId[%d]: ",i)<<LHEPart_pdgId[i]<<" staus: "<<LHEPart_status[i]<<endl;
-		    		if(LHEPart_pdgId[i]==5&&LHEPart_status[i]==1) index_b=i;
-		    		else if(LHEPart_pdgId[i]==-5&&LHEPart_status[i]==1) index_antib=i;
-		    		else if((LHEPart_pdgId[i]==2||LHEPart_pdgId[i]==4||LHEPart_pdgId[i]==-2||LHEPart_pdgId[i]==-4)&&LHEPart_status[i]==1) 
+		    	for(int i=0;i<nLHEPart;i++){
+		    //		cout<<Form("LHEPart_pdgId[%d]: ",i)<<LHEPart_pdgId[i]<<endl;
+		    		if(LHEPart_pdgId[i]==5) index_b=i;
+		    		else if(LHEPart_pdgId[i]==-5) index_antib=i;
+		    		else if(LHEPart_pdgId[i]==2||LHEPart_pdgId[i]==4||LHEPart_pdgId[i]==-2||LHEPart_pdgId[i]==-4) 
 		    				index_up=i;
-		    		else if((LHEPart_pdgId[i]==1||LHEPart_pdgId[i]==3||LHEPart_pdgId[i]==-1||LHEPart_pdgId[i]==-3)&&LHEPart_status[i]==1) 
+		    		else if(LHEPart_pdgId[i]==1||LHEPart_pdgId[i]==3||LHEPart_pdgId[i]==-1||LHEPart_pdgId[i]==-3) 
 		    				index_down=i;
 		    		else if(LHEPart_pdgId[i]==11||LHEPart_pdgId[i]==13||LHEPart_pdgId[i]==15||LHEPart_pdgId[i]==-11||LHEPart_pdgId[i]==-13||LHEPart_pdgId[i]==-15)
 		    				index_lep=i;
