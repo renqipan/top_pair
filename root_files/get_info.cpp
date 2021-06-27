@@ -1,10 +1,105 @@
 //get useful information from NanoAOD files for ttbar analysis
 // each event contains the information for top quark pairs and their decay products
 // written by Renqi Pan in 16th June, 2021.
+//////////////////////////////////////////////////////////////////////////////
+//declare global vraibles
+Int_t jnum=4;
+Float_t nu_px,nu_py,neutrino_pz;
+TLorentzVector mom_nu, mom_lep, mom_jets[4];
+Int_t btag_num,jets_btag[4];//btag_num: number of bjets among the leading four jets
+float LepCharge;//charge of the satisfied leading lepton
 
+int bjets_index[2],jets_index[2];// store the indexes of first two bjets and two light jets
+Float_t mass_wlep,mass_whad,mass_tlep,mass_thad;
+Float_t pro_wlep, pro_tlep, pro_thad,pro_whad;
+int bindex; //for loop over b-jet index
+float mw=80.4,mt=172.5, sigmaw_lep=20,sigmat_lep=70,sigmaw_had=40,sigmat_had=70;
+TLorentzVector mom_top,mom_antitop;
+float rectop_mass,recantitop_mass, rectop_pt,mass_tt,rapidity_tt;
+Double_t nupz_min=-1200,nupz_max=1200;
+///////////////////////////////////////////////////////////////////////////////////
+//define likelihood function with two b-jets
+Double_t likelihood(Double_t *pz,Double_t *pars){
+    Double_t nu_pz=pz[0];
+    Float_t nu_E=sqrt(nu_px*nu_px+nu_py*nu_py+nu_pz*nu_pz);
+    mom_nu= TLorentzVector(nu_px,nu_py,nu_pz,nu_E);
+    mass_wlep=(mom_nu+mom_lep).M();
+    mass_whad=(mom_jets[jets_index[0]]+mom_jets[jets_index[1]]).M();
+    mass_tlep=(mom_nu+mom_lep+mom_jets[bjets_index[bindex]]).M();
+    if(bindex==0){
+          mass_thad=(mom_jets[jets_index[0]]+mom_jets[jets_index[1]]+mom_jets[bjets_index[1]]).M();
+          }
+    else
+          mass_thad=(mom_jets[jets_index[0]]+mom_jets[jets_index[1]]+mom_jets[bjets_index[0]]).M();
+    pro_wlep=TMath::Gaus(mass_wlep,mw,sigmaw_lep);
+    pro_tlep=TMath::Gaus(mass_tlep,mt,sigmat_lep);
+    pro_thad=TMath::Gaus(mass_thad,mt,sigmat_had);
+    Double_t log_nupz;
+    log_nupz=-TMath::Log(pro_wlep)-TMath::Log(pro_thad)-TMath::Log(pro_tlep);
+    return log_nupz;
+}
+//////////////////////////////////////////////////////////////////////////////////
+
+//reconstruct ttbar pair using likelihood function
+// accorind to the leading four jets and two bjets among them.
+void recons_tt(){
+    if(btag_num >=2){
+        int kk=0,tt=0;//kk: for bjets index; mm: for light jets index
+       for(int mm=0;mm< 4;mm++){
+          if(jets_btag[mm]==1 && kk <2)
+            {  
+              bjets_index[kk]=mm;
+              kk=kk+1;
+              }
+          else
+              {jets_index[tt]=mm;
+                tt=tt+1;
+            }
+        }
+        Float_t minimum[2],nupz[2];
+      for( bindex=0;bindex<2;bindex++){
+         TF1 *likelihood_fun=new TF1("likelihood_fun",likelihood,nupz_min,nupz_max,0);
+          minimum[bindex]=likelihood_fun->GetMinimum(nupz_min,nupz_max);
+          nupz[bindex]=likelihood_fun->GetMinimumX(nupz_min,nupz_max);
+        }
+        Int_t bjet_lep,bjet_had;
+      if(minimum[0]<minimum[1])
+          { bjet_lep=0;
+           bjet_had=1;
+          neutrino_pz=nupz[0];}
+      else{
+             bjet_lep=1;
+             bjet_had=0;
+            neutrino_pz=nupz[1];
+          } 
+      Float_t nu_E=sqrt(nu_px*nu_px+nu_py*nu_py+neutrino_pz*neutrino_pz);
+      mom_nu= TLorentzVector(nu_px,nu_py,neutrino_pz,nu_E);
+      mass_wlep=(mom_nu+mom_lep).M();
+ //     cout<<"mass_wlep: "<<mass_wlep<<" neutrino_pz: "<<neutrino_pz<<endl;
+   //   cout<<"minimum[0]: "<<minimum[0]<<" minimum[1]: "<<minimum[1]<<endl;
+      mass_whad=(mom_jets[jets_index[0]]+mom_jets[jets_index[1]]).M();
+      mass_tlep=(mom_nu+mom_lep+mom_jets[bjets_index[bjet_lep]]).M();
+      mass_thad=(mom_jets[jets_index[0]]+mom_jets[jets_index[1]]+mom_jets[bjets_index[bjet_had]]).M();
+      if(LepCharge>0){
+            mom_top=mom_nu+mom_lep+mom_jets[bjets_index[bjet_lep]];
+            mom_antitop=mom_jets[jets_index[0]]+mom_jets[jets_index[1]]+mom_jets[bjets_index[bjet_had]];
+          }
+      else{mom_top=mom_jets[jets_index[0]]+mom_jets[jets_index[1]]+mom_jets[bjets_index[bjet_had]];
+          mom_antitop=mom_nu+mom_lep+mom_jets[bjets_index[bjet_lep]];
+         }
+        rectop_mass=mom_top.M();
+        recantitop_mass=mom_antitop.M();
+        rectop_pt=mom_top.Pt();
+        rapidity_tt=mom_top.Rapidity()-mom_antitop.Rapidity();
+        mass_tt=(mom_antitop+mom_top).M();
+
+  }
+}  
+///////////////////////////////////////////////////////////////////////
+// select the semileptonic final states and reconstruct top quark pairs.
 void get_info(){
     TChain chain("Events");
-	TString inputFile="TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_1TopNanoAODv6p1_2018.root";
+	TString inputFile="ttbar_semi1.root";
 	chain.Add(inputFile);	
 	TString output="new_"+inputFile;
   	TFile *file=new TFile(output,"RECREATE");
@@ -122,6 +217,19 @@ void get_info(){
 	rawtree->Branch("nJet",&nJet,"nJet/I");
 	rawtree->Branch("nlepton",&nlepton,"nlepton/I");
 	rawtree->Branch("Jet_pt",Jet_pt,"Jet_pt[nJet]/F");
+	////////////////////////////////////////////////////////////////
+	//add information at reconstruction level.
+	mytree->Branch("rectop_pt",&rectop_pt,"rectop_pt/F");
+	mytree->Branch("rectop_mass",&rectop_mass,"rectop_mass/F");
+	mytree->Branch("recantitop_mass",&recantitop_mass,"recantitop_mass/F");
+	mytree->Branch("rapidity_tt",&rapidity_tt,"rapidity_tt/F");
+	mytree->Branch("mass_tt",&mass_tt,"mass_tt/F");
+	mytree->Branch("mass_wlep",&mass_wlep,"mass_wlep/F");
+	mytree->Branch("mass_whad",&mass_whad,"mass_whad/F");
+	mytree->Branch("neutrino_pz",&neutrino_pz,"neutrino_pz/F");
+	mytree->Branch("mass_thad",&mass_thad,"mass_thad/F");
+	mytree->Branch("mass_tlep",&mass_tlep,"mass_tlep/F");
+	//////////////////////////////////////////////////////////////////////
 		   //loop over entry
 	    cout<<"infomation is writing. Please wait for a while"<<endl;
 	    cout<<"infomation is writing. Please wait for a while"<<endl;
@@ -235,7 +343,7 @@ void get_info(){
 				lepton_phi[i]=p4_lepton[i].Phi();
 				lepton_mass[i]=p4_lepton[i].M();
 			}
-			nBtag=0;//count number of bjet 
+			nBtag=0;//count number of bjet among all the jets
 			for(int i=0; i<nJet;i++){
 				if(Jet_btagCSVV2[i] > 0.8)
 				{
@@ -251,17 +359,20 @@ void get_info(){
 	        //select ttbar semiletopnic final state
 	        //selec jets
 	        bool jet_flag=false;//if true pass the selection
-	        int jet_satisfy=0,Nbtag3=0;
+	        int jet_satisfy=0;
+	        btag_num=0;  //count bjet number in the leading four jets.
 	        if(nJet>=njet_need){ //njet_need=4 by default
 	        	for(int i=0; i<njet_need;i++){
 	        		if(Jet_eta[i] < 2.4 && Jet_pt[i] >30)
 	        			{jet_satisfy++;
-	        			 Nbtag3=Nbtag3+Jet_btaged[i];
+	        			 btag_num=btag_num+Jet_btaged[i];
+	        			 mom_jets[i].SetPtEtaPhiM(Jet_pt[i], Jet_eta[i], Jet_phi[i],Jet_mass[i]);
+	        			 jets_btag[i]=Jet_btaged[i]; //for reconstruct
 		        		}
 	        		else
 	        			break;
 	        	}
-	        	if(jet_satisfy==njet_need && Nbtag3 >=2)
+	        	if(jet_satisfy==njet_need && btag_num >=2)
 	        		jet_flag=true;
 	        }
 	        //select lepton
@@ -269,23 +380,28 @@ void get_info(){
 	        int nlepton_satisfy=1;
 	        if(nlepton >=1 && lepton_pt[0] > 30 && lepton_eta[0] < 2.4){
 	        	for (int i=1; i<nlepton; i++){ //start from the second lepton
-	        		if(lepton_pt[i] > 15 &&lepton_eta[i] > 2.4)
+	        		if(lepton_pt[i] > 15 && lepton_eta[i] < 2.4)
 	        			break;
 	        		else
 	        			nlepton_satisfy++;
 	        	}
 	        	if(nlepton_satisfy==nlepton)
 	        		lepton_flag=true;
+	        		mom_lep=p4_lepton[0]; //the lepton momenton for reconstrut
+	        		LepCharge=lepton_charge[0]; //for reconstruct
 	        }
 
 	        //select satisfied events
 	        if(jet_flag==true && lepton_flag==true){
+
+	        	nu_px=MET_pt*cos(MET_phi);
+	        	nu_py=MET_pt*sin(MET_phi);
+	        	recons_tt();
+
 	        	mytree->Fill();
 	        	nevents2++;
 	        }
 	    	 
-	    	//cout<<"nlepton: "<<nlepton<<" lepton_pt[0]: "<<lepton_pt[0]<<" lepton_pt[1]: "<<lepton_pt[1]<<" lepton_pt[2]: "<<lepton_pt[2]<<endl;
-	    	//cout<<"nJet: "<<nJet<<" Jet_pt[0]: "<<Jet_pt[0]<<" Jet_pt[1]: "<<Jet_pt[1]<<" Jet_pt[2]: "<<Jet_pt[2]<<endl;
 	    }
 
 	mytree->Write();
