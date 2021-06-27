@@ -9,7 +9,8 @@ void get_info(){
 	TString output="new_"+inputFile;
   	TFile *file=new TFile(output,"RECREATE");
   	TTree *mytree=new TTree("mytree"," tree with branches");
-  	Int_t nevents=0; //count the number of events written in tree
+  	TTree *rawtree=new TTree("rawtree","tree without selection");
+  	Int_t nevents=0, nevents2=0; //count the number of events written in tree
 
     cout<<inputFile<<" is reading and processing"<<endl;
     cout<<"total number of events: "<<chain.GetEntries()<<endl;
@@ -73,7 +74,7 @@ void get_info(){
 	Float_t Electron_eta[8], Electron_mass[8],Electron_pt[8],Electron_phi[8];
 	Float_t Muon_mass[9],Muon_phi[9],Muon_pt[9],Muon_eta[9];
 	Float_t lepton_mass[17], lepton_phi[17],lepton_eta[17],lepton_pt[17];
-	UInt_t nMuon, nElectron, nJet,nlepton;
+	UInt_t nMuon, nElectron, nJet,nlepton,Jet_btaged[35],nBtag;
 	Int_t Jet_partonFlavour[35],Muon_charge[9],Electron_charge[8],lepton_charge[17];
 	Float_t Jet_btagCSVV2[35], Jet_btagDeepB[35],Jet_eta[35],Jet_mass[35],Jet_phi[35],Jet_pt[35];
 	chain.SetBranchAddress("MET_pt",&MET_pt);
@@ -109,6 +110,8 @@ void get_info(){
 	//mytree->Branch("nMuon",&nMuon,"nMuon/F");
 	//mytree->Branch("nElectron",&nElectron,"nElectron/F");
 	mytree->Branch("nJet",&nJet,"nJet/I");
+	mytree->Branch("nBtag",&nBtag,"nBtag/I");
+	mytree->Branch("Jet_btaged",Jet_btaged,"Jet_btaged[nJet]/I");
 	mytree->Branch("Jet_btagCSVV2",Jet_btagCSVV2,"Jet_btagCSVV2[nJet]/F");
 	mytree->Branch("Jet_btagDeepB",Jet_btagDeepB,"Jet_btagDeepB[nJet]/F");
 	mytree->Branch("Jet_partonFlavour",Jet_partonFlavour,"Jet_partonFlavour[nJet]/I");
@@ -116,9 +119,13 @@ void get_info(){
 	mytree->Branch("Jet_mass",Jet_mass,"Jet_mass[nJet]/F");
 	mytree->Branch("Jet_phi",Jet_phi,"Jet_phi[nJet]/F");
 	mytree->Branch("Jet_pt",Jet_pt,"Jet_pt[nJet]/F");
-	   //loop over entry
+	rawtree->Branch("nJet",&nJet,"nJet/I");
+	rawtree->Branch("nlepton",&nlepton,"nlepton/I");
+	rawtree->Branch("Jet_pt",Jet_pt,"Jet_pt[nJet]/F");
+		   //loop over entry
 	    cout<<"infomation is writing. Please wait for a while"<<endl;
 	    cout<<"infomation is writing. Please wait for a while"<<endl;
+        Int_t njet_need=4;// the at least number of jet of semileptonic final satate
 
 	    for(Int_t entry = 0; entry < chain.GetEntries(); entry++){
 	    	chain.GetEntry(entry);
@@ -228,17 +235,65 @@ void get_info(){
 				lepton_phi[i]=p4_lepton[i].Phi();
 				lepton_mass[i]=p4_lepton[i].M();
 			}
+			nBtag=0;//count number of bjet 
+			for(int i=0; i<nJet;i++){
+				if(Jet_btagCSVV2[i] > 0.8)
+				{
+					Jet_btaged[i]=1;
+					nBtag++;
+				}
+				else Jet_btaged[i]=0;
+			}
 
 	        nevents++;
-	    	mytree->Fill(); 
+	        rawtree->Fill();
+	       //////////////////////////////////////////////////////////////////
+	        //select ttbar semiletopnic final state
+	        //selec jets
+	        bool jet_flag=false;//if true pass the selection
+	        int jet_satisfy=0,Nbtag3=0;
+	        if(nJet>=njet_need){ //njet_need=4 by default
+	        	for(int i=0; i<njet_need;i++){
+	        		if(Jet_eta[i] < 2.4 && Jet_pt[i] >30)
+	        			{jet_satisfy++;
+	        			 Nbtag3=Nbtag3+Jet_btaged[i];
+		        		}
+	        		else
+	        			break;
+	        	}
+	        	if(jet_satisfy==njet_need && Nbtag3 >=2)
+	        		jet_flag=true;
+	        }
+	        //select lepton
+	        bool lepton_flag=false; //if true pass the selction
+	        int nlepton_satisfy=1;
+	        if(nlepton >=1 && lepton_pt[0] > 30 && lepton_eta[0] < 2.4){
+	        	for (int i=1; i<nlepton; i++){ //start from the second lepton
+	        		if(lepton_pt[i] > 15 &&lepton_eta[i] > 2.4)
+	        			break;
+	        		else
+	        			nlepton_satisfy++;
+	        	}
+	        	if(nlepton_satisfy==nlepton)
+	        		lepton_flag=true;
+	        }
+
+	        //select satisfied events
+	        if(jet_flag==true && lepton_flag==true){
+	        	mytree->Fill();
+	        	nevents2++;
+	        }
+	    	 
 	    	//cout<<"nlepton: "<<nlepton<<" lepton_pt[0]: "<<lepton_pt[0]<<" lepton_pt[1]: "<<lepton_pt[1]<<" lepton_pt[2]: "<<lepton_pt[2]<<endl;
 	    	//cout<<"nJet: "<<nJet<<" Jet_pt[0]: "<<Jet_pt[0]<<" Jet_pt[1]: "<<Jet_pt[1]<<" Jet_pt[2]: "<<Jet_pt[2]<<endl;
 	    }
 
 	mytree->Write();
+	rawtree->Write();
     cout<<inputFile<<" has "<<chain.GetEntries()<<" events"<<endl;
     cout<<output<<" is created"<<endl;
-    cout<<nevents<<" events are written into "<<output<<endl;
+    cout<<nevents<<" events are written into "<<"rawtree."<<endl;
+    cout<<nevents2<<" events are written into "<<"mytree."<<endl;
 
 }
 
