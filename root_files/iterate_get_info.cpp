@@ -9,6 +9,8 @@ Int_t btag_num,jets_btag[4];//btag_num: number of bjets among the leading four j
 float LepCharge;//charge of the satisfied leading lepton
 
 int bjets_index[2],jets_index[2];// store the indexes of first two bjets and two light jets
+Int_t bjet_lep,bjet_had;
+
 Float_t mass_wlep,mass_whad,mass_tlep,mass_thad;
 Float_t pro_wlep, pro_tlep, pro_thad,pro_whad,pro_twlep;
 int bindex; //for loop over b-jet index
@@ -98,7 +100,6 @@ void recons_tt(){
           minimum[bindex]=likelihood_fun->GetMinimum(nupz_min,nupz_max);
           nupz[bindex]=likelihood_fun->GetMinimumX(nupz_min,nupz_max);
         }
-        Int_t bjet_lep,bjet_had;
       if(minimum[0]<minimum[1])
           { bjet_lep=0;
            bjet_had=1;
@@ -423,10 +424,11 @@ void iterate_get_info(){
 	        		else
 	        			nlepton_satisfy++;
 	        	}
-	        	if(nlepton_satisfy==nlepton)
+	        	if(nlepton_satisfy==nlepton){
 	        		lepton_flag=true;
 	        		mom_lep=p4_lepton[0]; //the lepton momenton for reconstrut
 	        		LepCharge=lepton_charge[0]; //for reconstruct
+	        	}
 	        }
 
 	        //select satisfied events
