@@ -384,7 +384,7 @@ void iterate_get_info(){
 			}
 			nBtag=0;//count number of bjet among all the jets
 			for(int i=0; i<nJet;i++){
-				if(Jet_btagCSVV2[i] > 0.14)
+				if(Jet_btagDeepB[i] > 0.14)
 				{
 					Jet_btaged[i]=1;
 					nBtag++;
