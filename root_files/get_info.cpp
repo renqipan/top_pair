@@ -110,7 +110,7 @@ void get_info(){
     TChain chain("Events");
 	TString inputFile="TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_1TopNanoAODv6p1_2018.root";
 	chain.Add(inputFile);
-	chain.Add("TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_1TopNanoAODv5p1_2018.root");	
+	//chain.Add("TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_1TopNanoAODv5p1_2018.root");	
 	TString output="new_"+inputFile;
   	TFile *file=new TFile(output,"RECREATE");
   	TTree *mytree=new TTree("mytree"," tree with branches");
@@ -355,7 +355,7 @@ void get_info(){
 			}
 			nBtag=0;//count number of bjet among all the jets
 			for(int i=0; i<nJet;i++){
-				if(Jet_btagCSVV2[i] > 0.14)
+				if(Jet_btagDeepB[i] > 0.14)
 				{
 					Jet_btaged[i]=1;
 					nBtag++;
