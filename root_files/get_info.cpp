@@ -4,18 +4,20 @@
 //////////////////////////////////////////////////////////////////////////////
 //declare global vraibles
 Float_t nu_px,nu_py,neutrino_pz;
-TLorentzVector mom_nu, mom_lep, mom_jets[4];
-Int_t btag_num,jets_btag[4];//btag_num: number of bjets among the leading four jets
-float LepCharge;//charge of the satisfied leading lepton
-
-int bjets_index[2],jets_index[2];// store the indexes of first two bjets and two light jets
-Int_t bjet_lep,bjet_had;
-
+TLorentzVector mom_nu, mom_lep, mom_jets[35];
+Int_t btag_num;//btag_num: number of bjets among the leading four jets
+Float_t LepCharge,Jet_btagDeepB[35];//charge of the satisfied leading lepton
+UInt_t jet_num;//count the number of jets satisfy pt and eta criteria
+int bjets_index[2];// store the indexes of two bjets with the hightest btaged score. 
+int jets_index[35];// store the indexes of light jets
+int bjet_lep,bjet_had,min_j1,min_j2; //denote the minmum likelihood case
 Float_t mass_wlep,mass_whad,mass_tlep,mass_thad;
 Float_t pro_wlep, pro_tlep, pro_thad,pro_whad,pro_twlep;
 int bindex; //for loop over b-jet index
-//float xi_wlep=35,x0_wlep=80,xi_tlep=35,x0_tlep=200, xi_thad=35,x0_thad=200;
-float xi_thad=37,x0_thad=215,xi_wlep=3.4,x0_wlep=78,xi_tlep=8.4,x0_tlep=176;
+
+float xi_thad=18.0,x0_thad=179,xi_wlep=2.0,x0_wlep=80,xi_tlep=8.5,x0_tlep=169,xi_whad=14.0,x0_whad=84;
+float mw_lep=85,mt_had=193, mt_lep=178,mw_had=94.0,sigmaw_lep=5.5,sigmat_lep=21,sigmaw_had=28.0,sigmat_had=32,rho=0.3;
+
 TLorentzVector mom_top,mom_antitop;
 float rectop_mass,recantitop_mass, rectop_pt,mass_tt,rapidity_tt;
 Double_t nupz_min=-1200,nupz_max=1200;
@@ -23,29 +25,32 @@ Double_t nupz_min=-1200,nupz_max=1200;
 //define likelihood function with two b-jets
 Double_t likelihood(Double_t *pz,Double_t *pars){
     Double_t nu_pz=pz[0];
+    int j1=pars[0];
+    int j2=pars[1];
     Float_t nu_E=sqrt(nu_px*nu_px+nu_py*nu_py+nu_pz*nu_pz);
     mom_nu= TLorentzVector(nu_px,nu_py,nu_pz,nu_E);
     mass_wlep=(mom_nu+mom_lep).M();
-    mass_whad=(mom_jets[jets_index[0]]+mom_jets[jets_index[1]]).M();
+    mass_whad=(mom_jets[jets_index[j1]]+mom_jets[jets_index[j2]]).M();
     mass_tlep=(mom_nu+mom_lep+mom_jets[bjets_index[bindex]]).M();
     if(bindex==0){
-          mass_thad=(mom_jets[jets_index[0]]+mom_jets[jets_index[1]]+mom_jets[bjets_index[1]]).M();
+          mass_thad=(mom_jets[jets_index[j1]]+mom_jets[jets_index[j2]]+mom_jets[bjets_index[1]]).M();
           }
     else
-          mass_thad=(mom_jets[jets_index[0]]+mom_jets[jets_index[1]]+mom_jets[bjets_index[0]]).M();
-    /* pro_wlep=TMath::Gaus(mass_wlep,mw_lep,sigmaw_lep);
-    pro_tlep=TMath::Gaus(mass_tlep,mt_lep,sigmat_lep);
-    pro_thad=TMath::Gaus(mass_thad,mt_had,sigmat_had);
-    pro_twlep=ROOT::Math::bigaussian_pdf(mass_wlep,mass_tlep,sigmaw_lep,sigmat_lep,rho,mw_lep,mt_lep);
-    pro_thad=TMath::Gaus(mass_thad,mt_had,sigmat_had,kTRUE);
-    */
+          mass_thad=(mom_jets[jets_index[j1]]+mom_jets[jets_index[j2]]+mom_jets[bjets_index[0]]).M();
+    pro_wlep=ROOT::Math::gaussian_pdf(mass_wlep,sigmaw_lep,mw_lep);
+    pro_tlep=ROOT::Math::gaussian_pdf(mass_tlep,sigmat_lep,mt_lep);
+    pro_whad=ROOT::Math::gaussian_pdf(mass_whad,sigmaw_had,mw_had);
+    pro_thad=ROOT::Math::gaussian_pdf(mass_thad,sigmat_had,mt_had);
+    
+    /*
     pro_wlep=ROOT::Math::landau_pdf(mass_wlep,xi_wlep,x0_wlep);
+    pro_wlep=ROOT::Math::landau_pdf(mass_whad,xi_whad,x0_whad);
     pro_tlep=ROOT::Math::landau_pdf(mass_tlep,xi_tlep,x0_tlep);
     pro_thad=ROOT::Math::landau_pdf(mass_thad,xi_thad,x0_thad);
-
+   */
     Double_t log_nupz;
     //log_nupz=-TMath::Log(pro_twlep)-TMath::Log(pro_thad);
-    log_nupz=-TMath::Log(pro_tlep)-TMath::Log(pro_wlep)-TMath::Log(pro_thad);
+    log_nupz=-TMath::Log(pro_tlep)-TMath::Log(pro_wlep)-TMath::Log(pro_thad)-TMath::Log(pro_whad);
     return log_nupz;
 }
 //////////////////////////////////////////////////////////////////////////////////
@@ -54,46 +59,89 @@ Double_t likelihood(Double_t *pz,Double_t *pars){
 // accorind to the leading four jets and two bjets among them.
 void recons_tt(){
     if(btag_num >=2){
-        int kk=0,tt=0;//kk: for bjets index; mm: for light jets index
-       for(int mm=0;mm< 4;mm++){
-          if(jets_btag[mm]==1 && kk <2)
-            {  
-              bjets_index[kk]=mm;
-              kk=kk+1;
-              }
-          else
-              {jets_index[tt]=mm;
-                tt=tt+1;
-            }
+       /*for(int mm=0;mm< jet_num; mm++){
+       		if(Jet_btagDeepB[mm] > Jet_btagDeepB[bjets_index[0]])
+       			bjets_index[0]=mm;//the first bjet
         }
-        Float_t minimum[2],nupz[2];
-      for( bindex=0;bindex<2;bindex++){
-         TF1 *likelihood_fun=new TF1("likelihood_fun",likelihood,nupz_min,nupz_max,0);
-          minimum[bindex]=likelihood_fun->GetMinimum(nupz_min,nupz_max);
-          nupz[bindex]=likelihood_fun->GetMinimumX(nupz_min,nupz_max);
+        for(int tt=0;tt<jet_num; tt++){
+        	if(Jet_btagDeepB[tt] > Jet_btagDeepB[bjets_index[1]] && tt!= bjets_index[0] )
+        		bjets_index[1]=tt; //the second bjjet
         }
-      if(minimum[0]<minimum[1])
-          { bjet_lep=0;
-           bjet_had=1;
-          neutrino_pz=nupz[0];}
-      else{
-             bjet_lep=1;
-             bjet_had=0;
-            neutrino_pz=nupz[1];
-          } 
+       */
+    	int index[jet_num];
+    	for(int i=0;i<jet_num;i++)
+    		index[i]=i;
+        
+        for(int kk=0;kk<2;kk++){
+       		int max=kk;
+       		for(int tt=kk+1;tt<jet_num;tt++){
+       			if(Jet_btagDeepB[index[tt]] > Jet_btagDeepB[index[max]]){
+					max=tt;       			
+       			}
+       		}
+       		int tmp=index[max];
+       		index[max]=index[kk];
+       		index[kk]=tmp;
+       	}
+       	bjets_index[0]=index[0];
+       	bjets_index[1]=index[1]; 
+        int light_jets=0;
+        for(int k=0;k< jet_num;k++){
+        	if(k!=bjets_index[0] && k!=bjets_index[1])
+        		{jets_index[light_jets]=k;
+        		 light_jets++; //light flavour jets
+        		}	
+        } 
+
+
+
+        Double_t minimum_likelihood,nupz,minimum=0;
+        bjet_lep=0,bjet_had=1,min_j1=0,min_j2=1;
+     	for( bindex=0;bindex<2;bindex++){
+        	for(int j1=0; j1< jet_num-2; j1++){
+         		for(int j2=j1+1;j2<jet_num-2; j2++){
+	         		TF1 *likelihood_fun=new TF1("likelihood_fun",likelihood,nupz_min,nupz_max,2);
+	         		Double_t dj1=j1;
+	         		Double_t dj2=j2;
+	         		likelihood_fun->SetParameters(dj1, dj2); //pass the index of j1 and j2 as parameters to a function with type TF1
+	          		minimum_likelihood=likelihood_fun->GetMinimum(nupz_min,nupz_max);
+	          		nupz=likelihood_fun->GetMinimumX(nupz_min,nupz_max);
+	          		
+	          		if (bindex==0 && j1==0 && j2==1)
+	          			{minimum=minimum_likelihood;
+	          			 neutrino_pz=nupz;
+	          			}
+	          		else if(minimum_likelihood < minimum){
+	          			minimum=minimum_likelihood;
+	          			neutrino_pz=nupz;
+	          			bjet_lep=bindex;
+	          			bjet_had= bindex==0 ? 1: 0;
+	          			min_j1=j1;
+	          			min_j2=j2;
+					}
+				/*	cout<<"j1: "<<j1<<" j2: "<<j2<<endl;
+	          		cout<<"nupz: "<<nupz<<" minimum: "<<minimum<<endl;
+	          		cout<<"bjets_index[0]:"<<bjets_index[0]<<" bjets_index[1]: "<<bjets_index[1]<<endl;
+     				cout<<"mass_wlep: "<<mass_wlep<<" mass_whad: "<<mass_whad<<" mass_thad: "<<mass_thad<<"mass_tlep: "<<mass_tlep<<endl;
+     				cout<<"pro_wlep: "<<pro_wlep<<" pro_whad: "<<pro_whad<<" pro_thad: "<<pro_thad<<"pro_tlep: "<<pro_tlep<<endl;
+         		*/
+         		}
+        	}
+   		}
+ 		//cout<<"-----------------------------------"<<endl;
       Float_t nu_E=sqrt(nu_px*nu_px+nu_py*nu_py+neutrino_pz*neutrino_pz);
       mom_nu= TLorentzVector(nu_px,nu_py,neutrino_pz,nu_E);
       mass_wlep=(mom_nu+mom_lep).M();
  //     cout<<"mass_wlep: "<<mass_wlep<<" neutrino_pz: "<<neutrino_pz<<endl;
    //   cout<<"minimum[0]: "<<minimum[0]<<" minimum[1]: "<<minimum[1]<<endl;
-      mass_whad=(mom_jets[jets_index[0]]+mom_jets[jets_index[1]]).M();
+      mass_whad=(mom_jets[jets_index[min_j1]]+mom_jets[jets_index[min_j2]]).M();
       mass_tlep=(mom_nu+mom_lep+mom_jets[bjets_index[bjet_lep]]).M();
-      mass_thad=(mom_jets[jets_index[0]]+mom_jets[jets_index[1]]+mom_jets[bjets_index[bjet_had]]).M();
+      mass_thad=(mom_jets[jets_index[min_j1]]+mom_jets[jets_index[min_j2]]+mom_jets[bjets_index[bjet_had]]).M();
       if(LepCharge>0){
             mom_top=mom_nu+mom_lep+mom_jets[bjets_index[bjet_lep]];
-            mom_antitop=mom_jets[jets_index[0]]+mom_jets[jets_index[1]]+mom_jets[bjets_index[bjet_had]];
+            mom_antitop=mom_jets[jets_index[min_j1]]+mom_jets[jets_index[min_j2]]+mom_jets[bjets_index[bjet_had]];
           }
-      else{mom_top=mom_jets[jets_index[0]]+mom_jets[jets_index[1]]+mom_jets[bjets_index[bjet_had]];
+      else{mom_top=mom_jets[jets_index[min_j1]]+mom_jets[jets_index[min_j2]]+mom_jets[bjets_index[bjet_had]];
           mom_antitop=mom_nu+mom_lep+mom_jets[bjets_index[bjet_lep]];
          }
         rectop_mass=mom_top.M();
@@ -181,7 +229,7 @@ void get_info(){
 	Float_t lepton_mass[17], lepton_phi[17],lepton_eta[17],lepton_pt[17];
 	UInt_t nMuon, nElectron, nJet,nlepton,Jet_btaged[35],nBtag;
 	Int_t Jet_partonFlavour[35],Muon_charge[9],Electron_charge[8],lepton_charge[17];
-	Float_t Jet_btagCSVV2[35], Jet_btagDeepB[35],Jet_eta[35],Jet_mass[35],Jet_phi[35],Jet_pt[35];
+	Float_t Jet_btagCSVV2[35],Jet_eta[35],Jet_mass[35],Jet_phi[35],Jet_pt[35];
 	chain.SetBranchAddress("MET_pt",&MET_pt);
 	chain.SetBranchAddress("MET_phi",&MET_phi);
 	chain.SetBranchAddress("Electron_phi",Electron_phi);
@@ -214,16 +262,16 @@ void get_info(){
 	mytree->Branch("lepton_charge",lepton_charge,"lepton_charge[nlepton]/I");
 	//mytree->Branch("nMuon",&nMuon,"nMuon/F");
 	//mytree->Branch("nElectron",&nElectron,"nElectron/F");
-	mytree->Branch("nJet",&nJet,"nJet/I");
+	mytree->Branch("jet_num",&jet_num,"jet_num/I");//number of jets satisfy the  seletion criteria
 	mytree->Branch("nBtag",&nBtag,"nBtag/I");
-	mytree->Branch("Jet_btaged",Jet_btaged,"Jet_btaged[nJet]/I");
-	mytree->Branch("Jet_btagCSVV2",Jet_btagCSVV2,"Jet_btagCSVV2[nJet]/F");
-	mytree->Branch("Jet_btagDeepB",Jet_btagDeepB,"Jet_btagDeepB[nJet]/F");
-	mytree->Branch("Jet_partonFlavour",Jet_partonFlavour,"Jet_partonFlavour[nJet]/I");
-	mytree->Branch("Jet_eta",Jet_eta,"Jet_eta[nJet]/F");
-	mytree->Branch("Jet_mass",Jet_mass,"Jet_mass[nJet]/F");
-	mytree->Branch("Jet_phi",Jet_phi,"Jet_phi[nJet]/F");
-	mytree->Branch("Jet_pt",Jet_pt,"Jet_pt[nJet]/F");
+	mytree->Branch("Jet_btaged",Jet_btaged,"Jet_btaged[jet_num]/I");
+	mytree->Branch("Jet_btagCSVV2",Jet_btagCSVV2,"Jet_btagCSVV2[jet_num]/F");
+	mytree->Branch("Jet_btagDeepB",Jet_btagDeepB,"Jet_btagDeepB[jet_num]/F");
+	mytree->Branch("Jet_partonFlavour",Jet_partonFlavour,"Jet_partonFlavour[jet_num]/I");
+	mytree->Branch("Jet_eta",Jet_eta,"Jet_eta[jet_num]/F");
+	mytree->Branch("Jet_mass",Jet_mass,"Jet_mass[jet_num]/F");
+	mytree->Branch("Jet_phi",Jet_phi,"Jet_phi[jet_num]/F");
+	mytree->Branch("Jet_pt",Jet_pt,"Jet_pt[jet_num]/F");
 	rawtree->Branch("nJet",&nJet,"nJet/I");
 	rawtree->Branch("nlepton",&nlepton,"nlepton/I");
 	rawtree->Branch("Jet_pt",Jet_pt,"Jet_pt[nJet]/F");
@@ -354,13 +402,21 @@ void get_info(){
 				lepton_mass[i]=p4_lepton[i].M();
 			}
 			nBtag=0;//count number of bjet among all the jets
+			jet_num=0;//count number fot jets satisfy the selection criteria
 			for(int i=0; i<nJet;i++){
-				if(Jet_btagDeepB[i] > 0.14)
-				{
-					Jet_btaged[i]=1;
-					nBtag++;
+				if(Jet_eta[i] < 2.4 && Jet_pt[i] >30){
+					mom_jets[i].SetPtEtaPhiM(Jet_pt[i], Jet_eta[i], Jet_phi[i],Jet_mass[i]);
+	        		//jets_btag[i]=Jet_btaged[i]; //for reconstruct
+	        		jet_num=jet_num+1;
+	        		if(Jet_btagDeepB[i] > 0.14)
+					{
+						Jet_btaged[i]=1;
+						nBtag++;
+					}
+					else Jet_btaged[i]=0;
+
 				}
-				else Jet_btaged[i]=0;
+				
 			}
 
 	        nevents++;
@@ -376,8 +432,7 @@ void get_info(){
 	        		if(Jet_eta[i] < 2.4 && Jet_pt[i] >30)
 	        			{jet_satisfy++;
 	        			 btag_num=btag_num+Jet_btaged[i];
-	        			 mom_jets[i].SetPtEtaPhiM(Jet_pt[i], Jet_eta[i], Jet_phi[i],Jet_mass[i]);
-	        			 jets_btag[i]=Jet_btaged[i]; //for reconstruct
+	        			 
 		        		}
 	        		else
 	        			break;

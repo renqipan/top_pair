@@ -71,7 +71,7 @@ void plot_2Dtt(){
 
 			c2->cd();
 			if(k<1)
-				{h1->DrawNormalized("surf2");
+				{h1->DrawNormalized("colz");
 				}
 			else
 				{h1->DrawNormalized("samehist");
@@ -81,8 +81,8 @@ void plot_2Dtt(){
 		}
 		c2->cd();
 		leg->Draw("same");
-	   c2->Print(title[i]+"_2dsurf2.png");
-	   c2->Print(title[i]+"_2dsurf2.pdf");
+	   c2->Print(title[i]+"_colz.png");
+	   c2->Print(title[i]+"_colz.pdf");
 
 	}
 	
