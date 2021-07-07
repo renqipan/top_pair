@@ -42,11 +42,11 @@ void fit_mwmt(){
 	format_canvas(c4);
 
 	float xi_thad=18.0,x0_thad=179,xi_wlep=2.0,x0_wlep=80,xi_tlep=8.5,x0_tlep=169,xi_whad=14.0,x0_whad=84;
-    float mw_lep=85,mt_had=193, mt_lep=178,mw_had=94.0,sigmaw_lep=5.5,sigmat_lep=21,sigmaw_had=28.0,sigmat_had=32,rho=0.3;
+	float mw_lep=85,mt_had=193, mt_lep=178,mw_had=94.0,sigmaw_lep=5.5,sigmat_lep=21,sigmaw_had=28.0,sigmat_had=32,rho=0.3;
 	TString inputFile="new_TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_1TopNanoAODv6p1_2018.root";
 	TFile *file=TFile::Open(inputFile);
 	TTree *mytree=(TTree*) file->Get("mytree");
-	TH1F *h1=new TH1F("h1","mt_had",80,0,1200);//for mt_had
+	TH1F *h1=new TH1F("h1","mt_had",80,0,800);//for mt_had
 	TH1F *h2=new TH1F("h2","mw_lep",30,0,300);//for mw_lep
 	TH1F *h3=new TH1F("h3","mt_lep",60,0,800);//for mt_lep
 	TH1F *h4=new TH1F("h4","mw_had",40,0,600);//for mw_had

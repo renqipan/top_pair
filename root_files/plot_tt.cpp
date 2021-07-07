@@ -23,7 +23,7 @@ void plot_tt(){
 	TString xtitle[]={"M_{t_{had}} [GeV]","M_{t_{lep}} [GeV]"};;
 	TString title[]={"mthad","mtlep"};
 	float xlow[]={0.0,0.0};
-	float xup[]={1200.0,400.0,};
+	float xup[]={800.0,400.0,};
 	int color[]={2,1,4,226,6,kOrange+2,3,kYellow,93};
 	int bins=40;
 	for(int i=0;i<2;i++){ //loop over variables

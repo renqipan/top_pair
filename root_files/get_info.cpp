@@ -16,11 +16,12 @@ Float_t pro_wlep, pro_tlep, pro_thad,pro_whad,pro_twlep;
 int bindex; //for loop over b-jet index
 
 float xi_thad=18.0,x0_thad=179,xi_wlep=2.0,x0_wlep=80,xi_tlep=8.5,x0_tlep=169,xi_whad=14.0,x0_whad=84;
-float mw_lep=85,mt_had=193, mt_lep=178,mw_had=94.0,sigmaw_lep=5.5,sigmat_lep=21,sigmaw_had=28.0,sigmat_had=32,rho=0.3;
+float mw_lep=80,mt_had=173, mt_lep=173,mw_had=80.0,sigmaw_lep=20.0,sigmat_lep=40,sigmaw_had=35.0,sigmat_had=50,rho=0.3;
+
 
 TLorentzVector mom_top,mom_antitop;
 float rectop_mass,recantitop_mass, rectop_pt,mass_tt,rapidity_tt;
-Double_t nupz_min=-1200,nupz_max=1200;
+Double_t nupz_min=-1000.0,nupz_max=1000.0;
 ///////////////////////////////////////////////////////////////////////////////////
 //define likelihood function with two b-jets
 Double_t likelihood(Double_t *pz,Double_t *pars){
@@ -59,15 +60,7 @@ Double_t likelihood(Double_t *pz,Double_t *pars){
 // accorind to the leading four jets and two bjets among them.
 void recons_tt(){
     if(btag_num >=2){
-       /*for(int mm=0;mm< jet_num; mm++){
-       		if(Jet_btagDeepB[mm] > Jet_btagDeepB[bjets_index[0]])
-       			bjets_index[0]=mm;//the first bjet
-        }
-        for(int tt=0;tt<jet_num; tt++){
-        	if(Jet_btagDeepB[tt] > Jet_btagDeepB[bjets_index[1]] && tt!= bjets_index[0] )
-        		bjets_index[1]=tt; //the second bjjet
-        }
-       */
+     
     	int index[jet_num];
     	for(int i=0;i<jet_num;i++)
     		index[i]=i;
@@ -95,7 +88,7 @@ void recons_tt(){
 
 
 
-        Double_t minimum_likelihood,nupz,minimum=0;
+        Double_t minimum_likelihood,nupz,minimum=0.0;
         bjet_lep=0,bjet_had=1,min_j1=0,min_j2=1;
      	for( bindex=0;bindex<2;bindex++){
         	for(int j1=0; j1< jet_num-2; j1++){
@@ -119,16 +112,19 @@ void recons_tt(){
 	          			min_j1=j1;
 	          			min_j2=j2;
 					}
-				/*	cout<<"j1: "<<j1<<" j2: "<<j2<<endl;
+				/*	if(nupz<-990){
 	          		cout<<"nupz: "<<nupz<<" minimum: "<<minimum<<endl;
 	          		cout<<"bjets_index[0]:"<<bjets_index[0]<<" bjets_index[1]: "<<bjets_index[1]<<endl;
      				cout<<"mass_wlep: "<<mass_wlep<<" mass_whad: "<<mass_whad<<" mass_thad: "<<mass_thad<<"mass_tlep: "<<mass_tlep<<endl;
      				cout<<"pro_wlep: "<<pro_wlep<<" pro_whad: "<<pro_whad<<" pro_thad: "<<pro_thad<<"pro_tlep: "<<pro_tlep<<endl;
+         			cout<<"---------------------------------------"<<endl;
+         			}
          		*/
+         			
          		}
         	}
    		}
- 		//cout<<"-----------------------------------"<<endl;
+ 		
       Float_t nu_E=sqrt(nu_px*nu_px+nu_py*nu_py+neutrino_pz*neutrino_pz);
       mom_nu= TLorentzVector(nu_px,nu_py,neutrino_pz,nu_E);
       mass_wlep=(mom_nu+mom_lep).M();

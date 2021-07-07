@@ -28,7 +28,7 @@ void plot_2Dtt(){
 	float ylow[]={0.0,0.0};
 	float yup[]={600,600};
 	int color[]={2,1,4,226,6,kOrange+2,3,kYellow,93};
-	int xbins=40,ybins=30;
+	int xbins=50,ybins=40;
 	for(int i=0;i<2;i++){ //loop over variables
 		auto c1=new TCanvas("c1","",8, 30, 700, 700);//temporary canvas
 		auto c2=new TCanvas("c2","",8, 30, 700, 700); //draw on this canvas
@@ -71,7 +71,7 @@ void plot_2Dtt(){
 
 			c2->cd();
 			if(k<1)
-				{h1->DrawNormalized("colz");
+				{h1->DrawNormalized("surf2");
 				}
 			else
 				{h1->DrawNormalized("samehist");
@@ -81,8 +81,8 @@ void plot_2Dtt(){
 		}
 		c2->cd();
 		leg->Draw("same");
-	   c2->Print(title[i]+"_colz.png");
-	   c2->Print(title[i]+"_colz.pdf");
+	   //c2->Print(title[i]+"_lego.png");
+	   c2->Print(title[i]+"_surf2.pdf");
 
 	}
 	
