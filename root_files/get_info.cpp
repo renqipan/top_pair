@@ -11,8 +11,8 @@ UInt_t jet_num;//count the number of jets satisfy pt and eta criteria
 int bjets_index[2];// store the indexes of two bjets with the hightest btaged score. 
 int jets_index[35];// store the indexes of light jets
 int bjet_lep,bjet_had,min_j1,min_j2; //denote the minmum likelihood case
-Float_t mass_wlep,mass_whad,mass_tlep,mass_thad;
-Float_t pro_wlep, pro_tlep, pro_thad,pro_whad,pro_twlep;
+float mass_wlep,mass_whad,mass_tlep,mass_thad;
+Double_t pro_wlep, pro_tlep, pro_thad,pro_whad,pro_twlep;
 int bindex; //for loop over b-jet index
 
 float xi_thad=18.0,x0_thad=179,xi_wlep=2.0,x0_wlep=80,xi_tlep=8.5,x0_tlep=169,xi_whad=14.0,x0_whad=84;
@@ -94,9 +94,7 @@ void recons_tt(){
         	for(int j1=0; j1< jet_num-2; j1++){
          		for(int j2=j1+1;j2<jet_num-2; j2++){
 	         		TF1 *likelihood_fun=new TF1("likelihood_fun",likelihood,nupz_min,nupz_max,2);
-	         		Double_t dj1=j1;
-	         		Double_t dj2=j2;
-	         		likelihood_fun->SetParameters(dj1, dj2); //pass the index of j1 and j2 as parameters to a function with type TF1
+	         		likelihood_fun->SetParameters(j1, j2); //pass the index of j1 and j2 as parameters to a function with type TF1
 	          		minimum_likelihood=likelihood_fun->GetMinimum(nupz_min,nupz_max);
 	          		nupz=likelihood_fun->GetMinimumX(nupz_min,nupz_max);
 	          		

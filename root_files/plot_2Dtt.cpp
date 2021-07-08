@@ -81,7 +81,7 @@ void plot_2Dtt(){
 		}
 		c2->cd();
 		leg->Draw("same");
-	   //c2->Print(title[i]+"_lego.png");
+	   c2->Print(title[i]+"_surf2.png");
 	   c2->Print(title[i]+"_surf2.pdf");
 
 	}
