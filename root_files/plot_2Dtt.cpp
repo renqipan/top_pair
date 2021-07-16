@@ -16,7 +16,7 @@ void format_canvas(TCanvas* c){
 	}
 
 void plot_2Dtt(){
-	TString fileNames[]={"new_TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_1TopNanoAODv6p1_2018.root"};
+	TString fileNames[]={"new_p_TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_1TopNanoAODv6p1_2018.root"};
     TString legend[]={"SM: t#bar{t}","c_{G}=0,c_{tG}=0","c_{G}=1,c_{tG}=0","c_{G}=0,c_{tG}=1","SM: NLO","Mad: NLO","SM: NLO"};
 	TString xvars[]={"mass_thad","mass_tlep"};
 	TString yvars[]={"mass_whad","mass_wlep"};
