@@ -432,7 +432,7 @@ void get_info() {
     for (int i = 0; i < nJet; i++) {
       mom_jets[i].SetPtEtaPhiM(Jet_pt[i], Jet_eta[i], Jet_phi[i],
                                        Jet_mass[i]);
-      if (Jet_eta[i] < 2.4 && Jet_pt[i] > 30) {
+      if (abs(Jet_eta[i]) < 2.4 && Jet_pt[i] > 30) {
    //     mom_jets[jet_num].SetPtEtaPhiM(Jet_pt[i], Jet_eta[i], Jet_phi[i],
      //                                  Jet_mass[i]);
         // jets_btag[i]=Jet_btaged[i]; //for reconstruct
@@ -466,7 +466,7 @@ void get_info() {
     btag_num = 0;            // count bjet number in the leading four jets.
     if (nJet >= njet_need) { // njet_need=4 by default
       for (int i = 0; i < nJet; i++) {
-        if (Jet_eta[i] < 2.4 && Jet_pt[i] > 30) {
+        if (abs(Jet_eta[i]) < 2.4 && Jet_pt[i] > 30) {
           jet_satisfy++;
           btag_num = btag_num + Jet_btaged[i];
 
@@ -480,9 +480,9 @@ void get_info() {
     // select lepton
     bool lepton_flag = false; // if true pass the selction
     int nlepton_satisfy = 1;
-    if (nlepton >= 1 && lepton_pt[0] > 30 && lepton_eta[0] < 2.4) {
+    if (nlepton >= 1 && lepton_pt[0] > 30 && abs(lepton_eta[0]) < 2.4) {
       for (int i = 1; i < nlepton; i++) { // start from the second lepton
-        if (lepton_pt[i] > 15 && lepton_eta[i] < 2.4)
+        if (lepton_pt[i] > 15 && abs(lepton_eta[i]) < 2.4)
           break;
         else
           nlepton_satisfy++;
