@@ -3,7 +3,6 @@
 // products written by Renqi Pan in 16th June, 2021.
 //////////////////////////////////////////////////////////////////////////////
 // declare global vraibles
-int cont = 0;
 Float_t nu_px, nu_py, neutrino_pz;
 TLorentzVector mom_nu, mom_lep, mom_jets[35];
 Int_t btag_num; // btag_num: number of bjets among the leading four jets
@@ -13,7 +12,7 @@ int bjets_index[2]; // store the indexes of two bjets with the hightest btaged
                   // score.
 int jets_index[35]; // store the indexes of light jets
 int jet_index[35];
-int bjet_lep, bjet_had, min_j1, min_j2; // denote the minmum likelihood case
+int bjet_lep, bjet_had, min_j1, min_j2; // denote the minimum likelihood case
 Float_t mass_wlep, mass_whad, mass_tlep, mass_thad;
 Double_t pro_wlep, pro_tlep, pro_thad, pro_whad, pro_twlep;
 int bindex; // for loop over b-jet index
@@ -25,6 +24,7 @@ float mw_lep = 80, mt_had = 173, mt_lep = 173, mw_had = 80.0, sigmaw_lep = 20.0,
 TLorentzVector mom_top, mom_antitop;
 float rectop_mass, recantitop_mass, rectop_pt, mass_tt, rapidity_tt;
 Double_t nupz_min = -1000.0, nupz_max = 1000.0;
+Double_t minimum;//minimum likelihood
 TH2F *h2_mtwhad_right, *h2_mtwhad_wrong,*h2_mtwlep_right, *h2_mtwlep_wrong;
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -77,7 +77,7 @@ Double_t likelihood(Double_t *pz,Double_t *pars){
     Int_t nbin8=h1_mtlep_wrong->FindBin(mass_tlep);
     double pro_mtlep_wrong=h1_mtlep_wrong->GetBinContent(nbin8);
     */
-    Int_t nbin1=h2_mtwhad_right->FindBin(mass_thad,mass_whad);
+    /*Int_t nbin1=h2_mtwhad_right->FindBin(mass_thad,mass_whad);
     double pro_mtwhad_right=h2_mtwhad_right->GetBinContent(nbin1);
     Int_t nbin2=h2_mtwhad_wrong->FindBin(mass_thad,mass_whad);
     double pro_mtwhad_wrong=h2_mtwhad_wrong->GetBinContent(nbin2);
@@ -87,8 +87,16 @@ Double_t likelihood(Double_t *pz,Double_t *pars){
     double pro_mtwlep_wrong=h2_mtwlep_wrong->GetBinContent(nbin4);
     
     Double_t log_nupz;
-    log_nupz=-TMath::Log(pro_mtwlep_right/pro_mtwlep_wrong)-TMath::Log(pro_mtwhad_right/pro_mtwhad_wrong);
-    //log_nupz=-TMath::Log(pro_tlep)-TMath::Log(pro_wlep)-TMath::Log(pro_thad)-TMath::Log(pro_whad);
+    log_nupz=-TMath::Log(pro_mtwlep_right/(pro_mtwlep_wrong+pro_mtwlep_right))-TMath::Log(pro_mtwhad_right/(pro_mtwhad_wrong+pro_mtwhad_right));
+    log_nupz=-TMath::Log(pro_mtwlep_right)-TMath::Log(pro_mtwhad_right);   
+    */
+    pro_wlep=ROOT::Math::gaussian_pdf(mass_wlep,sigmaw_lep,mw_lep);
+    pro_tlep=ROOT::Math::gaussian_pdf(mass_tlep,sigmat_lep,mt_lep);
+    pro_whad=ROOT::Math::gaussian_pdf(mass_whad,sigmaw_had,mw_had);
+    pro_thad=ROOT::Math::gaussian_pdf(mass_thad,sigmat_had,mt_had);
+    Double_t log_nupz;
+    log_nupz=-TMath::Log(pro_tlep)-TMath::Log(pro_wlep)-TMath::Log(pro_thad)-TMath::Log(pro_whad); 
+     
     return log_nupz;
 }
 //////////////////////////////////////////////////////////////////////////////////
@@ -125,18 +133,15 @@ void recons_tt() {
       }
     }
 
-    Double_t minimum_likelihood, nupz, minimum = 0.0;
+    Double_t minimum_likelihood, nupz;
     bjet_lep = 0, bjet_had = 1, min_j1 = 0, min_j2 = 1;
     for (bindex = 0; bindex < 2; bindex++) {
       for (int j1 = 0; j1 < jet_num - 2; j1++) {
         for (int j2 = j1 + 1; j2 < jet_num - 2; j2++) {
           TF1 *likelihood_fun =
               new TF1("likelihood_fun", likelihood, nupz_min, nupz_max, 2);
-          Double_t dj1 = j1;
-          Double_t dj2 = j2;
-          likelihood_fun->SetParameters(
-              dj1, dj2); // pass the index of j1 and j2 as parameters to a
-                         // function with type TF1
+          likelihood_fun->SetParameters(j1, j2); // pass the index of j1 and j2 as parameters to a
+                                                 // function with type TF1
           minimum_likelihood = likelihood_fun->GetMinimum(nupz_min, nupz_max);
           nupz = likelihood_fun->GetMinimumX(nupz_min, nupz_max);
 
@@ -151,16 +156,7 @@ void recons_tt() {
             min_j1 = j1;
             min_j2 = j2;
           }
-          /*  if(nupz<-990){
-          cout<<"nupz: "<<nupz<<" minimum: "<<minimum<<endl;
-          cout<<"bjets_index[0]:"<<bjets_index[0]<<" bjets_index[1]:
-          "<<bjets_index[1]<<endl; cout<<"mass_wlep: "<<mass_wlep<<" mass_whad:
-          "<<mass_whad<<" mass_thad: "<<mass_thad<<"mass_tlep:
-          "<<mass_tlep<<endl; cout<<"pro_wlep: "<<pro_wlep<<" pro_whad:
-          "<<pro_whad<<" pro_thad: "<<pro_thad<<"pro_tlep: "<<pro_tlep<<endl;
-          cout<<"---------------------------------------"<<endl;
-          }
-  */
+          
         }
       }
     }
@@ -169,8 +165,6 @@ void recons_tt() {
         sqrt(nu_px * nu_px + nu_py * nu_py + neutrino_pz * neutrino_pz);
     mom_nu = TLorentzVector(nu_px, nu_py, neutrino_pz, nu_E);
     mass_wlep = (mom_nu + mom_lep).M();
-    //     cout<<"mass_wlep: "<<mass_wlep<<" neutrino_pz: "<<neutrino_pz<<endl;
-    //   cout<<"minimum[0]: "<<minimum[0]<<" minimum[1]: "<<minimum[1]<<endl;
     mass_whad =
         (mom_jets[jets_index[min_j1]] + mom_jets[jets_index[min_j2]]).M();
     mass_tlep = (mom_nu + mom_lep + mom_jets[bjets_index[bjet_lep]]).M();
@@ -277,6 +271,7 @@ void check() {
     mytree->Branch("nu_phi", &nu_phi, "nu_phi/F");
     mytree->Branch("nu_mass", &nu_mass, "nu_mass/F");
     mytree->Branch("tt_efficiency", &tt_efficiency, "tt_efficiency/I");
+    
   }
   /////////////////////////////////////////////////////////
   // difine branch for final state at detector level
@@ -348,6 +343,7 @@ void check() {
   mytree->Branch("neutrino_pz", &neutrino_pz, "neutrino_pz/F");
   mytree->Branch("mass_thad", &mass_thad, "mass_thad/F");
   mytree->Branch("mass_tlep", &mass_tlep, "mass_tlep/F");
+  mytree->Branch("likelihood",&minimum,"minimum/D" );
   //////////////////////////////////////////////////////////////////////
   // loop over entry
   cout << "infomation is writing. Please wait for a while" << endl;
@@ -557,6 +553,7 @@ void check() {
 
       nu_px = MET_pt * cos(MET_phi);
       nu_py = MET_pt * sin(MET_phi);
+      double MtW=sqrt(2*(mom_lep.Pt()*MET_pt-mom_lep.Px()*nu_px-mom_lep.Py()*nu_py));
       recons_tt();
       // get_info
       int b_flag = 0;
@@ -600,35 +597,39 @@ void check() {
             LHE_tao++;
         }
         if (!(LHE_nhad == 2 && LHE_tao ==0 &&LHE_nlep==1)) {
-          tt_efficiency = 0;//tt background
-        } 
-        else if (flag == 0) {
-          tt_efficiency = 1;//non reco
-        }
-      
-        else if (!((p4_b.DeltaR(mom_jets[bjets_index[0]]) < 0.4 &&
-                    p4_antib.DeltaR(mom_jets[bjets_index[1]]) < 0.4) ||
-                    (p4_b.DeltaR(mom_jets[bjets_index[1]]) < 0.4 &&
-                    p4_antib.DeltaR(mom_jets[bjets_index[0]]) < 0.4))) {
-          tt_efficiency = 2; //wrong reco
-      }
-        else if (!((p4_up.DeltaR(mom_jets[jets_index[min_j1]]) < 0.4 &&
-                    p4_down.DeltaR(mom_jets[jets_index[min_j2]]) < 0.4) ||
-                   (p4_down.DeltaR(mom_jets[jets_index[min_j1]]) < 0.4 &&
-                    p4_up.DeltaR(mom_jets[jets_index[min_j2]]) < 0.4))) {
-          tt_efficiency = 4; //wrong reco
-        }
-     
-        else {
-          tt_efficiency = 3; //right
-        }
+                    tt_efficiency = 0;//tt background
+              } 
+              else if (flag == 0) {
+                  tt_efficiency = 1;//non reco
+              }
+              else if (!((p4_b.DeltaR(mom_jets[bjets_index[0]]) < 0.4 &&
+                          p4_antib.DeltaR(mom_jets[bjets_index[1]]) < 0.4) ||
+                          (p4_b.DeltaR(mom_jets[bjets_index[1]]) < 0.4 &&
+                          p4_antib.DeltaR(mom_jets[bjets_index[0]]) < 0.4))) {
+                  tt_efficiency = 2; //wrong reco
+              }
+              else if (!((p4_up.DeltaR(mom_jets[jets_index[min_j1]]) < 0.4 &&
+                          p4_down.DeltaR(mom_jets[jets_index[min_j2]]) < 0.4) ||
+                          (p4_down.DeltaR(mom_jets[jets_index[min_j1]]) < 0.4 &&
+                          p4_up.DeltaR(mom_jets[jets_index[min_j2]]) < 0.4))) {
+                  tt_efficiency = 4; //wrong reco
+              }
+              else if (!((p4_b.DeltaR(mom_jets[bjets_index[bjet_lep]]) < 0.4 &&
+                          p4_antib.DeltaR(mom_jets[bjets_index[bjet_had]]) < 0.4 && LepCharge>0) ||
+                          (p4_b.DeltaR(mom_jets[bjets_index[bjet_had]]) < 0.4 &&
+                          p4_antib.DeltaR(mom_jets[bjets_index[bjet_lep]]) < 0.4 && LepCharge<0))) {
+                  tt_efficiency = 5; //wrong reco
+              }
+            
+            else {
+                  tt_efficiency = 3; //right
+               }
       }
       mytree->Fill();
       nevents2++;
     }
 
   } // end loop over entries
-  cout << cont << endl;
   file->cd();
   mytree->Write();
   rawtree->Write();
