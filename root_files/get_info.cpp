@@ -144,7 +144,7 @@ void recons_tt() {
 }
 ///////////////////////////////////////////////////////////////////////
 // select the semileptonic final states and reconstruct top quark pairs.
-void check() {
+void get_info() {
   TChain chain("Events");
   TString inputFile ="TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_1TopNanoAODv5p1_2018.root";
   chain.Add(inputFile);
