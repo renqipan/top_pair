@@ -16,7 +16,7 @@ void format_canvas(TCanvas* c){
 	}
 
 void plot_2Dcolz(){
-	TString fileNames[]={"new_p_TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_1TopNanoAODv6p1_2018.root"};
+	TString fileNames[]={"new_new_TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_1TopNanoAODv6p1_2018.root"};
     TString legend[]={"SM: t#bar{t}","c_{G}=0,c_{tG}=0","c_{G}=1,c_{tG}=0","c_{G}=0,c_{tG}=1","SM: NLO","Mad: NLO","SM: NLO"};
 	TString xvars[]={"mass_thad","mass_tlep"};
 	TString yvars[]={"mass_whad","mass_wlep"};
@@ -24,7 +24,7 @@ void plot_2Dcolz(){
 	TString ytitle[]={"M_{w_{had}} [GeV]","M_{w_{lep}} [GeV]"};
 	TString title[]={"mtwhad","mtwlep"};
 	float xlow[]={0.0,0.0};
-	float xup[]={400.0,300.0,};
+	float xup[]={300.0,300.0,};
 	float ylow[]={0.0,0.0};
 	float yup[]={300,300};
 	int color[]={2,1,4,226,6,kOrange+2,3,kYellow,93};

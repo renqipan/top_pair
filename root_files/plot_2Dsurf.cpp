@@ -24,7 +24,7 @@ void plot_2Dsurf(){
 	TString ytitle[]={"M_{w_{had}} [GeV]","M_{w_{lep}} [GeV]"};
 	TString title[]={"mtwhad","mtwlep"};
 	float xlow[]={0.0,0.0};
-	float xup[]={300.0,300.0,};
+	float xup[]={300.0,500.0,};
 	float ylow[]={0.0,0.0};
 	float yup[]={300,300};
 	int color[]={2,1,4,226,6,kOrange+2,3,kYellow,93};
@@ -53,7 +53,6 @@ void plot_2Dsurf(){
 					c1->cd();
 					tree->Draw(yvars[i]+":"+xvars[i]+">>h1",cuts[m]);
 				}
-				
 				h1->SetLineColor(kBlue);
 				h1->SetLineWidth(2);
 				h1->SetStats(kFALSE);
@@ -79,7 +78,7 @@ void plot_2Dsurf(){
 			}
 			c2->cd();
 			leg->Draw("same");
-		   //c2->Print(title[i]+seletName[m]+"_surf2.root");
+		   c2->Print(title[i]+seletName[m]+"_surf2.root");
 		   c2->Print(title[i]+seletName[m]+"_surf2.pdf");
 	}
 

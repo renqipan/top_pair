@@ -19,8 +19,8 @@ int bindex; // for loop over b-jet index
 
 float xi_thad = 18.0, x0_thad = 179, xi_wlep = 2.0, x0_wlep = 80, xi_tlep = 8.5,
       x0_tlep = 169, xi_whad = 14.0, x0_whad = 84;
-float mw_lep = 80, mt_had = 173, mt_lep = 173, mw_had = 80.0, sigmaw_lep = 20.0,
-      sigmat_lep = 40, sigmaw_had = 35.0, sigmat_had = 50, rho = 0.3;
+float mw_lep = 80, mt_had = 173, mt_lep = 173, mw_had = 80.0,
+	  sigmat_lep = 40, sigmaw_had = 35.0, sigmat_had = 50, sigmaw_lep = 20.0;
 TLorentzVector mom_top, mom_antitop;
 float rectop_mass, recantitop_mass, rectop_pt, mass_tt, rapidity_tt;
 Double_t nupz_min = -1000.0, nupz_max = 1000.0;
@@ -146,9 +146,9 @@ void recons_tt() {
 // select the semileptonic final states and reconstruct top quark pairs.
 void get_info() {
   TChain chain("Events");
-  TString inputFile ="TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_1TopNanoAODv5p1_2018.root";
+  TString inputFile ="TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_1TopNanoAODv6p1_2018.root";
   chain.Add(inputFile);
-  chain.Add("TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_1TopNanoAODv6p1_2018.root");
+  chain.Add("TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_1TopNanoAODv5p1_2018.root");
   TString output = "new_new_"+inputFile;
   TFile *file = new TFile(output, "RECREATE");
   TTree *mytree = new TTree("mytree", " tree with branches");
@@ -234,6 +234,7 @@ void get_info() {
       lepton_charge[17];
   Float_t Jet_btagCSVV2[35], Jet_eta[35], Jet_mass[35], Jet_phi[35], Jet_pt[35];
   Float_t jet_btagCSVV2[35], jet_eta[35], jet_mass[35], jet_phi[35], jet_pt[35],jet_partonFlavour[35],jet_btaged[35];
+  Float_t MtW;
   chain.SetBranchAddress("MET_pt", &MET_pt);
   chain.SetBranchAddress("MET_phi", &MET_phi);
   chain.SetBranchAddress("Electron_phi", Electron_phi);
@@ -290,6 +291,7 @@ void get_info() {
   mytree->Branch("neutrino_pz", &neutrino_pz, "neutrino_pz/F");
   mytree->Branch("mass_thad", &mass_thad, "mass_thad/F");
   mytree->Branch("mass_tlep", &mass_tlep, "mass_tlep/F");
+  mytree->Branch("MtW",&MtW,"MtW/F");
   mytree->Branch("likelihood",&minimum,"minimum/D" );
   //////////////////////////////////////////////////////////////////////
   // loop over entry
@@ -499,80 +501,83 @@ void get_info() {
 
       nu_px = MET_pt * cos(MET_phi);
       nu_py = MET_pt * sin(MET_phi);
-      double MtW=sqrt(2*(mom_lep.Pt()*MET_pt-mom_lep.Px()*nu_px-mom_lep.Py()*nu_py));
-      recons_tt();
-      // get_info
-      int b_flag = 0;
-      int l_flag = 0;
-       int flag = 0;
-      for (int iso = 0; iso < nJet; iso++) {
-        for (int jso = 0; jso < nJet; jso++) {
-          for (int bso = 0; bso < nJet; bso++) {
-            for (int aso = 0; aso < nJet; aso++) {
-              if (p4_b.DeltaR(mom_jets[bso]) < 0.4 &&
-                  p4_antib.DeltaR(mom_jets[aso]) < 0.4 &&
-                  p4_up.DeltaR(mom_jets[iso]) < 0.4 &&
-                  p4_down.DeltaR(mom_jets[jso]) < 0.4) {
-                if (bso != aso && iso != jso && iso != bso && iso != aso &&
-                    bso != jso && aso != jso) {
-                  flag = 1;
+      MtW=sqrt(2*(mom_lep.Pt()*MET_pt-mom_lep.Px()*nu_px-mom_lep.Py()*nu_py));
+        recons_tt();
+        if( minimum < 18.5  ){ 
+        /////////////////////////////////////////
+        // calculate tt efficiency
+        int b_flag = 0;
+        int l_flag = 0;
+         int flag = 0;
+        for (int iso = 0; iso < nJet; iso++) {
+          for (int jso = 0; jso < nJet; jso++) {
+            for (int bso = 0; bso < nJet; bso++) {
+              for (int aso = 0; aso < nJet; aso++) {
+                if (p4_b.DeltaR(mom_jets[bso]) < 0.4 &&
+                    p4_antib.DeltaR(mom_jets[aso]) < 0.4 &&
+                    p4_up.DeltaR(mom_jets[iso]) < 0.4 &&
+                    p4_down.DeltaR(mom_jets[jso]) < 0.4) {
+                  if (bso != aso && iso != jso && iso != bso && iso != aso &&
+                      bso != jso && aso != jso) {
+                    flag = 1;
+                  }
                 }
               }
             }
           }
         }
-      }
-      if (inputFile.Contains("ttbar_semi") ||inputFile.Contains("TTToSemiLeptonic")) {
-        LHE_nhad = 0;
-        LHE_nlep = 0;
-        LHE_tao = 0;
-        for (int i = 1; i < nLHEPart; i++) {
-          if (LHEPart_pdgId[i] == 2 || LHEPart_pdgId[i] == 4 ||
-              LHEPart_pdgId[i] == -2 || LHEPart_pdgId[i] == -4) {
-            LHE_nhad++;
+        if (inputFile.Contains("ttbar_semi") ||inputFile.Contains("TTToSemiLeptonic")) {
+          LHE_nhad = 0;
+          LHE_nlep = 0;
+          LHE_tao = 0;
+          for (int i = 1; i < nLHEPart; i++) {
+            if (LHEPart_pdgId[i] == 2 || LHEPart_pdgId[i] == 4 ||
+                LHEPart_pdgId[i] == -2 || LHEPart_pdgId[i] == -4) {
+              LHE_nhad++;
+            }
+            if (LHEPart_pdgId[i] == 1 || LHEPart_pdgId[i] == 3 ||
+                LHEPart_pdgId[i] == -1 || LHEPart_pdgId[i] == -3) {
+              LHE_nhad++;
+            }
+            if (LHEPart_pdgId[i] == 11 || LHEPart_pdgId[i] == 13 ||
+                LHEPart_pdgId[i] == -11 || LHEPart_pdgId[i] == -13)
+              LHE_nlep++;
+            if (LHEPart_pdgId[i] == 15 || LHEPart_pdgId[i] == -15)
+              LHE_tao++;
           }
-          if (LHEPart_pdgId[i] == 1 || LHEPart_pdgId[i] == 3 ||
-              LHEPart_pdgId[i] == -1 || LHEPart_pdgId[i] == -3) {
-            LHE_nhad++;
-          }
-          if (LHEPart_pdgId[i] == 11 || LHEPart_pdgId[i] == 13 ||
-              LHEPart_pdgId[i] == -11 || LHEPart_pdgId[i] == -13)
-            LHE_nlep++;
-          if (LHEPart_pdgId[i] == 15 || LHEPart_pdgId[i] == -15)
-            LHE_tao++;
+          if (!(LHE_nhad == 2 && LHE_tao ==0 &&LHE_nlep==1)) {
+                      tt_efficiency = 0;//tt background
+                } 
+                else if (flag == 0) {
+                    tt_efficiency = 1;//non reco
+                }
+                else if (!((p4_b.DeltaR(mom_jets[bjets_index[0]]) < 0.4 &&
+                            p4_antib.DeltaR(mom_jets[bjets_index[1]]) < 0.4) ||
+                            (p4_b.DeltaR(mom_jets[bjets_index[1]]) < 0.4 &&
+                            p4_antib.DeltaR(mom_jets[bjets_index[0]]) < 0.4))) {
+                    tt_efficiency = 2; //wrong reco
+                }
+                else if (!((p4_up.DeltaR(mom_jets[jets_index[min_j1]]) < 0.4 &&
+                            p4_down.DeltaR(mom_jets[jets_index[min_j2]]) < 0.4) ||
+                            (p4_down.DeltaR(mom_jets[jets_index[min_j1]]) < 0.4 &&
+                            p4_up.DeltaR(mom_jets[jets_index[min_j2]]) < 0.4))) {
+                    tt_efficiency = 4; //wrong reco
+                }
+                else if (!((p4_b.DeltaR(mom_jets[bjets_index[bjet_lep]]) < 0.4 &&
+                            p4_antib.DeltaR(mom_jets[bjets_index[bjet_had]]) < 0.4 && LepCharge>0) ||
+                            (p4_b.DeltaR(mom_jets[bjets_index[bjet_had]]) < 0.4 &&
+                            p4_antib.DeltaR(mom_jets[bjets_index[bjet_lep]]) < 0.4 && LepCharge<0))) {
+                    tt_efficiency = 5; //wrong reco
+                }
+              
+              else {
+                    tt_efficiency = 3; //right
+                 }
         }
-        if (!(LHE_nhad == 2 && LHE_tao ==0 &&LHE_nlep==1)) {
-                    tt_efficiency = 0;//tt background
-              } 
-              else if (flag == 0) {
-                  tt_efficiency = 1;//non reco
-              }
-              else if (!((p4_b.DeltaR(mom_jets[bjets_index[0]]) < 0.4 &&
-                          p4_antib.DeltaR(mom_jets[bjets_index[1]]) < 0.4) ||
-                          (p4_b.DeltaR(mom_jets[bjets_index[1]]) < 0.4 &&
-                          p4_antib.DeltaR(mom_jets[bjets_index[0]]) < 0.4))) {
-                  tt_efficiency = 2; //wrong reco
-              }
-              else if (!((p4_up.DeltaR(mom_jets[jets_index[min_j1]]) < 0.4 &&
-                          p4_down.DeltaR(mom_jets[jets_index[min_j2]]) < 0.4) ||
-                          (p4_down.DeltaR(mom_jets[jets_index[min_j1]]) < 0.4 &&
-                          p4_up.DeltaR(mom_jets[jets_index[min_j2]]) < 0.4))) {
-                  tt_efficiency = 4; //wrong reco
-              }
-              else if (!((p4_b.DeltaR(mom_jets[bjets_index[bjet_lep]]) < 0.4 &&
-                          p4_antib.DeltaR(mom_jets[bjets_index[bjet_had]]) < 0.4 && LepCharge>0) ||
-                          (p4_b.DeltaR(mom_jets[bjets_index[bjet_had]]) < 0.4 &&
-                          p4_antib.DeltaR(mom_jets[bjets_index[bjet_lep]]) < 0.4 && LepCharge<0))) {
-                  tt_efficiency = 5; //wrong reco
-              }
-            
-            else {
-                  tt_efficiency = 3; //right
-               }
-      }
-      mytree->Fill();
-      nevents2++;
-    }
+        mytree->Fill();
+        nevents2++;
+      } // end of cut of minimum
+    } //end of satisfied lepton and jets criteria  
 
   } // end loop over entries
   file->cd();
