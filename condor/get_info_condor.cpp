@@ -1,7 +1,8 @@
 // get useful information from NanoAOD files for ttbar analysis
 // each event contains the information for top quark pairs and their decay
 // products written by Renqi Pan in 16th June, 2021.
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+#include <iostream>
 // declare global vraibles
 Float_t nu_px, nu_py, neutrino_pz;
 TLorentzVector mom_nu, mom_lep, mom_jets[45];
@@ -115,16 +116,14 @@ void recons_tt() {
       }
     }
 
-    Float_t nu_E =
-        sqrt(nu_px * nu_px + nu_py * nu_py + neutrino_pz * neutrino_pz);
+    Float_t nu_E=sqrt(nu_px * nu_px + nu_py * nu_py + neutrino_pz * neutrino_pz);
     mom_nu = TLorentzVector(nu_px, nu_py, neutrino_pz, nu_E);
     mass_wlep = (mom_nu + mom_lep).M();
     mass_whad =
         (mom_jets[jets_index[min_j1]] + mom_jets[jets_index[min_j2]]).M();
     mass_tlep = (mom_nu + mom_lep + mom_jets[bjets_index[bjet_lep]]).M();
     mass_thad = (mom_jets[jets_index[min_j1]] + mom_jets[jets_index[min_j2]] +
-                 mom_jets[bjets_index[bjet_had]])
-                    .M();
+                 mom_jets[bjets_index[bjet_had]]).M();
     if (LepCharge > 0) {
       mom_top = mom_nu + mom_lep + mom_jets[bjets_index[bjet_lep]];
       mom_antitop = mom_jets[jets_index[min_j1]] +
@@ -144,11 +143,26 @@ void recons_tt() {
 }
 ///////////////////////////////////////////////////////////////////////
 // select the semileptonic final states and reconstruct top quark pairs.
-void get_info() {
+void get_info_condor(TString inputFile) {
+  TString dir="root://cms-xrd-global.cern.ch/";
   TChain chain("Events");
-  TString inputFile ="WW_TuneCP5_13TeV-pythia81.root";
-  chain.Add(inputFile);
-  TString output = "new_new_"+inputFile;
+  ifstream infile;
+  infile.open(inputFile);
+  if(!infile.is_open()){
+    cout<<"error: reading input file failed!!! "<<endl;
+    exit(1);
+  }
+  else{
+       std::string line;
+       while (getline(infile,line)){
+       TString file_dir(line);
+        if(file_dir.BeginsWith("/store"))
+          chain.Add(dir+file_dir);
+        else throw std::invalid_argument("error dasgoclient root file lists");
+        }
+  }
+  TString process=inputFile.ReplaceAll(".txt",".root");
+  TString output = "new_"+process;
   TFile *file = new TFile(output, "RECREATE");
   TTree *mytree = new TTree("mytree", " tree with branches");
   TTree *rawtree = new TTree("rawtree", "tree without selection");
@@ -169,8 +183,7 @@ void get_info() {
   Float_t b_pt, b_eta, b_mass, b_phi, antib_pt, antib_eta, antib_phi,
       antib_mass;
   Float_t lep_pt, lep_eta, lep_mass, lep_phi, nu_pt, nu_eta, nu_phi, nu_mass;
-  Float_t up_pt, up_eta, up_mass, up_phi, down_pt, down_eta, down_phi,
-      down_mass;
+  Float_t up_pt, up_eta, up_mass, up_phi, down_pt, down_eta, down_phi, down_mass;
   // Int_t LHE_had[6];
   // difine branch for ttbar process information at parton level
   if (inputFile.Contains("ttbar_semi") ||
@@ -297,8 +310,16 @@ void get_info() {
   cout << "infomation is writing. Please wait for a while" << endl;
   cout << "infomation is writing. Please wait for a while" << endl;
   Int_t njet_need =4; // the at least number of jet of semileptonic final satate
-
-  for (Int_t entry = 0; entry < chain.GetEntries(); entry++) {
+  int total_entry=chain.GetEntries();
+  if(inputFile.Contains("TTToSemiLeptonic")){
+    if(total_entry > 2.E+7)
+       total_entry=2.E+7;
+  }
+  else{
+    if(total_entry > 1.E+8)
+       total_entry=1.E+8;
+  }
+  for (Int_t entry = 0; entry < total_entry; entry++) {
     chain.GetEntry(entry);
     int index_b, index_antib, index_up, index_down, index_lep, index_nu;
     TLorentzVector p4_b, p4_antib, p4_up, p4_down, p4_lep, p4_nu, p4_top,
@@ -583,10 +604,8 @@ void get_info() {
   file->cd();
   mytree->Write();
   rawtree->Write();
-  cout << inputFile << " has " << chain.GetEntries() << " events" << endl;
+  cout << inputFile << " has " << total_entry << " events" << endl;
   cout << output << " is created" << endl;
-  cout << nevents << " events are written into "
-       << "rawtree." << endl;
-  cout << nevents2 << " events are written into "
-       << "mytree." << endl;
+  cout << nevents << " events are written into "<< "rawtree." << endl;
+  cout << nevents2 << " events are written into "<< "mytree." << endl;
 }

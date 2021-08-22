@@ -1,0 +1,13 @@
+executable              = run.sh
+arguments               = $(dataset) $(Process) 
+Initialdir              = /afs/cern.ch/user/r/repan/work/top_pair/condor/Chunk$(Process)
+						
+output                  = condor_out/run.out
+error                   = condor_out/run.err
+log                     = condor_out/run.log
+						
+RequestMemory           = 2000
+ShouldTransferFiles     = NO
++JobFlavour             = "tomorrow"
+x509userproxy           = $ENV(HOME)/temp/x509up
+Queue dataset from ../dataset.txt
