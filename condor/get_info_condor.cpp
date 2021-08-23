@@ -23,7 +23,8 @@ float xi_thad = 18.0, x0_thad = 179, xi_wlep = 2.0, x0_wlep = 80, xi_tlep = 8.5,
 float mw_lep = 80, mt_had = 173, mt_lep = 173, mw_had = 80.0,
 	  sigmat_lep = 40, sigmaw_had = 35.0, sigmat_had = 50, sigmaw_lep = 20.0;
 TLorentzVector mom_top, mom_antitop;
-float rectop_mass, recantitop_mass, rectop_pt, mass_tt, rapidity_tt;
+float rectop_mass, recantitop_mass, rectop_pt, mass_tt, rapidity_tt,
+      rectop_eta,rectop_rapidity,rectop_costheta;
 Double_t nupz_min = -1000.0, nupz_max = 1000.0;
 Double_t minimum;//minimum likelihood
 
@@ -137,6 +138,9 @@ void recons_tt() {
     rectop_mass = mom_top.M();
     recantitop_mass = mom_antitop.M();
     rectop_pt = mom_top.Pt();
+    rectop_rapidity=mom_top.Rapidity();
+    rectop_eta=mom_top.Eta();
+    rectop_costheta=mom_top.CosTheta();
     rapidity_tt = mom_top.Rapidity() - mom_antitop.Rapidity();
     mass_tt = (mom_antitop + mom_top).M();
   }
@@ -294,6 +298,9 @@ void get_info_condor(TString inputFile) {
   ////////////////////////////////////////////////////////////////
   // add information at reconstruction level.
   mytree->Branch("rectop_pt", &rectop_pt, "rectop_pt/F");
+  mytree->Branch("rectop_eta",&rectop_eta,"rectop_eta/F");
+  mytree->Branch("rectop_rapidity",&rectop_rapidity,"rectop_rapidity/F");
+  mytree->Branch("rectop_costheta",&rectop_costheta,"rectop_costheta/F");
   mytree->Branch("rectop_mass", &rectop_mass, "rectop_mass/F");
   mytree->Branch("recantitop_mass", &recantitop_mass, "recantitop_mass/F");
   mytree->Branch("rapidity_tt", &rapidity_tt, "rapidity_tt/F");
