@@ -174,6 +174,18 @@ void get_info_condor(TString inputFile) {
 
   cout << inputFile << " is reading and processing" << endl;
   cout << "total number of events: " << chain.GetEntries() << endl;
+  TH2F* hist[8];// hists for  weights of EW corrections 
+   if(inputFile.Contains("TTToSemiLeptonic")){
+     TString dir="/Users/renqi/Documents/top_pairs/correction_roots/";
+     TString files[8]={"correction_kappa10","correction_kappa20","correction_kappa30",
+                  "correction_kappa01","correction_kappa02","correction_kappa11",
+                  "correction_kappa22","correction_kappa00"};
+     for(Int_t i=0;i<8;i++){
+       TFile* fhist=TFile::Open(dir+files[i]+".root");
+       hist[i]=(TH2F*)fhist->Get("h2");
+
+      }             
+  }
   ////////////////////////////////////////////////////////////////
   /////////////////////////////////////////////////////////////
   Float_t LHEPart_eta[9], LHEPart_mass[9], LHEPart_phi[9], LHEPart_pt[9];
@@ -238,6 +250,19 @@ void get_info_condor(TString inputFile) {
     mytree->Branch("nu_mass", &nu_mass, "nu_mass/F");
     mytree->Branch("tt_efficiency", &tt_efficiency, "tt_efficiency/I");
     
+  }
+
+  Float_t weight[8];
+  if(inputFile.Contains("TTToSemiLeptonic")){
+    mytree->Branch("weight_kappa10",&weight[0],"weight_kappa10/F");
+    mytree->Branch("weight_kappa20",&weight[1],"weight_kappa20/F");
+    mytree->Branch("weight_kappa30",&weight[2],"weight_kappa30/F");
+    mytree->Branch("weight_kappa01",&weight[3],"weight_kappa01/F");
+    mytree->Branch("weight_kappa02",&weight[4],"weight_kappa02/F");
+    mytree->Branch("weight_kappa11",&weight[5],"weight_kappa11/F");
+    mytree->Branch("weight_kappa22",&weight[6],"weight_kappa22/F");
+    mytree->Branch("weight_kappa00",&weight[7],"weight_kappa00/F");
+
   }
   /////////////////////////////////////////////////////////
   // difine branch for final state at detector level
@@ -530,8 +555,18 @@ void get_info_condor(TString inputFile) {
       MtW=sqrt(2*(mom_lep.Pt()*MET_pt-mom_lep.Px()*nu_px-mom_lep.Py()*nu_py));
       
         recons_tt();
+  
         if( minimum < 20.0  ){ 
         /////////////////////////////////////////
+        //add weights according to invariant mass and rapidity difference at generator level.
+          if(inputFile.Contains("TTToSemiLeptonic")){
+                  for(Int_t i=0;i<8;i++){
+                       Int_t nbin=hist[i]->FindBin(M_tt_gen,delta_rapidity_gen);
+                       weight[i]=1.0+hist[i]->GetBinContent(nbin);
+                     //  cout<<"weight[i]: "<<weight[i]<<endl;
+                     }
+               }
+        //////////////////////////////////////////////  
         // calculate tt efficiency
         if (inputFile.Contains("ttbar_semi") ||inputFile.Contains("TTToSemiLeptonic")) {
 	        int b_flag = 0;
