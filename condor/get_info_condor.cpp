@@ -344,12 +344,12 @@ void get_info_condor(TString inputFile) {
   Int_t njet_need =4; // the at least number of jet of semileptonic final satate
   int total_entry=chain.GetEntries();
   if(inputFile.Contains("TTToSemiLeptonic")){
-    if(total_entry > 2.E+7)
-       total_entry=2.E+7;
+    if(total_entry > 8.E+6)
+       total_entry=8.E+6;
   }
   else{
-    if(total_entry > 1.E+8)
-       total_entry=1.E+8;
+    if(total_entry > 1.E+7)
+       total_entry=1.E+7;
   }
   for (Int_t entry = 0; entry < total_entry; entry++) {
     chain.GetEntry(entry);
@@ -582,12 +582,16 @@ void get_info_condor(TString inputFile) {
 	                    p4_down.DeltaR(mom_jets[jso]) < 0.4) {
 	                  if (bso != aso && iso != jso && iso != bso && iso != aso &&
 	                      bso != jso && aso != jso) {
-	                    flag = 1;
+	                      flag = 1;
+                        break;
 	                  }
 	                }
 	              }
+                 if(flag==1) break;
 	            }
+              if(flag==1) break;
 	          }
+              if(flag==1) break;
 	        }
         
           LHE_nhad = 0;
