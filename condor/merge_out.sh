@@ -1,3 +1,4 @@
+#written by Renqi Pan in August 30,2021
 rm -rf out_put
 mkdir  out_put
 input="dataset.txt"
