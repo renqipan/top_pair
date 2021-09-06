@@ -27,6 +27,7 @@ float rectop_mass, recantitop_mass, rectop_pt, mass_tt, rapidity_tt,
       rectop_eta,rectop_rapidity,rectop_costheta;
 Double_t nupz_min = -1000.0, nupz_max = 1000.0;
 Double_t minimum;//minimum likelihood
+float rapidity_bb,mass_bbjjl,deltaR_bb,rapidity_bl;
 
 ////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////
@@ -143,6 +144,12 @@ void recons_tt() {
     rectop_costheta=mom_top.CosTheta();
     rapidity_tt = mom_top.Rapidity() - mom_antitop.Rapidity();
     mass_tt = (mom_antitop + mom_top).M();
+    deltaR_bb=mom_jets[bjets_index[bjet_lep]].DeltaR(mom_jets[bjets_index[bjet_had]]);
+    rapidity_bl=mom_jets[bjets_index[bjet_lep]].Rapidity()-mom_lep.Rapidity();
+    rapidity_bb=mom_jets[bjets_index[bjet_lep]].Rapidity()-mom_jets[bjets_index[bjet_had]].Rapidity();
+    mass_bbjjl=(mom_jets[jets_index[min_j1]] + mom_jets[jets_index[min_j2]] +
+                mom_jets[bjets_index[bjet_had]]+mom_lep + mom_jets[bjets_index[bjet_lep]]).M();
+  
   }
 }
 ///////////////////////////////////////////////////////////////////////
@@ -176,7 +183,7 @@ void get_info_condor(TString inputFile) {
   cout << "total number of events: " << chain.GetEntries() << endl;
   TH2F* hist[8];// hists for  weights of EW corrections 
    if(inputFile.Contains("TTToSemiLeptonic")){
-     TString dir="/Users/renqi/Documents/top_pairs/correction_roots/";
+     TString dir="/afs/cern.ch/user/r/repan/work/top_pair/correction_roots/";
      TString files[8]={"correction_kappa10","correction_kappa20","correction_kappa30",
                   "correction_kappa01","correction_kappa02","correction_kappa11",
                   "correction_kappa22","correction_kappa00"};
@@ -336,6 +343,10 @@ void get_info_condor(TString inputFile) {
   mytree->Branch("mass_thad", &mass_thad, "mass_thad/F");
   mytree->Branch("mass_tlep", &mass_tlep, "mass_tlep/F");
   mytree->Branch("MtW",&MtW,"MtW/F");
+  mytree->Branch("rapidity_bb",&rapidity_bb,"rapidity_bb/F");
+  mytree->Branch("deltaR_bb",&deltaR_bb,"deltaR_bb/F");
+  mytree->Branch("mass_bbjjl",&mass_bbjjl,"mass_bbjjl/F");
+  mytree->Branch("rapidity_bl",&rapidity_bl,"rapidity_bl/F");
   mytree->Branch("likelihood",&minimum,"minimum/D" );
   //////////////////////////////////////////////////////////////////////
   // loop over entry
@@ -343,13 +354,17 @@ void get_info_condor(TString inputFile) {
   cout << "infomation is writing. Please wait for a while" << endl;
   Int_t njet_need =4; // the at least number of jet of semileptonic final satate
   int total_entry=chain.GetEntries();
-  if(inputFile.Contains("TTToSemiLeptonic")){
-    if(total_entry > 8.E+6)
-       total_entry=8.E+6;
+  if(inputFile.Contains("TTToSemiLeptonic")||inputFile.Contains("TT_Tune")){
+    if(total_entry > 8.E+7)
+       total_entry=8.E+7;
   }
+  else if (inputFile.Contains("QCD_HT100to200")||inputFile.Contains("QCD_HT200to300")||
+    inputFile.Contains("QCD_HT300to500")||inputFile.Contains("QCD_Pt-15to7000"))
+        if(total_entry > 1.E+9)
+          total_entry=1.E+9;
   else{
-    if(total_entry > 1.E+7)
-       total_entry=1.E+7;
+    if(total_entry > 1.E+8)
+       total_entry=1.E+8;
   }
   for (Int_t entry = 0; entry < total_entry; entry++) {
     chain.GetEntry(entry);
@@ -572,14 +587,14 @@ void get_info_condor(TString inputFile) {
 	        int b_flag = 0;
 	        int l_flag = 0;
 	         int flag = 0;
-	        for (int iso = 0; iso < nJet; iso++) {
-	          for (int jso = 0; jso < nJet; jso++) {
-	            for (int bso = 0; bso < nJet; bso++) {
-	              for (int aso = 0; aso < nJet; aso++) {
-	                if (p4_b.DeltaR(mom_jets[bso]) < 0.4 &&
-	                    p4_antib.DeltaR(mom_jets[aso]) < 0.4 &&
-	                    p4_up.DeltaR(mom_jets[iso]) < 0.4 &&
-	                    p4_down.DeltaR(mom_jets[jso]) < 0.4) {
+	        for (int iso = 0; iso < jet_num; iso++) {
+            for (int jso = 0; jso < jet_num; jso++) {
+              for (int bso = 0; bso < jet_num; bso++) {
+                for (int aso = 0; aso < jet_num; aso++) {
+                  if (p4_b.DeltaR(mom_jets[jet_index[bso]]) < 0.4 &&
+                      p4_antib.DeltaR(mom_jets[jet_index[aso]]) < 0.4 &&
+                      p4_up.DeltaR(mom_jets[jet_index[iso]]) < 0.4 &&
+                      p4_down.DeltaR(mom_jets[jet_index[jso]]) < 0.4) {
 	                  if (bso != aso && iso != jso && iso != bso && iso != aso &&
 	                      bso != jso && aso != jso) {
 	                      flag = 1;

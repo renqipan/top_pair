@@ -8,6 +8,6 @@ log                     = condor_out/run.log
 						
 RequestMemory           = 2000
 ShouldTransferFiles     = NO
-+JobFlavour             = "tomorrow"
++JobFlavour             = "nextweek"
 x509userproxy           = $ENV(HOME)/temp/x509up
 Queue dataset from ../dataset.txt

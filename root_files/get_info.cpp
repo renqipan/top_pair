@@ -26,6 +26,7 @@ float rectop_mass, recantitop_mass, rectop_pt, mass_tt, rapidity_tt,
       rectop_eta,rectop_rapidity,rectop_costheta;
 Double_t nupz_min = -1000.0, nupz_max = 1000.0;
 Double_t minimum;//minimum likelihood
+float rapidity_bb,mass_bbjjl,deltaR_bb,rapidity_bl;
 
 ////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////
@@ -144,6 +145,11 @@ void recons_tt() {
     rectop_costheta=mom_top.CosTheta();
     rapidity_tt = mom_top.Rapidity() - mom_antitop.Rapidity();
     mass_tt = (mom_antitop + mom_top).M();
+    deltaR_bb=mom_jets[bjets_index[bjet_lep]].DeltaR(mom_jets[bjets_index[bjet_had]]);
+    rapidity_bl=mom_jets[bjets_index[bjet_lep]].Rapidity()-mom_lep.Rapidity();
+    rapidity_bb=mom_jets[bjets_index[bjet_lep]].Rapidity()-mom_jets[bjets_index[bjet_had]].Rapidity();
+    mass_bbjjl=(mom_jets[jets_index[min_j1]] + mom_jets[jets_index[min_j2]] +
+                mom_jets[bjets_index[bjet_had]]+mom_lep + mom_jets[bjets_index[bjet_lep]]).M();
   }
 }
 ///////////////////////////////////////////////////////////////////////
@@ -153,7 +159,7 @@ void get_info() {
   TString inputFile ="TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_1TopNanoAODv6p1_2018.root";
   chain.Add(inputFile);
   chain.Add("TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_1TopNanoAODv5p1_2018.root");
-  TString output = "new_new_"+inputFile;
+  TString output = "new_"+inputFile;
   TFile *file = new TFile(output, "RECREATE");
   TTree *mytree = new TTree("mytree", " tree with branches");
   TTree *rawtree = new TTree("rawtree", "tree without selection");
@@ -323,6 +329,10 @@ void get_info() {
   mytree->Branch("mass_thad", &mass_thad, "mass_thad/F");
   mytree->Branch("mass_tlep", &mass_tlep, "mass_tlep/F");
   mytree->Branch("MtW",&MtW,"MtW/F");
+  mytree->Branch("rapidity_bb",&rapidity_bb,"rapidity_bb/F");
+  mytree->Branch("deltaR_bb",&deltaR_bb,"deltaR_bb/F");
+  mytree->Branch("mass_bbjjl",&mass_bbjjl,"mass_bbjjl/F");
+  mytree->Branch("rapidity_bl",&rapidity_bl,"rapidity_bl/F");
   mytree->Branch("likelihood",&minimum,"minimum/D" );
   //////////////////////////////////////////////////////////////////////
   // loop over entry
@@ -551,14 +561,14 @@ void get_info() {
 	        int b_flag = 0;
 	        int l_flag = 0;
 	         int flag = 0;
-	        for (int iso = 0; iso < nJet; iso++) {
-	          for (int jso = 0; jso < nJet; jso++) {
-	            for (int bso = 0; bso < nJet; bso++) {
-	              for (int aso = 0; aso < nJet; aso++) {
-	                if (p4_b.DeltaR(mom_jets[bso]) < 0.4 &&
-	                    p4_antib.DeltaR(mom_jets[aso]) < 0.4 &&
-	                    p4_up.DeltaR(mom_jets[iso]) < 0.4 &&
-	                    p4_down.DeltaR(mom_jets[jso]) < 0.4) {
+	        for (int iso = 0; iso < jet_num; iso++) {
+	          for (int jso = 0; jso < jet_num; jso++) {
+	            for (int bso = 0; bso < jet_num; bso++) {
+	              for (int aso = 0; aso < jet_num; aso++) {
+	                if (p4_b.DeltaR(mom_jets[jet_index[bso]]) < 0.4 &&
+	                    p4_antib.DeltaR(mom_jets[jet_index[aso]]) < 0.4 &&
+	                    p4_up.DeltaR(mom_jets[jet_index[iso]]) < 0.4 &&
+	                    p4_down.DeltaR(mom_jets[jet_index[jso]]) < 0.4) {
 	                  if (bso != aso && iso != jso && iso != bso && iso != aso &&
 	                      bso != jso && aso != jso) {
 	                      flag = 1;
@@ -607,13 +617,13 @@ void get_info() {
                             p4_down.DeltaR(mom_jets[jets_index[min_j2]]) < 0.4) ||
                             (p4_down.DeltaR(mom_jets[jets_index[min_j1]]) < 0.4 &&
                             p4_up.DeltaR(mom_jets[jets_index[min_j2]]) < 0.4))) {
-                    tt_efficiency = 2; //wrong reco
+                    tt_efficiency = 4; //wrong reco
                 }
                 else if (!((p4_b.DeltaR(mom_jets[bjets_index[bjet_lep]]) < 0.4 &&
                             p4_antib.DeltaR(mom_jets[bjets_index[bjet_had]]) < 0.4 && LepCharge>0) ||
                             (p4_b.DeltaR(mom_jets[bjets_index[bjet_had]]) < 0.4 &&
                             p4_antib.DeltaR(mom_jets[bjets_index[bjet_lep]]) < 0.4 && LepCharge<0))) {
-                    tt_efficiency = 2; //wrong reco
+                    tt_efficiency = 5; //wrong reco
                 }
               
               else {
