@@ -94,13 +94,12 @@ void recons_tt() {
     for (bindex = 0; bindex < 2; bindex++) {
       for (int j1 = 0; j1 < jet_num - 2; j1++) {
         for (int j2 = j1 + 1; j2 < jet_num - 2; j2++) {
+
           TF1 *likelihood_fun =
               new TF1("likelihood_fun", likelihood, nupz_min, nupz_max, 2);
           likelihood_fun->SetParameters(j1, j2); // pass the index of j1 and j2 as parameters to a
-                                                 // function with type TF1
           minimum_likelihood = likelihood_fun->GetMinimum(nupz_min, nupz_max);
           nupz = likelihood_fun->GetMinimumX(nupz_min, nupz_max);
-
           if (bindex == 0 && j1 == 0 && j2 == 1) {
             minimum = minimum_likelihood;
             neutrino_pz = nupz;
@@ -291,6 +290,21 @@ void get_info() {
   chain.SetBranchAddress("Jet_pt", Jet_pt);
   chain.SetBranchAddress("Jet_phi", Jet_phi);
   chain.SetBranchAddress("Jet_mass", Jet_mass);
+
+  //for physics object and event seletions
+  Float_t PV_ndof,IsoTrack_dxy[5], IsoTrack_dz[5],Muon_pfRelIso04_all[9];
+  Int_t Electron_cutBased[9], Jet_jetId[45];
+  Bool_t Muon_tightId[9], Muon_looseId[9];
+  chain.SetBranchAddress("PV_ndof",&PV_ndof);
+  chain.SetBranchAddress("IsoTrack_dz",IsoTrack_dz);
+  chain.SetBranchAddress("IsoTrack_dxy",IsoTrack_dxy);
+  chain.SetBranchAddress("Muon_pfRelIso04_all",Muon_pfRelIso04_all);
+  chain.SetBranchAddress("Muon_tightId",Muon_tightId);
+  chain.SetBranchAddress("Muon_looseId",Muon_looseId);
+  chain.SetBranchAddress("Electron_cutBased",Electron_cutBased);
+  chain.SetBranchAddress("Jet_jetId",Jet_jetId);
+
+
   mytree->Branch("MET_phi", &MET_phi, "MET_phi/F");
   mytree->Branch("MET_pt", &MET_pt, "MET_pt/F");
   mytree->Branch("nlepton", &nlepton, "nlepton/I");
@@ -340,7 +354,7 @@ void get_info() {
   cout << "infomation is writing. Please wait for a while" << endl;
   Int_t njet_need =4; // the at least number of jet of semileptonic final satate
 
-  for (Int_t entry = 0; entry < chain.GetEntries(); entry++) {
+  for (Int_t entry =0; entry < chain.GetEntries(); entry++) {
     chain.GetEntry(entry);
     int index_b, index_antib, index_up, index_down, index_lep, index_nu;
     TLorentzVector p4_b, p4_antib, p4_up, p4_down, p4_lep, p4_nu, p4_top,
@@ -432,24 +446,54 @@ void get_info() {
       M_tt_gen = (p4_top + p4_antitop).M();
       delta_rapidity_gen = p4_top.Rapidity() - p4_antitop.Rapidity();
     }
+
+    nevents++;
+    rawtree->Fill();
     /////////////////////////////////////////////////////
     // get information for final state at detector level
-    nlepton = nMuon + nElectron;
+    //select satisfied leptons(electron or muon)
     TLorentzVector p4_lepton[18];
+    nlepton=nMuon+nElectron;
+    bool lepton_flag = false; // if true pass the selction
+    int num_select1=0, num_select2=0;
     for (int i = 0; i < nlepton; i++) {
       if (i < nElectron) {
-        p4_lepton[i].SetPtEtaPhiM(Electron_pt[i], Electron_eta[i],
-                                  Electron_phi[i], Electron_mass[i]);
-        lepton_charge[i] = Electron_charge[i];
-      } else {
-        p4_lepton[i].SetPtEtaPhiM(
-            Muon_pt[i - nElectron], Muon_eta[i - nElectron],
-            Muon_phi[i - nElectron], Muon_mass[i - nElectron]);
-        lepton_charge[i] = Muon_charge[i - nElectron];
+        p4_lepton[i].SetPtEtaPhiM(Electron_pt[i],Electron_eta[i],Electron_phi[i],Electron_mass[i]);
+        lepton_charge[i]=Electron_charge[i];
+        if(Electron_cutBased[i]==2&& abs(Electron_eta[i]) <2.4 && abs(Electron_eta[i])<1.4442
+        &&abs(Electron_eta[i])>1.5660&&Electron_pt[i]>15){
+          num_select1++;
+          if(Electron_cutBased[i]==4&& abs(Electron_eta[i]) <2.4 && abs(Electron_eta[i])<1.4442
+        &&abs(Electron_eta[i])>1.5660&&Electron_pt[i]>30)
+            {  num_select2++;
+               mom_lep = p4_lepton[i];       // the lepton momenton for reconstrut
+               LepCharge = lepton_charge[i];
+               lepton_flag=true;
+              }
+        }
+    }       
+     else {
+        p4_lepton[i].SetPtEtaPhiM(Muon_pt[i-nElectron],Muon_eta[i-nElectron],Muon_phi[i-nElectron],Muon_mass[i-nElectron]);
+        lepton_charge[i]=Muon_charge[i-nElectron];  
+        if(Muon_looseId[i-nElectron]==1&&Muon_pfRelIso04_all[i-nElectron]<0.25&&Muon_pt[i-nElectron]>15&&Muon_eta[i-nElectron]<2.4)
+          {    num_select1++;
+             if(Muon_tightId[i-nElectron]==1&&Muon_pfRelIso04_all[i-nElectron]<0.15&&Muon_pt[i-nElectron]>30&&Muon_eta[i-nElectron]<2.4)
+              { num_select2++;
+                mom_lep = p4_lepton[i];       // the lepton momenton for reconstruct
+                LepCharge = lepton_charge[i]; //the lepton charge for reconstruct
+                lepton_flag=true;
+                }
+          }
+
+        }
+      if(num_select1 > 1) {
+          lepton_flag=false;
+          break;
       }
+
     }
-    // sort leptons according to their pt and make the first jet has maximum pt
-    for (int k = 0; k < nlepton; k++) {
+  // sort leptons according to their pt and make the first jet has maximum pt
+ /*   for (int k = 0; k < nlepton; k++) {
       for (int j = k + 1; j < nlepton; j++) {
         if (p4_lepton[k].Pt() < p4_lepton[j].Pt()) {
           TLorentzVector temp;
@@ -463,30 +507,41 @@ void get_info() {
         }
       }
     }
+    */
     for (int i = 0; i < nlepton; i++) {
       lepton_pt[i] = p4_lepton[i].Pt();
       lepton_eta[i] = p4_lepton[i].Eta();
       lepton_phi[i] = p4_lepton[i].Phi();
       lepton_mass[i] = p4_lepton[i].M();
     }
+////////////////////////////////////////////////////////////////////
+// select satisfied jets
     nBtag = 0;   // count number of bjet among all the jets
     jet_num = 0; // count number fot jets satisfy the selection criteria
+    bool jet_flag = false; // if true pass the selection
+
     for (int i = 0; i < nJet; i++) {
-      mom_jets[i].SetPtEtaPhiM(Jet_pt[i], Jet_eta[i], Jet_phi[i],
-                                       Jet_mass[i]);
-      if (abs(Jet_eta[i]) < 2.4 && Jet_pt[i] > 30) {
-   //     mom_jets[jet_num].SetPtEtaPhiM(Jet_pt[i], Jet_eta[i], Jet_phi[i],
-     //                                  Jet_mass[i]);
-        // jets_btag[i]=Jet_btaged[i]; //for reconstruct
+      mom_jets[i].SetPtEtaPhiM(Jet_pt[i], Jet_eta[i], Jet_phi[i],Jet_mass[i]);
+      if (abs(Jet_eta[i]) < 2.4 && Jet_pt[i] > 30 && Jet_jetId[i]==6 && 
+        mom_jets[i].DeltaR(mom_lep)>0.4 ) {
+   //     mom_jets[i].SetPtEtaPhiM(Jet_pt[i], Jet_eta[i], Jet_phi[i],Jet_mass[i]);
         jet_index[jet_num] = i;
         jet_num = jet_num + 1;
         if (Jet_btagDeepB[i] > 0.14) {
           Jet_btaged[i] = 1;
           nBtag++;
-        } else
+        } 
+        else
           Jet_btaged[i] = 0;
+        btag_num = btag_num + Jet_btaged[i];
+
       }
+
     }
+
+    if (jet_num >= njet_need && btag_num >= 2)
+        jet_flag = true;
+
     for(int i=0;i<jet_num;i++){
       jet_btaged[i]=Jet_btaged[jet_index[i]];
       jet_eta[i]=Jet_eta[jet_index[i]];
@@ -498,53 +553,17 @@ void get_info() {
       jet_partonFlavour[i]=Jet_partonFlavour[jet_index[i]];
 
     }
-    nevents++;
-    rawtree->Fill();
+    
     //////////////////////////////////////////////////////////////////
     // select ttbar semiletopnic final state
-    // selec jets
-    bool jet_flag = false; // if true pass the selection
-    int jet_satisfy = 0;
-    btag_num = 0;            // count bjet number in the leading four jets.
-    if (nJet >= njet_need) { // njet_need=4 by default
-      for (int i = 0; i < nJet; i++) {
-        if (abs(Jet_eta[i]) < 2.4 && Jet_pt[i] > 30) {
-          jet_satisfy++;
-          btag_num = btag_num + Jet_btaged[i];
-
-        } 
-        else
-            break;
-      }
-      if (jet_satisfy >= njet_need && btag_num >= 2)
-        jet_flag = true;
-    }
-    // select lepton
-    bool lepton_flag = false; // if true pass the selction
-    int nlepton_satisfy = 1;
-    if (nlepton >= 1 && lepton_pt[0] > 30 && abs(lepton_eta[0]) < 2.4) {
-      for (int i = 1; i < nlepton; i++) { // start from the second lepton
-        if (lepton_pt[i] > 15 && abs(lepton_eta[i]) < 2.4)
-          break;
-        else
-          nlepton_satisfy++;
-      }
-      if (nlepton_satisfy == nlepton) {
-        lepton_flag = true;
-        mom_lep = p4_lepton[0];       // the lepton momenton for reconstrut
-        LepCharge = lepton_charge[0]; // for reconstruct
-      }
-    }
-
+    
     // select satisfied events
     if (jet_flag == true && lepton_flag == true ) {
-
       nu_px = MET_pt * cos(MET_phi);
       nu_py = MET_pt * sin(MET_phi);
       MtW=sqrt(2*(mom_lep.Pt()*MET_pt-mom_lep.Px()*nu_px-mom_lep.Py()*nu_py));
       
         recons_tt();
-
         if( minimum < 20.0  ){ 
         /////////////////////////////////////////
         //add weights according to invariant mass and rapidity difference at generator level.
@@ -630,6 +649,7 @@ void get_info() {
                     tt_efficiency = 3; //right
                  }
         }
+        
         mytree->Fill();
         nevents2++;
       } // end of cut of minimum
