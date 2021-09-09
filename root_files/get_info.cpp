@@ -292,17 +292,20 @@ void get_info() {
   chain.SetBranchAddress("Jet_mass", Jet_mass);
 
   //for physics object and event seletions
-  Float_t PV_ndof,IsoTrack_dxy[5], IsoTrack_dz[5],Muon_pfRelIso04_all[9];
-  Int_t Electron_cutBased[9], Jet_jetId[45];
+  Float_t Muon_pfRelIso04_all[9];
+  Int_t Electron_cutBased[9], Jet_jetId[45],PV_npvsGood;
   Bool_t Muon_tightId[9], Muon_looseId[9];
-  chain.SetBranchAddress("PV_ndof",&PV_ndof);
-  chain.SetBranchAddress("IsoTrack_dz",IsoTrack_dz);
-  chain.SetBranchAddress("IsoTrack_dxy",IsoTrack_dxy);
+  Float_t Electron_deltaEtaSC[9],Electron_dxy[9], Electron_dz[9];
   chain.SetBranchAddress("Muon_pfRelIso04_all",Muon_pfRelIso04_all);
   chain.SetBranchAddress("Muon_tightId",Muon_tightId);
   chain.SetBranchAddress("Muon_looseId",Muon_looseId);
   chain.SetBranchAddress("Electron_cutBased",Electron_cutBased);
   chain.SetBranchAddress("Jet_jetId",Jet_jetId);
+  chain.SetBranchAddress("Electron_deltaEtaSC",Electron_deltaEtaSC);
+  chain.SetBranchAddress("Electron_dz",Electron_dz);
+  chain.SetBranchAddress("Electron_dxy",Electron_dxy);
+  chain.SetBranchAddress("PV_npvsGood",&PV_npvsGood);
+
 
 
   mytree->Branch("MET_phi", &MET_phi, "MET_phi/F");
@@ -460,16 +463,21 @@ void get_info() {
       if (i < nElectron) {
         p4_lepton[i].SetPtEtaPhiM(Electron_pt[i],Electron_eta[i],Electron_phi[i],Electron_mass[i]);
         lepton_charge[i]=Electron_charge[i];
-        if(Electron_cutBased[i]==2&& abs(Electron_eta[i]) <2.4 && abs(Electron_eta[i])<1.4442
-        &&abs(Electron_eta[i])>1.5660&&Electron_pt[i]>15){
-          num_select1++;
-          if(Electron_cutBased[i]==4&& abs(Electron_eta[i]) <2.4 && abs(Electron_eta[i])<1.4442
-        &&abs(Electron_eta[i])>1.5660&&Electron_pt[i]>30)
-            {  num_select2++;
-               mom_lep = p4_lepton[i];       // the lepton momenton for reconstrut
-               LepCharge = lepton_charge[i];
-               lepton_flag=true;
-              }
+        if(Electron_cutBased[i]>=2&& abs(Electron_eta[i]) <2.4 && (abs(Electron_eta[i])<1.4442
+        	||abs(Electron_eta[i])>1.5660)&&Electron_pt[i]>15)
+        {
+        	if((abs(Electron_deltaEtaSC[i]+Electron_eta[i])<1.479&&abs(Electron_dxy[i])<0.05&&abs(Electron_dz[i])<0.1)
+			    ||(abs(Electron_deltaEtaSC[i]+Electron_eta[i])>=1.479&&abs(Electron_dxy[i])<0.1&&abs(Electron_dz[i])<0.2))
+        	{
+	          num_select1++;
+	          if(Electron_cutBased[i]==4&& abs(Electron_eta[i]) <2.4 && (abs(Electron_eta[i])<1.4442
+	        	||abs(Electron_eta[i])>1.5660)&&Electron_pt[i]>30)
+	            {  num_select2++;
+	               mom_lep = p4_lepton[i];       // the lepton momenton for reconstrut
+	               LepCharge = lepton_charge[i];
+	               lepton_flag=true;
+	              }
+	        }      
         }
     }       
      else {
@@ -492,6 +500,8 @@ void get_info() {
       }
 
     }
+
+
   // sort leptons according to their pt and make the first jet has maximum pt
  /*   for (int k = 0; k < nlepton; k++) {
       for (int j = k + 1; j < nlepton; j++) {
@@ -558,7 +568,7 @@ void get_info() {
     // select ttbar semiletopnic final state
     
     // select satisfied events
-    if (jet_flag == true && lepton_flag == true ) {
+    if (jet_flag == true && lepton_flag == true && PV_npvsGood >=1 ) {
       nu_px = MET_pt * cos(MET_phi);
       nu_py = MET_pt * sin(MET_phi);
       MtW=sqrt(2*(mom_lep.Pt()*MET_pt-mom_lep.Px()*nu_px-mom_lep.Py()*nu_py));
