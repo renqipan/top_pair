@@ -609,7 +609,7 @@ void get_info_3jet() {
 
     }
 
-    if (jet_num == njet_need && btag_num >= 2)
+    if (jet_num >= njet_need && btag_num >= 2)
         jet_flag = true;
 
     for(int i=0;i<jet_num;i++){
