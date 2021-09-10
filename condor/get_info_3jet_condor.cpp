@@ -212,12 +212,26 @@ void recons_tt() {
 }
 ///////////////////////////////////////////////////////////////////////
 // select the semileptonic final states and reconstruct top quark pairs.
-void get_info_3jet() {
+void get_info_3jet_condor(TString inputFile) {
+  TString dir="root://cms-xrd-global.cern.ch/";
   TChain chain("Events");
-  TString inputFile ="TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_1TopNanoAODv6p1_2018.root";
-  chain.Add(inputFile);
-  chain.Add("TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_1TopNanoAODv5p1_2018.root");
-  TString output = "new_"+inputFile;
+  ifstream infile;
+  infile.open(inputFile);
+  if(!infile.is_open()){
+    cout<<"error: reading input file failed!!! "<<endl;
+    exit(1);
+  }
+  else{
+       std::string line;
+       while (getline(infile,line)){
+       TString file_dir(line);
+        if(file_dir.BeginsWith("/store"))
+          chain.Add(dir+file_dir);
+        else throw std::invalid_argument("error dasgoclient root file lists");
+        }
+  }
+  TString process=inputFile.ReplaceAll(".txt",".root");
+  TString output = "new_"+process;
   TFile *file = new TFile(output, "RECREATE");
   TTree *mytree = new TTree("mytree", " tree with branches");
   TTree *rawtree = new TTree("rawtree", "tree without selection");
@@ -227,7 +241,7 @@ void get_info_3jet() {
   cout << "total number of events: " << chain.GetEntries() << endl;
   TH2F* hist[8];// hists for  weights of EW corrections 
    if(inputFile.Contains("TTToSemiLeptonic")){
-     TString dir="/Users/renqi/Documents/top_pairs/correction_roots/";
+     TString dir="/afs/cern.ch/user/r/repan/work/top_pair/correction_roots/";
      TString files[8]={"correction_kappa10","correction_kappa20","correction_kappa30",
                   "correction_kappa01","correction_kappa02","correction_kappa11",
                   "correction_kappa22","correction_kappa00"};
@@ -414,8 +428,20 @@ void get_info_3jet() {
   cout << "infomation is writing. Please wait for a while" << endl;
   cout << "infomation is writing. Please wait for a while" << endl;
   Int_t njet_need =3; // the number of at least jets of semileptonic final state
-
-  for (Int_t entry =0; entry < chain.GetEntries(); entry++) {
+  int total_entry=chain.GetEntries();
+  if(inputFile.Contains("TTToSemiLeptonic")||inputFile.Contains("TT_Tune")){
+    if(total_entry > 8.E+7)
+       total_entry=8.E+7;
+  }
+  else if (inputFile.Contains("QCD_HT100to200")||inputFile.Contains("QCD_HT200to300")||
+    inputFile.Contains("QCD_HT300to500")||inputFile.Contains("QCD_Pt-15to7000"))
+        if(total_entry > 1.E+9)
+          total_entry=1.E+9;
+  else{
+    if(total_entry > 1.E+8)
+       total_entry=1.E+8;
+  }
+  for (Int_t entry = 0; entry < total_entry; entry++) {
     chain.GetEntry(entry);
     int index_b, index_antib, index_up, index_down, index_lep, index_nu;
     TLorentzVector p4_b, p4_antib, p4_up, p4_down, p4_lep, p4_nu, p4_top,
@@ -646,7 +672,7 @@ void get_info_3jet() {
         // calculate tt efficiency
         if (inputFile.Contains("ttbar_semi") ||inputFile.Contains("TTToSemiLeptonic")) {
         	if(jet_num >=4){
-            count_4jet++;
+           	 count_4jet++;
 		        int flag = 0;
 		        for (int iso = 0; iso < jet_num; iso++) {
 		          for (int jso = 0; jso < jet_num; jso++) {
@@ -718,7 +744,7 @@ void get_info_3jet() {
 	                 }
 	            }
 	            else if(jet_num==3){
-                count_3jet++;
+               	        count_3jet++;
 	            	int flag = 0;
 			          for (int jso = 0; jso < jet_num; jso++) {
 			            for (int bso = 0; bso < jet_num; bso++) {
@@ -794,7 +820,7 @@ void get_info_3jet() {
   file->cd();
   mytree->Write();
   rawtree->Write();
-  cout << inputFile << " has " << chain.GetEntries() << " events" << endl;
+  cout << inputFile << " has " << total_entry << " events" << endl;
   cout << output << " is created" << endl;
   cout << nevents << " events are written into "<< "rawtree." << endl;
   cout << nevents2 << " events are written into "<< "mytree." << endl;

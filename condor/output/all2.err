@@ -1,0 +1,182 @@
+Warning in <TClass::Init>: no dictionary for class edm::Hash<1> is available
+Warning in <TClass::Init>: no dictionary for class edm::ProcessHistory is available
+Warning in <TClass::Init>: no dictionary for class edm::ProcessConfiguration is available
+Warning in <TClass::Init>: no dictionary for class edm::ParameterSetBlob is available
+Warning in <TClass::Init>: no dictionary for class __pair_base<edm::Hash<1>,edm::ParameterSetBlob> is available
+Warning in <TClass::Init>: no dictionary for class pair<edm::Hash<1>,edm::ParameterSetBlob> is available
+210831 17:39:15 134 secgsi_GetCACheck: CRL entry for 'dd4b34ea.0:1' needs refreshing: clean the related entry cache first (0x2b5c90521a80)
+Warning in <TClass::Init>: no dictionary for class edm::Hash<1> is available
+Warning in <TClass::Init>: no dictionary for class edm::ProcessHistory is available
+Warning in <TClass::Init>: no dictionary for class edm::ProcessConfiguration is available
+Warning in <TClass::Init>: no dictionary for class edm::ParameterSetBlob is available
+Warning in <TClass::Init>: no dictionary for class __pair_base<edm::Hash<1>,edm::ParameterSetBlob> is available
+Warning in <TClass::Init>: no dictionary for class pair<edm::Hash<1>,edm::ParameterSetBlob> is available
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+Error in <TNetXNGFile::ReadBuffer>: [ERROR] Invalid session
+Error in <TBranch::GetBasket>: File: root://cms-xrd-global.cern.ch//store/mc/RunIISummer20UL18NanoAODv9/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/NANOAODSIM/106X_upgrade2018_realistic_v16_L1v1-v1/130000/9F94143B-43AC-7D4D-8357-32BDEB5326C0.root at byte:679006799, branch:LHEPdfWeight, entry:321415, badread=1, nerrors=1, basketnumber=665
+210831 19:15:10 134 secgsi_GetCACheck: CRL entry for 'dd4b34ea.0:1' needs refreshing: clean the related entry cache first (0x2b6c203989b0)
+210831 22:15:31 134 secgsi_GetCACheck: CRL entry for 'ffc3d59b.0:1' needs refreshing: clean the related entry cache first (0x2b6c20029060)
+Warning in <TClass::Init>: no dictionary for class edm::Hash<1> is available
+Warning in <TClass::Init>: no dictionary for class edm::ProcessHistory is available
+Warning in <TClass::Init>: no dictionary for class edm::ProcessConfiguration is available
+Warning in <TClass::Init>: no dictionary for class edm::ParameterSetBlob is available
+Warning in <TClass::Init>: no dictionary for class __pair_base<edm::Hash<1>,edm::ParameterSetBlob> is available
+Warning in <TClass::Init>: no dictionary for class pair<edm::Hash<1>,edm::ParameterSetBlob> is available
+Error in <TNetXNGFile::ReadBuffer>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+Error in <TNetXNGFile::Init>: root://cms-xrd-global.cern.ch//store/mc/RunIISummer20UL18NanoAODv9/TTToHadronic_TuneCP5_13TeV-powheg-pythia8/NANOAODSIM/106X_upgrade2018_realistic_v16_L1v1-v1/270000/26A15F96-3D78-2F41-9258-E74A54C9CF61.root failed to read the file type data.
+Error in <TNetXNGFile::TNetXNGFile>: Object is in 'zombie' state
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3006] tried hosts option not supported.
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3006] tried hosts option not supported.
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3006] tried hosts option not supported.
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3006] tried hosts option not supported.
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+210831 17:27:03 134 secgsi_GetCACheck: CRL entry for '8a21c0da.0:1' needs refreshing: clean the related entry cache first (0x2b7510028c00)
+210901 02:59:08 134 secgsi_GetCACheck: CRL entry for 'dd4b34ea.0:1' needs refreshing: clean the related entry cache first (0x2b7510050cc0)
+Warning in <TClass::Init>: no dictionary for class edm::Hash<1> is available
+Warning in <TClass::Init>: no dictionary for class edm::ProcessHistory is available
+Warning in <TClass::Init>: no dictionary for class edm::ProcessConfiguration is available
+Warning in <TClass::Init>: no dictionary for class edm::ParameterSetBlob is available
+Warning in <TClass::Init>: no dictionary for class __pair_base<edm::Hash<1>,edm::ParameterSetBlob> is available
+Warning in <TClass::Init>: no dictionary for class pair<edm::Hash<1>,edm::ParameterSetBlob> is available
+210831 17:59:17 134 secgsi_GetCACheck: CRL entry for '14e86c33.0:1' needs refreshing: clean the related entry cache first (0x2b5764043610)
+Warning in <TClass::Init>: no dictionary for class edm::Hash<1> is available
+Warning in <TClass::Init>: no dictionary for class edm::ProcessHistory is available
+Warning in <TClass::Init>: no dictionary for class edm::ProcessConfiguration is available
+Warning in <TClass::Init>: no dictionary for class edm::ParameterSetBlob is available
+Warning in <TClass::Init>: no dictionary for class __pair_base<edm::Hash<1>,edm::ParameterSetBlob> is available
+Warning in <TClass::Init>: no dictionary for class pair<edm::Hash<1>,edm::ParameterSetBlob> is available
+Warning in <TClass::Init>: no dictionary for class edm::Hash<1> is available
+Warning in <TClass::Init>: no dictionary for class edm::ProcessHistory is available
+Warning in <TClass::Init>: no dictionary for class edm::ProcessConfiguration is available
+Warning in <TClass::Init>: no dictionary for class edm::ParameterSetBlob is available
+Warning in <TClass::Init>: no dictionary for class __pair_base<edm::Hash<1>,edm::ParameterSetBlob> is available
+Warning in <TClass::Init>: no dictionary for class pair<edm::Hash<1>,edm::ParameterSetBlob> is available
+Warning in <TClass::Init>: no dictionary for class edm::Hash<1> is available
+Warning in <TClass::Init>: no dictionary for class edm::ProcessHistory is available
+Warning in <TClass::Init>: no dictionary for class edm::ProcessConfiguration is available
+Warning in <TClass::Init>: no dictionary for class edm::ParameterSetBlob is available
+Warning in <TClass::Init>: no dictionary for class __pair_base<edm::Hash<1>,edm::ParameterSetBlob> is available
+Warning in <TClass::Init>: no dictionary for class pair<edm::Hash<1>,edm::ParameterSetBlob> is available
+210831 16:53:14 134 secgsi_GetCACheck: CRL entry for 'c141eb07.0:1' needs refreshing: clean the related entry cache first (0x2abe6c1d0f70)
+Warning in <TClass::Init>: no dictionary for class edm::Hash<1> is available
+Warning in <TClass::Init>: no dictionary for class edm::ProcessHistory is available
+Warning in <TClass::Init>: no dictionary for class edm::ProcessConfiguration is available
+Warning in <TClass::Init>: no dictionary for class edm::ParameterSetBlob is available
+Warning in <TClass::Init>: no dictionary for class __pair_base<edm::Hash<1>,edm::ParameterSetBlob> is available
+Warning in <TClass::Init>: no dictionary for class pair<edm::Hash<1>,edm::ParameterSetBlob> is available
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3006] tried hosts option not supported.
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3006] tried hosts option not supported.
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3006] tried hosts option not supported.
+
+Error in <TNetXNGFile::ReadBuffer>: [ERROR] Invalid session
+Error in <TBranch::GetBasket>: File: root://cms-xrd-global.cern.ch//store/mc/RunIISummer20UL18NanoAODv9/WJetsToLNu_HT-200To400_TuneCP5_13TeV-madgraphMLM-pythia8/NANOAODSIM/106X_upgrade2018_realistic_v16_L1v1-v1/70000/A698B53C-D0A1-7F47-9977-19D45A815168.root at byte:1861637, branch:Electron_genPartFlav, entry:1000, badread=1, nerrors=1, basketnumber=1
+210901 10:23:30 134 secgsi_GetCACheck: CRL entry for '7ecb2657.0:1' needs refreshing: clean the related entry cache first (0x2b81501f81e0)
+210901 10:23:30 134 secgsi_GetCACheck: CRL entry for 'dd4b34ea.0:1' needs refreshing: clean the related entry cache first (0x2b8150498750)
+210901 10:41:21 134 secgsi_GetCACheck: CRL entry for '14e86c33.0:1' needs refreshing: clean the related entry cache first (0x2b81505a0f90)
+210901 11:26:43 134 secgsi_GetCACheck: CRL entry for '8a21c0da.0:1' needs refreshing: clean the related entry cache first (0x2b81501d03d0)
+210901 12:29:50 134 secgsi_GetCACheck: CRL entry for 'c141eb07.0:1' needs refreshing: clean the related entry cache first (0x2b81501e1f10)
+210902 11:32:35 134 secgsi_GetCACheck: CRL entry for '8a21c0da.0:1' needs refreshing: clean the related entry cache first (0x2b81501d03d0)
+210902 12:32:02 134 secgsi_GetCACheck: CRL entry for '14e86c33.0:1' needs refreshing: clean the related entry cache first (0x2b81505a0f90)
+210902 12:36:39 134 secgsi_GetCACheck: CRL entry for 'dd4b34ea.0:1' needs refreshing: clean the related entry cache first (0x2b8150498750)
+210902 14:00:02 134 secgsi_GetCACheck: CRL entry for '7ecb2657.0:1' needs refreshing: clean the related entry cache first (0x2b81501f81e0)
+210902 14:34:04 134 secgsi_GetCACheck: CRL entry for '633dc6a4.0:1' needs refreshing: clean the related entry cache first (0x2b8150394a00)
+Warning in <TClass::Init>: no dictionary for class edm::Hash<1> is available
+Warning in <TClass::Init>: no dictionary for class edm::ProcessHistory is available
+Warning in <TClass::Init>: no dictionary for class edm::ProcessConfiguration is available
+Warning in <TClass::Init>: no dictionary for class edm::ParameterSetBlob is available
+Warning in <TClass::Init>: no dictionary for class __pair_base<edm::Hash<1>,edm::ParameterSetBlob> is available
+Warning in <TClass::Init>: no dictionary for class pair<edm::Hash<1>,edm::ParameterSetBlob> is available
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3022] Invalid argument
+
+210831 14:56:37 134 secgsi_GetCACheck: CRL entry for 'dd4b34ea.0:1' needs refreshing: clean the related entry cache first (0x2b2a7c04fdf0)
+210831 15:04:48 134 secgsi_GetCACheck: CRL entry for 'c141eb07.0:1' needs refreshing: clean the related entry cache first (0x2b2a7c028b90)
+210831 18:42:25 134 secgsi_GetCACheck: CRL entry for '14e86c33.0:1' needs refreshing: clean the related entry cache first (0x2b2a7c3e90a0)
+210831 19:31:25 134 secgsi_GetCACheck: CRL entry for '7ecb2657.0:1' needs refreshing: clean the related entry cache first (0x2b2a7c03f440)
+Warning in <TClass::Init>: no dictionary for class edm::ProcessHistory is available
+Warning in <TClass::Init>: no dictionary for class edm::ProcessConfiguration is available
+Warning in <TClass::Init>: no dictionary for class edm::ParameterSetBlob is available
+Warning in <TClass::Init>: no dictionary for class edm::Hash<1> is available
+Warning in <TClass::Init>: no dictionary for class pair<edm::Hash<1>,edm::ParameterSetBlob> is available

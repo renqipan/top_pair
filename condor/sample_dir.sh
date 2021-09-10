@@ -9,7 +9,12 @@ do
     mkdir $var
     cd $var
 	mkdir condor_out
-    temp=${dataset%%-pythia8*}
+	if [[ $dataset =~ "_pythia" ]]
+	then
+		temp=${dataset%%_pythia8*}
+	else
+    	temp=${dataset%%-pythia8*}
+    fi
     process=${temp:1}
     #dasgoclient --query "file dataset=$dataset" > ${process}.txt
     dasgoclient -query="file dataset=$dataset" > ${process}.txt
