@@ -240,7 +240,7 @@ void get_info_3jet_condor(TString inputFile) {
   cout << inputFile << " is reading and processing" << endl;
   cout << "total number of events: " << chain.GetEntries() << endl;
   TH2F* hist[8];// hists for  weights of EW corrections 
-   if(inputFile.Contains("TTToSemiLeptonic")){
+   if(inputFile.Contains("TTToSemiLeptonic")||inputFile.Contains("TTTo2L2Nu")||inputFile.Contains("TTToHadronic")){
      TString dir="/afs/cern.ch/user/r/repan/work/top_pair/correction_roots/";
      TString files[8]={"correction_kappa10","correction_kappa20","correction_kappa30",
                   "correction_kappa01","correction_kappa02","correction_kappa11",
@@ -267,8 +267,7 @@ void get_info_3jet_condor(TString inputFile) {
   Float_t up_pt, up_eta, up_mass, up_phi, down_pt, down_eta, down_phi, down_mass;
   // Int_t LHE_had[6];
   // difine branch for ttbar process information at parton level
-  if (inputFile.Contains("ttbar_semi") ||
-      inputFile.Contains("TTToSemiLeptonic")) {
+  if(inputFile.Contains("TTToSemiLeptonic")||inputFile.Contains("TTTo2L2Nu")||inputFile.Contains("TTToHadronic")){
     chain.SetBranchAddress("LHEPart_eta", LHEPart_eta);
     chain.SetBranchAddress("LHEPart_mass", LHEPart_mass);
     chain.SetBranchAddress("LHEPart_phi", LHEPart_phi);
@@ -276,9 +275,10 @@ void get_info_3jet_condor(TString inputFile) {
     chain.SetBranchAddress("LHEPart_phi", LHEPart_phi);
     chain.SetBranchAddress("LHEPart_pdgId", LHEPart_pdgId);
     chain.SetBranchAddress("nLHEPart", &nLHEPart);
-    // chain.SetBranchAddress("LHEPart_status",LHEPart_status);
     mytree->Branch("M_tt_gen", &M_tt_gen, "M_tt_gen/F");
     mytree->Branch("delta_rapidity_gen", &delta_rapidity_gen,"delta_rapidity_gen/F");
+  }
+  if (inputFile.Contains("TTToSemiLeptonic")) {
     mytree->Branch("lep_charge", &lep_charge, "lep_charge/F");
     mytree->Branch("top_pt", &top_pt, "top_pt/F");
     mytree->Branch("top_eta", &top_eta, "top_eta/F");
@@ -317,7 +317,7 @@ void get_info_3jet_condor(TString inputFile) {
   }
 
   Float_t weight[8];
-  if(inputFile.Contains("TTToSemiLeptonic")){
+  if(inputFile.Contains("TTToSemiLeptonic")||inputFile.Contains("TTTo2L2Nu")||inputFile.Contains("TTToHadronic")){
     mytree->Branch("weight_kappa10",&weight[0],"weight_kappa10/F");
     mytree->Branch("weight_kappa20",&weight[1],"weight_kappa20/F");
     mytree->Branch("weight_kappa30",&weight[2],"weight_kappa30/F");
@@ -434,9 +434,10 @@ void get_info_3jet_condor(TString inputFile) {
        total_entry=8.E+7;
   }
   else if (inputFile.Contains("QCD_HT100to200")||inputFile.Contains("QCD_HT200to300")||
-    inputFile.Contains("QCD_HT300to500")||inputFile.Contains("QCD_Pt-15to7000"))
+    inputFile.Contains("QCD_HT300to500")||inputFile.Contains("QCD_Pt-15to7000")){
         if(total_entry > 1.E+9)
           total_entry=1.E+9;
+    }    
   else{
     if(total_entry > 1.E+8)
        total_entry=1.E+8;
@@ -493,7 +494,8 @@ void get_info_3jet_condor(TString inputFile) {
         p4_top = p4_b + p4_up + p4_down;
         lep_charge = -1.0;
 
-      } else {
+      } 
+      else {
         p4_top = p4_b + p4_lep + p4_nu;
         p4_antitop = p4_antib + p4_up + p4_down;
         lep_charge = 1.0;
@@ -530,6 +532,60 @@ void get_info_3jet_condor(TString inputFile) {
       antib_mass = p4_antib.M();
       antib_phi = p4_antib.Phi();
       antib_eta = p4_antib.Eta();
+      M_tt_gen = (p4_top + p4_antitop).M();
+      delta_rapidity_gen = p4_top.Rapidity() - p4_antitop.Rapidity();
+    }
+    if(inputFile.Contains("TTTo2L2Nu")){
+        // get information of ttbar process at parton level from LHEPart
+        int index_b, index_antib, index_lepn, index_nun, index_lepp, index_nup;
+        TLorentzVector p4_b, p4_antib, p4_lepn, p4_nun, p4_lepp, p4_nup, p4_top,p4_antitop;
+        for(int i = 0; i < nLHEPart; i++) {
+          if (LHEPart_pdgId[i] == 5) index_b = i;
+          else if (LHEPart_pdgId[i] == -5) index_antib = i;
+          else if (LHEPart_pdgId[i] == 11|| LHEPart_pdgId[i] == 13||LHEPart_pdgId[i] == 15)
+              index_lepn = i;
+          else if (LHEPart_pdgId[i] == 12 || LHEPart_pdgId[i] == 14 || LHEPart_pdgId[i] == 16)
+              index_nun = i;
+          else if (LHEPart_pdgId[i] == -11 || LHEPart_pdgId[i] == -13 || LHEPart_pdgId[i] == -15)
+              index_lepp = i;
+          else if (LHEPart_pdgId[i] == -12 ||LHEPart_pdgId[i] == -14 || LHEPart_pdgId[i] == -16)
+              index_nup = i;
+          } 
+      p4_b.SetPtEtaPhiM(LHEPart_pt[index_b], LHEPart_eta[index_b],LHEPart_phi[index_b], LHEPart_mass[index_b]);
+      p4_antib.SetPtEtaPhiM(LHEPart_pt[index_antib], LHEPart_eta[index_antib],LHEPart_phi[index_antib],LHEPart_mass[index_antib]);
+      p4_lepp.SetPtEtaPhiM(LHEPart_pt[index_lepp], LHEPart_eta[index_lepp],LHEPart_phi[index_lepp], LHEPart_mass[index_lepp]);
+      p4_lepn.SetPtEtaPhiM(LHEPart_pt[index_lepn], LHEPart_eta[index_lepn],LHEPart_phi[index_lepn], LHEPart_mass[index_lepn]);
+      p4_nup.SetPtEtaPhiM(LHEPart_pt[index_nup], LHEPart_eta[index_nup],LHEPart_phi[index_nup], LHEPart_mass[index_nup]);
+      p4_nun.SetPtEtaPhiM(LHEPart_pt[index_nun], LHEPart_eta[index_nun],LHEPart_phi[index_nun], LHEPart_mass[index_nun]);
+      p4_top = p4_b + p4_lepp + p4_nun;
+      p4_antitop = p4_antib + p4_lepn + p4_nup;      
+      M_tt_gen = (p4_top + p4_antitop).M();
+      delta_rapidity_gen = p4_top.Rapidity() - p4_antitop.Rapidity();
+      }
+
+      if(inputFile.Contains("TTToHadronic")){
+        int index_b, index_antib, index_upbar, index_up, index_downbar, index_down;
+        TLorentzVector p4_b, p4_antib, p4_upbar, p4_up, p4_downbar, p4_down, p4_top,p4_antitop;
+        for(int i = 0; i < nLHEPart; i++) {
+            if (LHEPart_pdgId[i] == 5) index_b = i;
+            else if (LHEPart_pdgId[i] == -5) index_antib = i;
+            else if (LHEPart_pdgId[i] == 2|| LHEPart_pdgId[i] == 4)
+                index_up = i;
+            else if (LHEPart_pdgId[i] == -2 || LHEPart_pdgId[i] == -4)
+                index_upbar = i;
+            else if (LHEPart_pdgId[i] == 1 || LHEPart_pdgId[i] == 3)
+                index_down = i;
+            else if (LHEPart_pdgId[i] == -1 ||LHEPart_pdgId[i] == -3)
+                index_downbar = i;
+          } 
+      p4_b.SetPtEtaPhiM(LHEPart_pt[index_b], LHEPart_eta[index_b],LHEPart_phi[index_b], LHEPart_mass[index_b]);
+      p4_antib.SetPtEtaPhiM(LHEPart_pt[index_antib], LHEPart_eta[index_antib],LHEPart_phi[index_antib],LHEPart_mass[index_antib]);
+      p4_up.SetPtEtaPhiM(LHEPart_pt[index_up], LHEPart_eta[index_up],LHEPart_phi[index_up], LHEPart_mass[index_up]);
+      p4_upbar.SetPtEtaPhiM(LHEPart_pt[index_upbar], LHEPart_eta[index_upbar],LHEPart_phi[index_upbar], LHEPart_mass[index_upbar]);
+      p4_down.SetPtEtaPhiM(LHEPart_pt[index_down], LHEPart_eta[index_down],LHEPart_phi[index_down], LHEPart_mass[index_down]);
+      p4_downbar.SetPtEtaPhiM(LHEPart_pt[index_downbar], LHEPart_eta[index_downbar],LHEPart_phi[index_downbar], LHEPart_mass[index_downbar]);
+      p4_top = p4_b + p4_up + p4_downbar;
+      p4_antitop = p4_antib + p4_upbar + p4_down;      
       M_tt_gen = (p4_top + p4_antitop).M();
       delta_rapidity_gen = p4_top.Rapidity() - p4_antitop.Rapidity();
     }
@@ -584,8 +640,6 @@ void get_info_3jet_condor(TString inputFile) {
       }
 
     }
-
-
   // sort leptons according to their pt and make the first jet has maximum pt
  /*   for (int k = 0; k < nlepton; k++) {
       for (int j = k + 1; j < nlepton; j++) {
@@ -602,50 +656,52 @@ void get_info_3jet_condor(TString inputFile) {
       }
     }
     */
-    for (int i = 0; i < nlepton; i++) {
-      lepton_pt[i] = p4_lepton[i].Pt();
-      lepton_eta[i] = p4_lepton[i].Eta();
-      lepton_phi[i] = p4_lepton[i].Phi();
-      lepton_mass[i] = p4_lepton[i].M();
-    }
+    
 ////////////////////////////////////////////////////////////////////
 // select satisfied jets
     nBtag = 0;   // count number of bjet among all the jets
     jet_num = 0; // count number fot jets satisfy the selection criteria
     bool jet_flag = false; // if true pass the selection
+    
+    if(lepton_flag==true){
+      for (int i = 0; i < nJet; i++) {
+          mom_jets[i].SetPtEtaPhiM(Jet_pt[i], Jet_eta[i], Jet_phi[i],Jet_mass[i]);     
+          if (abs(Jet_eta[i]) < 2.4 && Jet_pt[i] > 30 && Jet_jetId[i]==6 && 
+            mom_jets[i].DeltaR(mom_lep)>0.4 ) {
+              //mom_jets[i].SetPtEtaPhiM(Jet_pt[i], Jet_eta[i], Jet_phi[i],Jet_mass[i]);
+              jet_index[jet_num] = i;
+              jet_num = jet_num + 1;
+              if (Jet_btagDeepB[i] > 0.14) {
+                Jet_btaged[i] = 1;
+                nBtag++;
+              } 
+              else
+                Jet_btaged[i] = 0;
+              btag_num = btag_num + Jet_btaged[i];
 
-    for (int i = 0; i < nJet; i++) {
-      mom_jets[i].SetPtEtaPhiM(Jet_pt[i], Jet_eta[i], Jet_phi[i],Jet_mass[i]);
-      if (abs(Jet_eta[i]) < 2.4 && Jet_pt[i] > 30 && Jet_jetId[i]==6 && 
-        mom_jets[i].DeltaR(mom_lep)>0.4 ) {
-   //     mom_jets[i].SetPtEtaPhiM(Jet_pt[i], Jet_eta[i], Jet_phi[i],Jet_mass[i]);
-        jet_index[jet_num] = i;
-        jet_num = jet_num + 1;
-        if (Jet_btagDeepB[i] > 0.14) {
-          Jet_btaged[i] = 1;
-          nBtag++;
-        } 
-        else
-          Jet_btaged[i] = 0;
-        btag_num = btag_num + Jet_btaged[i];
-
+          }
       }
 
     }
 
-    if (jet_num >= njet_need && btag_num >= 2)
+    if (jet_num >= njet_need && btag_num >= 2){
         jet_flag = true;
-
-    for(int i=0;i<jet_num;i++){
-      jet_btaged[i]=Jet_btaged[jet_index[i]];
-      jet_eta[i]=Jet_eta[jet_index[i]];
-      jet_pt[i]=Jet_pt[jet_index[i]];
-      jet_mass[i]=Jet_mass[jet_index[i]];
-      jet_phi[i]=Jet_phi[jet_index[i]];
-      jet_btagCSVV2[i]=Jet_btagCSVV2[jet_index[i]];
-      jet_btagDeepB[i]=Jet_btagDeepB[jet_index[i]];
-      jet_partonFlavour[i]=Jet_partonFlavour[jet_index[i]];
-
+        for(int i=0;i<jet_num;i++){
+          jet_btaged[i]=Jet_btaged[jet_index[i]];
+          jet_eta[i]=Jet_eta[jet_index[i]];
+          jet_pt[i]=Jet_pt[jet_index[i]];
+          jet_mass[i]=Jet_mass[jet_index[i]];
+          jet_phi[i]=Jet_phi[jet_index[i]];
+          jet_btagCSVV2[i]=Jet_btagCSVV2[jet_index[i]];
+          jet_btagDeepB[i]=Jet_btagDeepB[jet_index[i]];
+          jet_partonFlavour[i]=Jet_partonFlavour[jet_index[i]];
+        }
+        for (int i = 0; i < nlepton; i++) {
+          lepton_pt[i] = p4_lepton[i].Pt();
+          lepton_eta[i] = p4_lepton[i].Eta();
+          lepton_phi[i] = p4_lepton[i].Phi();
+          lepton_mass[i] = p4_lepton[i].M();
+        }
     }
     
     //////////////////////////////////////////////////////////////////
@@ -661,18 +717,21 @@ void get_info_3jet_condor(TString inputFile) {
         if( minimum < 19.0  ){ 
         /////////////////////////////////////////
         //add weights according to invariant mass and rapidity difference at generator level.
-          if(inputFile.Contains("TTToSemiLeptonic")){
-                  for(Int_t i=0;i<8;i++){
-                       Int_t nbin=hist[i]->FindBin(M_tt_gen,delta_rapidity_gen);
-                       weight[i]=1.0+hist[i]->GetBinContent(nbin);
-                     //  cout<<"weight[i]: "<<weight[i]<<endl;
-                     }
-               }
-        //////////////////////////////////////////////  
+          if(inputFile.Contains("TTToSemiLeptonic")||inputFile.Contains("TTTo2L2Nu")||inputFile.Contains("TTToHadronic")){
+              for(Int_t i=0;i<8;i++){
+                  Int_t nbin=hist[i]->FindBin(M_tt_gen,delta_rapidity_gen);
+                  weight[i]=1.0+hist[i]->GetBinContent(nbin);
+                  //  cout<<"weight[i]: "<<weight[i]<<endl;
+                  }
+          }
+        ////////////////////////////////////////////// 
+        if(jet_num >= 4)
+            count_4jet++;
+        else if (jet_num==3)
+            count_3jet++; 
         // calculate tt efficiency
         if (inputFile.Contains("ttbar_semi") ||inputFile.Contains("TTToSemiLeptonic")) {
         	if(jet_num >=4){
-           	 count_4jet++;
 		        int flag = 0;
 		        for (int iso = 0; iso < jet_num; iso++) {
 		          for (int jso = 0; jso < jet_num; jso++) {
@@ -744,7 +803,6 @@ void get_info_3jet_condor(TString inputFile) {
 	                 }
 	            }
 	            else if(jet_num==3){
-               	        count_3jet++;
 	            	int flag = 0;
 			          for (int jso = 0; jso < jet_num; jso++) {
 			            for (int bso = 0; bso < jet_num; bso++) {
