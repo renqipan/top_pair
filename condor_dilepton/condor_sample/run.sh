@@ -4,7 +4,12 @@
 source /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/6.18.04/x86_64-centos7-gcc48-opt/bin/thisroot.sh
 cd /afs/cern.ch/user/r/repan/work/top_pair/condor_dilepton/Chunk$2
 var=$1
-temp=${var%%-pythia8*}
+if [[ $var =~ "_pythia" ]]
+then
+	temp=${var%%_pythia8*}
+else
+    temp=${var%%-pythia8*}
+fi
 process=${temp:1}
 #dasgoclient --query "file dataset=$1" > ${process}.txt
 #dasgoclient -query="file dataset=$1" > ${process}.txt
