@@ -456,6 +456,11 @@ void get_info_dilepton(){
         }
         if(lepton_flag==true&&num_select1>0)
         	lepton_flag=false;
+        if(lepton_flag==true){
+			float llmass=(p4_lepton[lepton_index[0]]+p4_lepton[lepton_index[1]]).M();
+			if(llmass<50||(llmass>86.2&&llmass<96.2))
+				lepton_flag=false;
+		}
         //cout<<num_select1<<" "<<num_select2<<" "<<num_select3<<endl;
 	    ////////////////////////////////////////////////////////////////////
 	    bool jet_flag=false;
