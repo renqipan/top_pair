@@ -20,7 +20,7 @@ Steps to run the code:
 5. add EW weights to root files  
 **cd /afs/cern.ch/user/r/repan/work/top_pair/condor**  
 **root -l -q -b add_weight_branch.c**
-6. wirte histogram distribution of siganl and bkd into  
+6. wirte histogram distribution of siganl and background into  
 a root file and preapre a datacard(.txt)  
 **root -l -q -b prepare.cpp**  
 7. write a python script to paramerize the model(signal),  
