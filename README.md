@@ -23,7 +23,12 @@ Steps to run the code:
 6. wirte histogram distribution of siganl and bkd into  
 a root file and preapre a datacard(.txt)  
 *root -l -q -b prepare.cpp*  
-7. get likelihood scan through higgs combie tool  
+7. write a python script to paramerize the model(signal),  
+put it in HiggsAnalysis/CombinedLimit/python and then rebuild    
+*cd ~/tth_cms/CMSSW_8_1_0/src*  
+*cmsenv*  
+*scramv1 b clean; scramv1 b*  
+8. get likelihood scan through higgs combie tool  
 *source combine_3jets.sh*  
 *source combine_semi.sh*  
 
