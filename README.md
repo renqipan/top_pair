@@ -7,29 +7,29 @@ ttbar production at LHC in the SMEFT framewrok
 
 Steps to run the code: 
 1. visit the directory in lxplus:  
-*cd /afs/cern.ch/user/r/repan/work/top_pair/condor*  
+**cd /afs/cern.ch/user/r/repan/work/top_pair/condor**  
 2. get voms-proxy  
-*voms-proxy-init --voms cms -valid 192:00 -out ~/temp/x509up*    
+**voms-proxy-init --voms cms -valid 192:00 -out ~/temp/x509up**    
 3. run get_info_3jet_condor.cpp through condor  
-*source sample_dir.sh*  
-*cd condor_sample/*  
-*condor_submit condor.sub*  
+**source sample_dir.sh**  
+**cd condor_sample/**  
+**condor_submit condor.sub**  
 4. check condor processing and merge results into a directory  
-*condor_q*  
-*source merge_out.sh*  
+**condor_q**  
+**source merge_out.sh**  
 5. add EW weights to root files  
-*cd /afs/cern.ch/user/r/repan/work/top_pair/condor*  
-*root -l -q -b add_weight_branch.c*
+**cd /afs/cern.ch/user/r/repan/work/top_pair/condor**  
+**root -l -q -b add_weight_branch.c**
 6. wirte histogram distribution of siganl and bkd into  
 a root file and preapre a datacard(.txt)  
-*root -l -q -b prepare.cpp*  
+**root -l -q -b prepare.cpp**  
 7. write a python script to paramerize the model(signal),  
 put it in HiggsAnalysis/CombinedLimit/python and then rebuild    
-*cd ~/tth_cms/CMSSW_8_1_0/src*  
-*cmsenv*  
-*scramv1 b clean; scramv1 b*  
+**cd ~/tth_cms/CMSSW_8_1_0/src**  
+**cmsenv**  
+**scramv1 b clean; scramv1 b**  
 8. get likelihood scan through higgs combie tool  
-*source combine_3jets.sh*  
-*source combine_semi.sh*  
+**source combine_3jets.sh**  
+**source combine_semi.sh**  
 
 
