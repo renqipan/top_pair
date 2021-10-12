@@ -1,25 +1,29 @@
 
-Processing ../get_info_condor.cpp("QCD_HT2000toInf_TuneCP5_PSWeights_13TeV-madgraphMLM.txt")...
+Processing ../get_info_3jet_condor.cpp("QCD_HT2000toInf_TuneCP5_PSWeights_13TeV-madgraphMLM.txt")...
 QCD_HT2000toInf_TuneCP5_PSWeights_13TeV-madgraphMLM.root is reading and processing
-total number of events: 965706
+total number of events: 3689764
 infomation is writing. Please wait for a while
 infomation is writing. Please wait for a while
-QCD_HT2000toInf_TuneCP5_PSWeights_13TeV-madgraphMLM.root has 965706 events
+QCD_HT2000toInf_TuneCP5_PSWeights_13TeV-madgraphMLM.root has 3689764 events
 new_QCD_HT2000toInf_TuneCP5_PSWeights_13TeV-madgraphMLM.root is created
-965706 events are written into rawtree.
-395 events are written into mytree.
+3689764 events are written into rawtree.
+0 events are written into mytree.
+0 events have at least 4 jets
+0 events have 3 jets
 
-Processing ../get_info_condor.cpp("WW_TuneCP5_13TeV.txt")...
+Processing ../get_info_3jet_condor.cpp("WW_TuneCP5_13TeV.txt")...
 WW_TuneCP5_13TeV.root is reading and processing
-total number of events: 14842000
+total number of events: 14845000
 infomation is writing. Please wait for a while
 infomation is writing. Please wait for a while
-WW_TuneCP5_13TeV.root has 14842000 events
+WW_TuneCP5_13TeV.root has 14845000 events
 new_WW_TuneCP5_13TeV.root is created
-14842000 events are written into rawtree.
-12253 events are written into mytree.
+14845000 events are written into rawtree.
+71638 events are written into mytree.
+10798 events have at least 4 jets
+60840 events have 3 jets
 
-Processing ../get_info_condor.cpp("ZZ_TuneCP5_13TeV.txt")...
+Processing ../get_info_3jet_condor.cpp("ZZ_TuneCP5_13TeV.txt")...
 ZZ_TuneCP5_13TeV.root is reading and processing
 total number of events: 3907000
 infomation is writing. Please wait for a while
@@ -27,29 +31,62 @@ infomation is writing. Please wait for a while
 ZZ_TuneCP5_13TeV.root has 3907000 events
 new_ZZ_TuneCP5_13TeV.root is created
 3907000 events are written into rawtree.
-6190 events are written into mytree.
+9225 events are written into mytree.
+1560 events have at least 4 jets
+7665 events have 3 jets
 
-Processing ../get_info_condor.cpp("WZ_TuneCP5_13TeV.txt")...
+Processing ../get_info_3jet_condor.cpp("WZ_TuneCP5_13TeV.txt")...
 WZ_TuneCP5_13TeV.root is reading and processing
-total number of events: 6926000
+total number of events: 7727000
 infomation is writing. Please wait for a while
 infomation is writing. Please wait for a while
-WZ_TuneCP5_13TeV.root has 6926000 events
+WZ_TuneCP5_13TeV.root has 7727000 events
 new_WZ_TuneCP5_13TeV.root is created
-6926000 events are written into rawtree.
-9251 events are written into mytree.
+7727000 events are written into rawtree.
+29302 events are written into mytree.
+4590 events have at least 4 jets
+24712 events have 3 jets
 
-Processing ../get_info_condor.cpp("ST_tW_top_5f_inclusiveDecays_TuneCP5_13TeV-powheg.txt")...
+Processing ../get_info_3jet_condor.cpp("ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-amcatnlo.txt")...
+ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-amcatnlo.root is reading and processing
+total number of events: 19365999
+infomation is writing. Please wait for a while
+infomation is writing. Please wait for a while
+ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-amcatnlo.root has 19365999 events
+new_ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-amcatnlo.root is created
+19365999 events are written into rawtree.
+474311 events are written into mytree.
+80389 events have at least 4 jets
+393922 events have 3 jets
+
+Processing ../get_info_3jet_condor.cpp("ST_t-channel_antitop_4f_InclusiveDecays_TuneCP5_13TeV-powheg-madspin.txt")...
+ST_t-channel_antitop_4f_InclusiveDecays_TuneCP5_13TeV-powheg-madspin.root is reading and processing
+total number of events: 23421300
+infomation is writing. Please wait for a while
+infomation is writing. Please wait for a while
+ST_t-channel_antitop_4f_InclusiveDecays_TuneCP5_13TeV-powheg-madspin.root has 23421300 events
+new_ST_t-channel_antitop_4f_InclusiveDecays_TuneCP5_13TeV-powheg-madspin.root is created
+23421300 events are written into rawtree.
+190555 events are written into mytree.
+33220 events have at least 4 jets
+157335 events have 3 jets
+
+Processing ../get_info_3jet_condor.cpp("ST_tW_top_5f_inclusiveDecays_TuneCP5_13TeV-powheg.txt")...
 ST_tW_top_5f_inclusiveDecays_TuneCP5_13TeV-powheg.root is reading and processing
 total number of events: 9598000
 infomation is writing. Please wait for a while
 infomation is writing. Please wait for a while
+ file probably overwritten: stopping reporting error messages
+===>Your file is may be bigger than the maximum file size allowed on your system
+    Check your AFS maximum file size limit for example
 ST_tW_top_5f_inclusiveDecays_TuneCP5_13TeV-powheg.root has 9598000 events
 new_ST_tW_top_5f_inclusiveDecays_TuneCP5_13TeV-powheg.root is created
 9598000 events are written into rawtree.
-181081 events are written into mytree.
+31236 events are written into mytree.
+11895 events have at least 4 jets
+19341 events have 3 jets
 
-Processing ../get_info_condor.cpp("ST_tW_antitop_5f_inclusiveDecays_TuneCP5_13TeV-powheg.txt")...
+Processing ../get_info_3jet_condor.cpp("ST_tW_antitop_5f_inclusiveDecays_TuneCP5_13TeV-powheg.txt")...
 ST_tW_antitop_5f_inclusiveDecays_TuneCP5_13TeV-powheg.root is reading and processing
 total number of events: 7623000
 infomation is writing. Please wait for a while
@@ -57,29 +94,35 @@ infomation is writing. Please wait for a while
 ST_tW_antitop_5f_inclusiveDecays_TuneCP5_13TeV-powheg.root has 7623000 events
 new_ST_tW_antitop_5f_inclusiveDecays_TuneCP5_13TeV-powheg.root is created
 7623000 events are written into rawtree.
-204502 events are written into mytree.
+153745 events are written into mytree.
+55562 events have at least 4 jets
+98183 events have 3 jets
 
-Processing ../get_info_condor.cpp("WJetsToLNu_HT-400To600_TuneCP5_13TeV-madgraphMLM.txt")...
+Processing ../get_info_3jet_condor.cpp("WJetsToLNu_HT-400To600_TuneCP5_13TeV-madgraphMLM.txt")...
 WJetsToLNu_HT-400To600_TuneCP5_13TeV-madgraphMLM.root is reading and processing
-total number of events: 6825219
+total number of events: 6752523
 infomation is writing. Please wait for a while
 infomation is writing. Please wait for a while
-WJetsToLNu_HT-400To600_TuneCP5_13TeV-madgraphMLM.root has 6825219 events
+WJetsToLNu_HT-400To600_TuneCP5_13TeV-madgraphMLM.root has 6752523 events
 new_WJetsToLNu_HT-400To600_TuneCP5_13TeV-madgraphMLM.root is created
-6825219 events are written into rawtree.
-22641 events are written into mytree.
+6752523 events are written into rawtree.
+177326 events are written into mytree.
+62549 events have at least 4 jets
+114777 events have 3 jets
 
-Processing ../get_info_condor.cpp("WJetsToLNu_HT-600To800_TuneCP5_13TeV-madgraphMLM.txt")...
+Processing ../get_info_3jet_condor.cpp("WJetsToLNu_HT-600To800_TuneCP5_13TeV-madgraphMLM.txt")...
 WJetsToLNu_HT-600To800_TuneCP5_13TeV-madgraphMLM.root is reading and processing
-total number of events: 7430655
+total number of events: 7417524
 infomation is writing. Please wait for a while
 infomation is writing. Please wait for a while
-WJetsToLNu_HT-600To800_TuneCP5_13TeV-madgraphMLM.root has 7430655 events
+WJetsToLNu_HT-600To800_TuneCP5_13TeV-madgraphMLM.root has 7417524 events
 new_WJetsToLNu_HT-600To800_TuneCP5_13TeV-madgraphMLM.root is created
-7430655 events are written into rawtree.
-24391 events are written into mytree.
+7417524 events are written into rawtree.
+847818 events are written into mytree.
+53866 events have at least 4 jets
+793952 events have 3 jets
 
-Processing ../get_info_condor.cpp("WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM.txt")...
+Processing ../get_info_3jet_condor.cpp("WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM.txt")...
 WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM.root is reading and processing
 total number of events: 7306187
 infomation is writing. Please wait for a while
@@ -87,9 +130,11 @@ infomation is writing. Please wait for a while
 WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM.root has 7306187 events
 new_WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM.root is created
 7306187 events are written into rawtree.
-22263 events are written into mytree.
+61467 events are written into mytree.
+36524 events have at least 4 jets
+24943 events have 3 jets
 
-Processing ../get_info_condor.cpp("WJetsToLNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM.txt")...
+Processing ../get_info_3jet_condor.cpp("WJetsToLNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM.txt")...
 WJetsToLNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM.root is reading and processing
 total number of events: 6855219
 infomation is writing. Please wait for a while
@@ -97,9 +142,11 @@ infomation is writing. Please wait for a while
 WJetsToLNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM.root has 6855219 events
 new_WJetsToLNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM.root is created
 6855219 events are written into rawtree.
-20706 events are written into mytree.
+31116 events are written into mytree.
+22127 events have at least 4 jets
+8989 events have 3 jets
 
-Processing ../get_info_condor.cpp("WJetsToLNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM.txt")...
+Processing ../get_info_3jet_condor.cpp("WJetsToLNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM.txt")...
 WJetsToLNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM.root is reading and processing
 total number of events: 3273980
 infomation is writing. Please wait for a while
@@ -107,9 +154,11 @@ infomation is writing. Please wait for a while
 WJetsToLNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM.root has 3273980 events
 new_WJetsToLNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM.root is created
 3273980 events are written into rawtree.
-8768 events are written into mytree.
+4692 events are written into mytree.
+4510 events have at least 4 jets
+182 events have 3 jets
 
-Processing ../get_info_condor.cpp("DYJetsToLL_M-50_HT-70to100_TuneCP5_PSweights_13TeV-madgraphMLM.txt")...
+Processing ../get_info_3jet_condor.cpp("DYJetsToLL_M-50_HT-70to100_TuneCP5_PSweights_13TeV-madgraphMLM.txt")...
 DYJetsToLL_M-50_HT-70to100_TuneCP5_PSweights_13TeV-madgraphMLM.root is reading and processing
 total number of events: 17004433
 infomation is writing. Please wait for a while
@@ -117,9 +166,11 @@ infomation is writing. Please wait for a while
 DYJetsToLL_M-50_HT-70to100_TuneCP5_PSweights_13TeV-madgraphMLM.root has 17004433 events
 new_DYJetsToLL_M-50_HT-70to100_TuneCP5_PSweights_13TeV-madgraphMLM.root is created
 17004433 events are written into rawtree.
-5113 events are written into mytree.
+73927 events are written into mytree.
+4604 events have at least 4 jets
+69323 events have 3 jets
 
-Processing ../get_info_condor.cpp("DYJetsToLL_M-50_HT-100to200_TuneCP5_PSweights_13TeV-madgraphMLM.txt")...
+Processing ../get_info_3jet_condor.cpp("DYJetsToLL_M-50_HT-100to200_TuneCP5_PSweights_13TeV-madgraphMLM.txt")...
 DYJetsToLL_M-50_HT-100to200_TuneCP5_PSweights_13TeV-madgraphMLM.root is reading and processing
 total number of events: 26202328
 infomation is writing. Please wait for a while
@@ -127,9 +178,11 @@ infomation is writing. Please wait for a while
 DYJetsToLL_M-50_HT-100to200_TuneCP5_PSweights_13TeV-madgraphMLM.root has 26202328 events
 new_DYJetsToLL_M-50_HT-100to200_TuneCP5_PSweights_13TeV-madgraphMLM.root is created
 26202328 events are written into rawtree.
-26574 events are written into mytree.
+452794 events are written into mytree.
+53018 events have at least 4 jets
+399776 events have 3 jets
 
-Processing ../get_info_condor.cpp("DYJetsToLL_M-50_HT-200to400_TuneCP5_PSweights_13TeV-madgraphMLM.txt")...
+Processing ../get_info_3jet_condor.cpp("DYJetsToLL_M-50_HT-200to400_TuneCP5_PSweights_13TeV-madgraphMLM.txt")...
 DYJetsToLL_M-50_HT-200to400_TuneCP5_PSweights_13TeV-madgraphMLM.root is reading and processing
 total number of events: 18455718
 infomation is writing. Please wait for a while
@@ -137,9 +190,11 @@ infomation is writing. Please wait for a while
 DYJetsToLL_M-50_HT-200to400_TuneCP5_PSweights_13TeV-madgraphMLM.root has 18455718 events
 new_DYJetsToLL_M-50_HT-200to400_TuneCP5_PSweights_13TeV-madgraphMLM.root is created
 18455718 events are written into rawtree.
-50231 events are written into mytree.
+713765 events are written into mytree.
+162294 events have at least 4 jets
+551471 events have 3 jets
 
-Processing ../get_info_condor.cpp("DYJetsToLL_M-50_HT-400to600_TuneCP5_PSweights_13TeV-madgraphMLM.txt")...
+Processing ../get_info_3jet_condor.cpp("DYJetsToLL_M-50_HT-400to600_TuneCP5_PSweights_13TeV-madgraphMLM.txt")...
 DYJetsToLL_M-50_HT-400to600_TuneCP5_PSweights_13TeV-madgraphMLM.root is reading and processing
 total number of events: 8123715
 infomation is writing. Please wait for a while
@@ -147,35 +202,35 @@ infomation is writing. Please wait for a while
 DYJetsToLL_M-50_HT-400to600_TuneCP5_PSweights_13TeV-madgraphMLM.root has 8123715 events
 new_DYJetsToLL_M-50_HT-400to600_TuneCP5_PSweights_13TeV-madgraphMLM.root is created
 8123715 events are written into rawtree.
-28760 events are written into mytree.
+187306 events are written into mytree.
+82525 events have at least 4 jets
+104781 events have 3 jets
 
-Processing ../get_info_condor.cpp("TTToHadronic_TuneCP5_13TeV-powheg.txt")...
-TTToHadronic_TuneCP5_13TeV-powheg.root is reading and processing
-total number of events: 321632000
-infomation is writing. Please wait for a while
-infomation is writing. Please wait for a while
-
-Processing ../get_info_condor.cpp("DYJetsToLL_M-50_HT-600to800_TuneCP5_PSweights_13TeV-madgraphMLM.txt")...
+Processing ../get_info_3jet_condor.cpp("DYJetsToLL_M-50_HT-600to800_TuneCP5_PSweights_13TeV-madgraphMLM.txt")...
 DYJetsToLL_M-50_HT-600to800_TuneCP5_PSweights_13TeV-madgraphMLM.root is reading and processing
-total number of events: 7035971
+total number of events: 6402087
 infomation is writing. Please wait for a while
 infomation is writing. Please wait for a while
-DYJetsToLL_M-50_HT-600to800_TuneCP5_PSweights_13TeV-madgraphMLM.root has 7035971 events
+DYJetsToLL_M-50_HT-600to800_TuneCP5_PSweights_13TeV-madgraphMLM.root has 6402087 events
 new_DYJetsToLL_M-50_HT-600to800_TuneCP5_PSweights_13TeV-madgraphMLM.root is created
-7035971 events are written into rawtree.
-22315 events are written into mytree.
+6402087 events are written into rawtree.
+87554 events are written into mytree.
+54025 events have at least 4 jets
+33529 events have 3 jets
 
-Processing ../get_info_condor.cpp("DYJetsToLL_M-50_HT-800to1200_TuneCP5_PSweights_13TeV-madgraphMLM.txt")...
+Processing ../get_info_3jet_condor.cpp("DYJetsToLL_M-50_HT-800to1200_TuneCP5_PSweights_13TeV-madgraphMLM.txt")...
 DYJetsToLL_M-50_HT-800to1200_TuneCP5_PSweights_13TeV-madgraphMLM.root is reading and processing
-total number of events: 6357188
+total number of events: 6409040
 infomation is writing. Please wait for a while
 infomation is writing. Please wait for a while
-DYJetsToLL_M-50_HT-800to1200_TuneCP5_PSweights_13TeV-madgraphMLM.root has 6357188 events
+DYJetsToLL_M-50_HT-800to1200_TuneCP5_PSweights_13TeV-madgraphMLM.root has 6409040 events
 new_DYJetsToLL_M-50_HT-800to1200_TuneCP5_PSweights_13TeV-madgraphMLM.root is created
-6357188 events are written into rawtree.
-19737 events are written into mytree.
+6409040 events are written into rawtree.
+52946 events are written into mytree.
+39318 events have at least 4 jets
+13628 events have 3 jets
 
-Processing ../get_info_condor.cpp("DYJetsToLL_M-50_HT-1200to2500_TuneCP5_PSweights_13TeV-madgraphMLM.txt")...
+Processing ../get_info_3jet_condor.cpp("DYJetsToLL_M-50_HT-1200to2500_TuneCP5_PSweights_13TeV-madgraphMLM.txt")...
 DYJetsToLL_M-50_HT-1200to2500_TuneCP5_PSweights_13TeV-madgraphMLM.root is reading and processing
 total number of events: 988141
 infomation is writing. Please wait for a while
@@ -183,9 +238,11 @@ infomation is writing. Please wait for a while
 DYJetsToLL_M-50_HT-1200to2500_TuneCP5_PSweights_13TeV-madgraphMLM.root has 988141 events
 new_DYJetsToLL_M-50_HT-1200to2500_TuneCP5_PSweights_13TeV-madgraphMLM.root is created
 988141 events are written into rawtree.
-2127 events are written into mytree.
+3599 events are written into mytree.
+3110 events have at least 4 jets
+489 events have 3 jets
 
-Processing ../get_info_condor.cpp("DYJetsToLL_M-50_HT-2500toInf_TuneCP5_PSweights_13TeV-madgraphMLM.txt")...
+Processing ../get_info_3jet_condor.cpp("DYJetsToLL_M-50_HT-2500toInf_TuneCP5_PSweights_13TeV-madgraphMLM.txt")...
 DYJetsToLL_M-50_HT-2500toInf_TuneCP5_PSweights_13TeV-madgraphMLM.root is reading and processing
 total number of events: 1978203
 infomation is writing. Please wait for a while
@@ -193,19 +250,26 @@ infomation is writing. Please wait for a while
 DYJetsToLL_M-50_HT-2500toInf_TuneCP5_PSweights_13TeV-madgraphMLM.root has 1978203 events
 new_DYJetsToLL_M-50_HT-2500toInf_TuneCP5_PSweights_13TeV-madgraphMLM.root is created
 1978203 events are written into rawtree.
-3642 events are written into mytree.
+2569 events are written into mytree.
+2523 events have at least 4 jets
+46 events have 3 jets
 
-Processing ../get_info_condor.cpp("QCD_HT100to200_TuneCP5_PSWeights_13TeV-madgraphMLM.txt")...
+Processing ../get_info_3jet_condor.cpp("QCD_Pt-15to7000_TuneCP5_Flat2018_13TeV_pythia8/RunIISummer19UL18NanoAOD-EpsilonPU_JMECustomTuples_106X_upgrade2018_realistic_v11_L1v1-v2/NANOAODSIM.txt")...
+error: reading input file failed!!! 
+
+Processing ../get_info_3jet_condor.cpp("QCD_HT100to200_TuneCP5_PSWeights_13TeV-madgraphMLM.txt")...
 QCD_HT100to200_TuneCP5_PSWeights_13TeV-madgraphMLM.root is reading and processing
-total number of events: 19263057
+total number of events: 66787306
 infomation is writing. Please wait for a while
 infomation is writing. Please wait for a while
-QCD_HT100to200_TuneCP5_PSWeights_13TeV-madgraphMLM.root has 19263057 events
+QCD_HT100to200_TuneCP5_PSWeights_13TeV-madgraphMLM.root has 66787306 events
 new_QCD_HT100to200_TuneCP5_PSWeights_13TeV-madgraphMLM.root is created
-19263057 events are written into rawtree.
-107 events are written into mytree.
+66787306 events are written into rawtree.
+5 events are written into mytree.
+0 events have at least 4 jets
+5 events have 3 jets
 
-Processing ../get_info_condor.cpp("QCD_HT200to300_TuneCP5_PSWeights_13TeV-madgraphMLM.txt")...
+Processing ../get_info_3jet_condor.cpp("QCD_HT200to300_TuneCP5_PSWeights_13TeV-madgraphMLM.txt")...
 QCD_HT200to300_TuneCP5_PSWeights_13TeV-madgraphMLM.root is reading and processing
 total number of events: 32971159
 infomation is writing. Please wait for a while
@@ -213,9 +277,23 @@ infomation is writing. Please wait for a while
 QCD_HT200to300_TuneCP5_PSWeights_13TeV-madgraphMLM.root has 32971159 events
 new_QCD_HT200to300_TuneCP5_PSWeights_13TeV-madgraphMLM.root is created
 32971159 events are written into rawtree.
-9055 events are written into mytree.
+408 events are written into mytree.
+56 events have at least 4 jets
+352 events have 3 jets
 
-Processing ../get_info_condor.cpp("QCD_HT500to700_TuneCP5_PSWeights_13TeV-madgraphMLM.txt")...
+Processing ../get_info_3jet_condor.cpp("QCD_HT300to500_TuneCP5_PSWeights_13TeV-madgraphMLM.txt")...
+QCD_HT300to500_TuneCP5_PSWeights_13TeV-madgraphMLM.root is reading and processing
+total number of events: 55135074
+infomation is writing. Please wait for a while
+infomation is writing. Please wait for a while
+QCD_HT300to500_TuneCP5_PSWeights_13TeV-madgraphMLM.root has 55135074 events
+new_QCD_HT300to500_TuneCP5_PSWeights_13TeV-madgraphMLM.root is created
+55135074 events are written into rawtree.
+1822 events are written into mytree.
+406 events have at least 4 jets
+1416 events have 3 jets
+
+Processing ../get_info_3jet_condor.cpp("QCD_HT500to700_TuneCP5_PSWeights_13TeV-madgraphMLM.txt")...
 QCD_HT500to700_TuneCP5_PSWeights_13TeV-madgraphMLM.root is reading and processing
 total number of events: 57339690
 infomation is writing. Please wait for a while
@@ -223,9 +301,11 @@ infomation is writing. Please wait for a while
 QCD_HT500to700_TuneCP5_PSWeights_13TeV-madgraphMLM.root has 57339690 events
 new_QCD_HT500to700_TuneCP5_PSWeights_13TeV-madgraphMLM.root is created
 57339690 events are written into rawtree.
-27146 events are written into mytree.
+319 events are written into mytree.
+117 events have at least 4 jets
+202 events have 3 jets
 
-Processing ../get_info_condor.cpp("QCD_HT700to1000_TuneCP5_PSWeights_13TeV-madgraphMLM.txt")...
+Processing ../get_info_3jet_condor.cpp("QCD_HT700to1000_TuneCP5_PSWeights_13TeV-madgraphMLM.txt")...
 QCD_HT700to1000_TuneCP5_PSWeights_13TeV-madgraphMLM.root is reading and processing
 total number of events: 47569353
 infomation is writing. Please wait for a while
@@ -233,9 +313,11 @@ infomation is writing. Please wait for a while
 QCD_HT700to1000_TuneCP5_PSWeights_13TeV-madgraphMLM.root has 47569353 events
 new_QCD_HT700to1000_TuneCP5_PSWeights_13TeV-madgraphMLM.root is created
 47569353 events are written into rawtree.
-131174 events are written into mytree.
+890 events are written into mytree.
+440 events have at least 4 jets
+450 events have 3 jets
 
-Processing ../get_info_condor.cpp("QCD_HT1000to1500_TuneCP5_PSWeights_13TeV-madgraphMLM.txt")...
+Processing ../get_info_3jet_condor.cpp("QCD_HT1000to1500_TuneCP5_PSWeights_13TeV-madgraphMLM.txt")...
 QCD_HT1000to1500_TuneCP5_PSWeights_13TeV-madgraphMLM.root is reading and processing
 total number of events: 15675643
 infomation is writing. Please wait for a while
@@ -243,9 +325,11 @@ infomation is writing. Please wait for a while
 QCD_HT1000to1500_TuneCP5_PSWeights_13TeV-madgraphMLM.root has 15675643 events
 new_QCD_HT1000to1500_TuneCP5_PSWeights_13TeV-madgraphMLM.root is created
 15675643 events are written into rawtree.
-43689 events are written into mytree.
+191 events are written into mytree.
+125 events have at least 4 jets
+66 events have 3 jets
 
-Processing ../get_info_condor.cpp("QCD_HT1500to2000_TuneCP5_PSWeights_13TeV-madgraphMLM.txt")...
+Processing ../get_info_3jet_condor.cpp("QCD_HT1500to2000_TuneCP5_PSWeights_13TeV-madgraphMLM.txt")...
 QCD_HT1500to2000_TuneCP5_PSWeights_13TeV-madgraphMLM.root is reading and processing
 total number of events: 10612885
 infomation is writing. Please wait for a while
@@ -253,4 +337,6 @@ infomation is writing. Please wait for a while
 QCD_HT1500to2000_TuneCP5_PSWeights_13TeV-madgraphMLM.root has 10612885 events
 new_QCD_HT1500to2000_TuneCP5_PSWeights_13TeV-madgraphMLM.root is created
 10612885 events are written into rawtree.
-25260 events are written into mytree.
+63 events are written into mytree.
+39 events have at least 4 jets
+24 events have 3 jets
