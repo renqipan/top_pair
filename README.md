@@ -21,7 +21,7 @@ Steps to run the code:
 *cd /afs/cern.ch/user/r/repan/work/top_pair/condor*  
 *root -l -q -b add_weight_branch.c*
 6. wirte histogram distribution of siganl and bkd into  
-a root file and preapre a datacard(.txt)
+a root file and preapre a datacard(.txt)  
 *root -l -q -b prepare.cpp*  
 7. get likelihood scan through higgs combie tool  
 *source combine_3jets.sh*  
