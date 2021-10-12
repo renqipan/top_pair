@@ -518,49 +518,50 @@ void get_info() {
       }
     }
     */
-    for (int i = 0; i < nlepton; i++) {
-      lepton_pt[i] = p4_lepton[i].Pt();
-      lepton_eta[i] = p4_lepton[i].Eta();
-      lepton_phi[i] = p4_lepton[i].Phi();
-      lepton_mass[i] = p4_lepton[i].M();
-    }
 ////////////////////////////////////////////////////////////////////
 // select satisfied jets
     nBtag = 0;   // count number of bjet among all the jets
     jet_num = 0; // count number fot jets satisfy the selection criteria
     bool jet_flag = false; // if true pass the selection
+    if(lepton_flag==true){
+        for (int i = 0; i < nJet; i++) {
+          mom_jets[i].SetPtEtaPhiM(Jet_pt[i], Jet_eta[i], Jet_phi[i],Jet_mass[i]);     
+          if (abs(Jet_eta[i]) < 2.4 && Jet_pt[i] > 30 && Jet_jetId[i]==6 && 
+          mom_jets[i].DeltaR(mom_lep)>0.4 ) {
+       //     mom_jets[i].SetPtEtaPhiM(Jet_pt[i], Jet_eta[i], Jet_phi[i],Jet_mass[i]);
+            jet_index[jet_num] = i;
+            jet_num = jet_num + 1;
+            if (Jet_btagDeepB[i] > 0.14) {
+              Jet_btaged[i] = 1;
+              nBtag++;
+            } 
+            else
+              Jet_btaged[i] = 0;
+            btag_num = btag_num + Jet_btaged[i];
 
-    for (int i = 0; i < nJet; i++) {
-      mom_jets[i].SetPtEtaPhiM(Jet_pt[i], Jet_eta[i], Jet_phi[i],Jet_mass[i]);
-      if (abs(Jet_eta[i]) < 2.4 && Jet_pt[i] > 30 && Jet_jetId[i]==6 && 
-        mom_jets[i].DeltaR(mom_lep)>0.4 ) {
-   //     mom_jets[i].SetPtEtaPhiM(Jet_pt[i], Jet_eta[i], Jet_phi[i],Jet_mass[i]);
-        jet_index[jet_num] = i;
-        jet_num = jet_num + 1;
-        if (Jet_btagDeepB[i] > 0.14) {
-          Jet_btaged[i] = 1;
-          nBtag++;
-        } 
-        else
-          Jet_btaged[i] = 0;
-        btag_num = btag_num + Jet_btaged[i];
-
+        }
       }
-
+      
     }
 
-    if (jet_num >= njet_need && btag_num >= 2)
+    if (jet_num >= njet_need && btag_num >= 2){
         jet_flag = true;
-
-    for(int i=0;i<jet_num;i++){
-      jet_btaged[i]=Jet_btaged[jet_index[i]];
-      jet_eta[i]=Jet_eta[jet_index[i]];
-      jet_pt[i]=Jet_pt[jet_index[i]];
-      jet_mass[i]=Jet_mass[jet_index[i]];
-      jet_phi[i]=Jet_phi[jet_index[i]];
-      jet_btagCSVV2[i]=Jet_btagCSVV2[jet_index[i]];
-      jet_btagDeepB[i]=Jet_btagDeepB[jet_index[i]];
-      jet_partonFlavour[i]=Jet_partonFlavour[jet_index[i]];
+        for(int i=0;i<jet_num;i++){
+          jet_btaged[i]=Jet_btaged[jet_index[i]];
+          jet_eta[i]=Jet_eta[jet_index[i]];
+          jet_pt[i]=Jet_pt[jet_index[i]];
+          jet_mass[i]=Jet_mass[jet_index[i]];
+          jet_phi[i]=Jet_phi[jet_index[i]];
+          jet_btagCSVV2[i]=Jet_btagCSVV2[jet_index[i]];
+          jet_btagDeepB[i]=Jet_btagDeepB[jet_index[i]];
+          jet_partonFlavour[i]=Jet_partonFlavour[jet_index[i]];
+        }
+        for (int i = 0; i < nlepton; i++) {
+          lepton_pt[i] = p4_lepton[i].Pt();
+          lepton_eta[i] = p4_lepton[i].Eta();
+          lepton_phi[i] = p4_lepton[i].Phi();
+          lepton_mass[i] = p4_lepton[i].M();
+        }
 
     }
     

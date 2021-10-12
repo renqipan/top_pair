@@ -217,7 +217,7 @@ void get_info_3jet() {
   TString inputFile ="TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_1TopNanoAODv6p1_2018.root";
   chain.Add(inputFile);
   chain.Add("TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_1TopNanoAODv5p1_2018.root");
-  TString output = "new_"+inputFile;
+  TString output = "semi_"+inputFile;
   TFile *file = new TFile(output, "RECREATE");
   TTree *mytree = new TTree("mytree", " tree with branches");
   TTree *rawtree = new TTree("rawtree", "tree without selection");
