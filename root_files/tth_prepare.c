@@ -114,7 +114,7 @@ void writeline(vector<float> arr , ofstream &card){
 		card<< arr[i]<<"\t";
 	card<<endl;
 }
-void prepare_ac(TString category="htxs_stage1_reco_cat", TString categoryName="htxs_stage1_reco_catName",TString outputDir="default",TString file_app = "_newcate",int doSys=1, int readPara=0,TString stageName = "htxs_stage1_red_cat", TString year="2018", int flav=0){
+void tth_prepare(TString category="htxs_stage1_reco_cat", TString categoryName="htxs_stage1_reco_catName",TString outputDir="default",TString file_app = "_newcate",int doSys=1, int readPara=0,TString stageName = "htxs_stage1_red_cat", TString year="2018", int flav=0){
 	gStyle->SetOptStat(0);
 	TString chanName[3] = {"4mu" , "4e", "2e2mu"}; 
 	float lumi = 41.5;
