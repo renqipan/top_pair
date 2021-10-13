@@ -245,8 +245,12 @@ void prepare(){
 		//build dataset, but for expected results dataset is not needed.
 		TChain *chain_data=new TChain("mytree");
 		chain_data->Add(fileNames[0]); 
-	    RooDataSet *data;
-	    data=new RooDataSet("data_obs","",chain_data,RooArgList(*mtt,*ytt));
+	    RooDataHist *data;
+	    TH2F* hist_data=new TH2F("hist_data","hist_data",9,mtt_edges, 11, ytt_edges)
+	    chain_data->Draw("abs(rapidity_tt):mass_tt>>"+"hist_data");
+		chain_data->Draw("-abs(rapidity_tt):mass_tt>>+"+"hist_data");
+		hist_data->Scale(1/2.0)
+	    data=new RooDataHist("data_obs","",RooArgSet(*mtt,*ytt),Import(*hist_data));
 	    w.import(*data);
 	    w.Print();
 
