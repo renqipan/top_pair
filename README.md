@@ -27,6 +27,7 @@ a root file and preapre a datacard(.txt)
 put it in HiggsAnalysis/CombinedLimit/python and then rebuild    
 **cd ~/tth_cms/CMSSW_8_1_0/src**  
 **cmsenv**  
+**cd HiggsAnalysis/CombinedLimit**  
 **scramv1 b clean; scramv1 b**  
 8. get likelihood scan through higgs combie tool  
 **source combine_3jets.sh**  
