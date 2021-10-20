@@ -51,14 +51,9 @@ void prepare(){
                             "new_ST_tW_antitop_5f_inclusiveDecays_TuneCP5_13TeV-powheg.root",
                             "new_ST_tW_top_5f_inclusiveDecays_TuneCP5_13TeV-powheg.root",                                                                               
                             
-                            "new_QCD_HT100to200_TuneCP5_PSWeights_13TeV-madgraphMLM.root",
-							"new_QCD_HT200to300_TuneCP5_PSWeights_13TeV-madgraphMLM.root",
-                            "new_QCD_HT300to500_TuneCP5_PSWeights_13TeV-madgraphMLM.root",
-                            "new_QCD_HT500to700_TuneCP5_PSWeights_13TeV-madgraphMLM.root",
-                            "new_QCD_HT700to1000_TuneCP5_PSWeights_13TeV-madgraphMLM.root",
-                            "new_QCD_HT1000to1500_TuneCP5_PSWeights_13TeV-madgraphMLM.root",
-                            "new_QCD_HT1500to2000_TuneCP5_PSWeights_13TeV-madgraphMLM.root",
-                            "new_QCD_HT2000toInf_TuneCP5_PSWeights_13TeV-madgraphMLM.root",
+                            "new_WW_TuneCP5_13TeV.root",
+                            "new_WZ_TuneCP5_13TeV.root",
+                            "new_ZZ_TuneCP5_13TeV.root",
                             
                             "new_WJetsToLNu_HT-100To200_TuneCP5_13TeV-madgraphMLM.root",
                             "new_WJetsToLNu_HT-200To400_TuneCP5_13TeV-madgraphMLM.root",
@@ -68,19 +63,34 @@ void prepare(){
                             "new_WJetsToLNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM.root",
                             "new_WJetsToLNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM.root",
 
-                            "new_WW_TuneCP5_13TeV.root",
-                            "new_WZ_TuneCP5_13TeV.root",
-                            "new_ZZ_TuneCP5_13TeV.root",};
+                            "new_QCD_HT100to200_TuneCP5_PSWeights_13TeV-madgraphMLM.root",
+							"new_QCD_HT200to300_TuneCP5_PSWeights_13TeV-madgraphMLM.root",
+                            "new_QCD_HT300to500_TuneCP5_PSWeights_13TeV-madgraphMLM.root",
+                            "new_QCD_HT500to700_TuneCP5_PSWeights_13TeV-madgraphMLM.root",
+                            "new_QCD_HT700to1000_TuneCP5_PSWeights_13TeV-madgraphMLM.root",
+                            "new_QCD_HT1000to1500_TuneCP5_PSWeights_13TeV-madgraphMLM.root",
+                            "new_QCD_HT1500to2000_TuneCP5_PSWeights_13TeV-madgraphMLM.root",
+                            "new_QCD_HT2000toInf_TuneCP5_PSWeights_13TeV-madgraphMLM.root",
+                            
+                   
+};
 							
 	Float_t cross_sections[nsample]={366.91, 89.05, 377.96,
 									169.9, 147.4, 41.0, 5.7, 1.4, 0.63, 0.15, 0.0036,
 									3.36, 136.02, 80.95, 35.6, 35.6,
+									118.7, 16.5, 47.1,
+									1345.7, 359.7, 48.9, 12.1, 5.5, 1.3, 0.032,
 								    27990000, 1712000, 347700, 32100, 6831, 1207, 119.9, 25.2,
-								    1345.7, 359.7, 48.9, 12.1, 5.5, 1.3, 0.032,
-								    118.7, 16.5, 47.1};
+								    };
+	Float_t K_Factor[nsample]={1.0, 1.0, 1.0,
+								1.23,1.23,1.23,1.23,1.23,1.23,1.23,1.23,
+								1.0,1.0,1.0,1.0,1.0,
+								1.0,1.0,1.0,
+								1.21,1.21,1.21,1.21,1.21,1.21,1.21,
+								1.0, 1.0, 1.0,1.0, 1.0, 1.0,1.0, 1.0,};		
 	TString dir="/afs/cern.ch/user/r/repan/work/top_pair/condor/output/";
-	TString process[]={"ttbar","DYJets","STop","QCD","WJets","VV"};
-	Int_t sample_id[]={2, 10, 15, 23, 30, 33};
+	TString process[]={"ttbar","DYJets","STop","VV","WJets","QCD"};
+	Int_t sample_id[]={2, 10, 15, 18, 25, 33};
 	Int_t nsignal=9;
 	Int_t Cpq3[9]={ 0, 1, 0, 0, 0, 2, 0, 0, 1};
 	Int_t Cpu[9]={  0, 0, 1, 0, 0, 0, 2, 0, 1};
@@ -121,7 +131,7 @@ void prepare(){
 			nMC=chain2->GetEntries();
 			ncut=chain->GetEntries();
 			cout<<nMC<<"events simulated and "<<ncut<<" events selected in "<<fileNames[i]<<endl;
-			float global_weight=cross_sections[i]*1000*lumi/nMC;
+			float global_weight=cross_sections[i]*1000*lumi/nMC*K_Factor[i];
 			Int_t entry_cut=chain->Draw("mass_tt",cuts[s]);
 			entries[s][nsample]=entry_cut*global_weight; //number of events in each channel
 			TString sample_name=fileNames[i].ReplaceAll(".root","_hist");
