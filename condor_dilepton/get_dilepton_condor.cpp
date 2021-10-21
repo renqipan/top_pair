@@ -246,19 +246,29 @@ void get_dilepton_condor(TString inputFile){
 	cout << "infomation is writing. Please wait for a while" << endl;
 	/////////////////////////////////////////////////////////////////////
 	int total_entry=chain.GetEntries();
-  	if(inputFile.Contains("TTTo2L2Nu")||inputFile.Contains("TT_Tune")){
-    	if(total_entry > 8.E+7)
-       		total_entry=8.E+7;
-   }
-    else if (inputFile.Contains("QCD_HT100to200")||inputFile.Contains("QCD_HT200to300")||
-    	inputFile.Contains("QCD_HT300to500")||inputFile.Contains("QCD_Pt-15to7000")){
-        if(total_entry > 1.E+9)
-          total_entry=1.E+9;
-  	}
-    else{
-    	if(total_entry > 1.E+8)
-      		total_entry=1.E+8;
-  	}
+  	if(inputFile.Contains("TTToSemiLeptonic")||inputFile.Contains("TTToHadronic")){
+	    if(total_entry > 3.0E+7)
+	       total_entry=3.0E+7;
+	  }
+	  else if(inputFile.Contains("WJetsToLNu_HT-100To200")){
+	    if(total_entry > 2.2E+8)
+	       total_entry=2.2E+8;
+	  }
+	  else if (inputFile.Contains("QCD_HT100to200")||inputFile.Contains("QCD_HT200to300")||
+	    inputFile.Contains("QCD_HT300to500")||inputFile.Contains("QCD_Pt-15to7000")){
+	        if(total_entry > 1.E+9)
+	          total_entry=1.E+9;
+	    } 
+	  else if (inputFile.Contains("DYJetsToLL_M-50_HT-2500toInf")||inputFile.Contains("DYJetsToLL_M-50_HT-1200to2500")||
+	    inputFile.Contains("DYJetsToLL_M-50_HT-800to1200")||inputFile.Contains("DYJetsToLL_M-50_HT-600to800")||
+	    inputFile.Contains("WJetsToLNu_HT-2500ToInf")||inputFile.Contains("WJetsToLNu_HT-1200To2500")) {
+	      if(total_entry > 7.6E+5)
+	        total_entry=7.6E+5;
+	  }  
+	  else{
+	    if(total_entry > 2.3E+7)
+	       total_entry=2.3E+7;
+	  }
 	for (Int_t entry = 0; entry < total_entry; entry++){
 	    chain.GetEntry(entry);
 	    int index_b, index_antib, index_lepn, index_nun, index_lepp, index_nup;
@@ -489,7 +499,7 @@ void get_dilepton_condor(TString inputFile){
 	    	int jet_num = 0; // count number fot bjets satisfy the selection criteria
 		    for (int i=0; i<nJet; i++) {
 		      	mom_jets[i].SetPtEtaPhiM(Jet_pt[i],Jet_eta[i],Jet_phi[i],Jet_mass[i]);
-		      	if(abs(Jet_eta[i]) < 2.4 && Jet_pt[i] > 30&&Jet_btagDeepB[i]>0.14&&Jet_jetId[i]==6&&mom_jets[i].DeltaR(p4_lepton[lepton_index[0]])>0.4&&mom_jets[i].DeltaR(p4_lepton[lepton_index[1]])>0.4) {
+		      	if(abs(Jet_eta[i]) < 2.4 && Jet_pt[i] > 30&&Jet_btagDeepB[i]>0.45&&Jet_jetId[i]==6&&mom_jets[i].DeltaR(p4_lepton[lepton_index[0]])>0.4&&mom_jets[i].DeltaR(p4_lepton[lepton_index[1]])>0.4) {
 						jet_index[jet_num]=i;
 						jet_num=jet_num+1;			
 		    	}
@@ -561,4 +571,5 @@ void get_dilepton_condor(TString inputFile){
   	cout << output << " is created" << endl;
   	cout << nevents << " events are written into "<< "rawtree." << endl;
   	cout << nevents2 << " events are written into "<< "mytree." << endl;
+  	file->Close();
 }

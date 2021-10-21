@@ -470,7 +470,7 @@ void get_info_dilepton(){
 	    	int jet_num = 0; // count number fot bjets satisfy the selection criteria
 		    for (int i=0; i<nJet; i++) {
 		      	mom_jets[i].SetPtEtaPhiM(Jet_pt[i],Jet_eta[i],Jet_phi[i],Jet_mass[i]);
-		      	if(abs(Jet_eta[i]) < 2.4 && Jet_pt[i] > 30&&Jet_btagDeepB[i]>0.14&&Jet_jetId[i]==6&&mom_jets[i].DeltaR(p4_lepton[lepton_index[0]])>0.4&&mom_jets[i].DeltaR(p4_lepton[lepton_index[1]])>0.4) {
+		      	if(abs(Jet_eta[i]) < 2.4 && Jet_pt[i] > 30&&Jet_btagDeepB[i]>0.45&&Jet_jetId[i]==6&&mom_jets[i].DeltaR(p4_lepton[lepton_index[0]])>0.4&&mom_jets[i].DeltaR(p4_lepton[lepton_index[1]])>0.4) {
 						jet_index[jet_num]=i;
 						jet_num=jet_num+1;			
 		    	}
@@ -542,4 +542,5 @@ void get_info_dilepton(){
   	cout << output << " is created" << endl;
   	cout << nevents << " events are written into "<< "rawtree." << endl;
   	cout << nevents2 << " events are written into "<< "mytree." << endl;
+  	file->Close();
 }

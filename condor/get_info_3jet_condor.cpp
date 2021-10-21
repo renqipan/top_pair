@@ -429,18 +429,28 @@ void get_info_3jet_condor(TString inputFile) {
   cout << "infomation is writing. Please wait for a while" << endl;
   Int_t njet_need =3; // the number of at least jets of semileptonic final state
   int total_entry=chain.GetEntries();
-  if(inputFile.Contains("TTToSemiLeptonic")||inputFile.Contains("TT_Tune")){
-    if(total_entry > 8.E+7)
-       total_entry=8.E+7;
+  if(inputFile.Contains("TTToSemiLeptonic")||inputFile.Contains("TTToHadronic")){
+    if(total_entry > 3.0E+7)
+       total_entry=3.0E+7;
+  }
+  else if(inputFile.Contains("WJetsToLNu_HT-100To200")){
+    if(total_entry > 2.2E+8)
+       total_entry=2.2E+8;
   }
   else if (inputFile.Contains("QCD_HT100to200")||inputFile.Contains("QCD_HT200to300")||
     inputFile.Contains("QCD_HT300to500")||inputFile.Contains("QCD_Pt-15to7000")){
         if(total_entry > 1.E+9)
           total_entry=1.E+9;
-    }    
+    } 
+  else if (inputFile.Contains("DYJetsToLL_M-50_HT-2500toInf")||inputFile.Contains("DYJetsToLL_M-50_HT-1200to2500")||
+    inputFile.Contains("DYJetsToLL_M-50_HT-800to1200")||inputFile.Contains("DYJetsToLL_M-50_HT-600to800")||
+    inputFile.Contains("WJetsToLNu_HT-2500ToInf")||inputFile.Contains("WJetsToLNu_HT-1200To2500")) {
+      if(total_entry > 7.6E+5)
+        total_entry=7.6E+5;
+  }  
   else{
-    if(total_entry > 1.E+8)
-       total_entry=1.E+8;
+    if(total_entry > 2.3E+7)
+       total_entry=2.3E+7;
   }
   for (Int_t entry = 0; entry < total_entry; entry++) {
     chain.GetEntry(entry);
@@ -662,7 +672,7 @@ void get_info_3jet_condor(TString inputFile) {
     nBtag = 0;   // count number of bjet among all the jets
     jet_num = 0; // count number fot jets satisfy the selection criteria
     bool jet_flag = false; // if true pass the selection
-    btag_num=0;    
+    btag_num=0;
     if(lepton_flag==true){
       for (int i = 0; i < nJet; i++) {
           mom_jets[i].SetPtEtaPhiM(Jet_pt[i], Jet_eta[i], Jet_phi[i],Jet_mass[i]);     
