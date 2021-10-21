@@ -662,7 +662,7 @@ void get_info_3jet_condor(TString inputFile) {
     nBtag = 0;   // count number of bjet among all the jets
     jet_num = 0; // count number fot jets satisfy the selection criteria
     bool jet_flag = false; // if true pass the selection
-    
+    btag_num=0;    
     if(lepton_flag==true){
       for (int i = 0; i < nJet; i++) {
           mom_jets[i].SetPtEtaPhiM(Jet_pt[i], Jet_eta[i], Jet_phi[i],Jet_mass[i]);     
@@ -671,7 +671,7 @@ void get_info_3jet_condor(TString inputFile) {
               //mom_jets[i].SetPtEtaPhiM(Jet_pt[i], Jet_eta[i], Jet_phi[i],Jet_mass[i]);
               jet_index[jet_num] = i;
               jet_num = jet_num + 1;
-              if (Jet_btagDeepB[i] > 0.14) {
+              if (Jet_btagDeepB[i] > 0.45) {
                 Jet_btaged[i] = 1;
                 nBtag++;
               } 
@@ -684,7 +684,7 @@ void get_info_3jet_condor(TString inputFile) {
 
     }
 
-    if (jet_num >= njet_need && btag_num >= 2){
+    if (jet_num >= njet_need && nBtag >= 2){
         jet_flag = true;
         for(int i=0;i<jet_num;i++){
           jet_btaged[i]=Jet_btaged[jet_index[i]];
@@ -884,4 +884,5 @@ void get_info_3jet_condor(TString inputFile) {
   cout << nevents2 << " events are written into "<< "mytree." << endl;
   cout<<count_4jet<<" events have at least 4 jets"<<endl;
   cout<<count_3jet<<" events have 3 jets"<<endl;
+  file->Close();
 }
