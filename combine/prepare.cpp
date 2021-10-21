@@ -31,7 +31,7 @@ void Floor(TH2F* histo){
 	}
 }
 void prepare(){
-	Int_t nsample=34;
+	const int nsample=34;
 	TString fileNames[nsample]={"new_TTToSemiLeptonic_TuneCP5_13TeV-powheg.root",
                             "new_TTTo2L2Nu_TuneCP5_13TeV-powheg.root",
                             "new_TTToHadronic_TuneCP5_13TeV-powheg.root",
@@ -91,7 +91,7 @@ void prepare(){
 	TString dir="/afs/cern.ch/user/r/repan/work/top_pair/condor/output/";
 	TString process[]={"ttbar","DYJets","STop","VV","WJets","QCD"};
 	Int_t sample_id[]={2, 10, 15, 18, 25, 33};
-	Int_t nsignal=9;
+	const int nsignal=9;
 	Int_t Cpq3[9]={ 0, 1, 0, 0, 0, 2, 0, 0, 1};
 	Int_t Cpu[9]={  0, 0, 1, 0, 0, 0, 2, 0, 1};
 	Int_t ReCup[9]={0, 0, 0, 1, 0, 0, 0, 2, 0};
@@ -99,7 +99,7 @@ void prepare(){
 	float lumi=137.1;
 	Double_t mtt_edges[10]={0,350,400,500,600,700,800,950,1200,2000};
 	Double_t ytt_edges[12]={-5.0,-3.0,-1.6,-1.0,-0.6,-0.2,0.2,0.6,1.0,1.6,3.0,5.0};
-	TH2F* h2dist[nsignal+5];//9 signal + 5 background
+//	TH2F* h2dist[nsignal+5];//9 signal + 5 background
 	TString outputDir="datacard";
 
 	RooRealVar* mtt=new RooRealVar("mass_tt","mass_tt",0,2000);
@@ -109,7 +109,7 @@ void prepare(){
 	TString cuts[]={"(jet_num == 3)","(jet_num >= 4)"};
 	TString cutsName[]={"3jets","4jets"};
 	Float_t entries[2][nsample];// number of events in 3jets and 4jets final states
-	for(int s=0; s<2; s++){
+	for(int s=0; s<2; s++){ //loop over final states
 		int nprocess=0; //count process was dealed with
 		TString category="ttbar_"+cutsName[s];
 		TFile *file=new TFile(outputDir+"/"+category+".root","recreate");
@@ -121,7 +121,7 @@ void prepare(){
 		std::vector<float> yield_array;  //rate(event yeild)
 		std::vector<TString> bkg_norm;  //background  normlization uncertainty
 		std::vector<TString> sig_norm;   //signal norlization uncertainty
-
+    	TH2F* h2dist[nsignal+5];//9 signal + 5 background
 		for(int i=0;i<nsample;i++) { //loop over samples
 			TChain* chain=new TChain("mytree");
 			TChain* chain2=new TChain("rawtree");
@@ -130,25 +130,26 @@ void prepare(){
 			Int_t nMC, ncut;
 			nMC=chain2->GetEntries();
 			ncut=chain->GetEntries();
-			cout<<nMC<<"events simulated and "<<ncut<<" events selected in "<<fileNames[i]<<endl;
+			cout<<nMC<<" events simulated and "<<ncut<<" events selected in "<<fileNames[i]<<endl;
 			float global_weight=cross_sections[i]*1000*lumi/nMC*K_Factor[i];
 			Int_t entry_cut=chain->Draw("mass_tt",cuts[s]);
-			entries[s][nsample]=entry_cut*global_weight; //number of events in each channel
-			TString sample_name=fileNames[i].ReplaceAll(".root","_hist");
+			entries[s][i]=entry_cut*global_weight; //number of events in each channel
+			TString sample_name=fileNames[i];
+			sample_name=sample_name.ReplaceAll(".root","_hist");
 			sample_name=sample_name.ReplaceAll("new_","");
 			if(i <= sample_id[0]){
-				for(int k=0;k<nsignal;i++){
-			        TString weight_EW=Form("ci%d%d%d%d",Cpq3[k],Cpu[k],ReCup[k],ImCup[k]);
-			        TString weight=Form("%f*%s",global_weight,weight_EW);
+				for(int k=0;k<nsignal;k++){ //loop over EW weights
+			        TString weight_EW=Form("weight_ci%d%d%d%d",Cpq3[k],Cpu[k],ReCup[k],ImCup[k]);
+			        TString weight=Form("%f*%s",global_weight,weight_EW.Data());
 			        TString sample_weighted=sample_name+"_"+weight_EW;
 			        TH2F* h2sample=new TH2F(sample_weighted,sample_weighted,9,mtt_edges, 11, ytt_edges);
-			        h2sample->SumW2();
+			        h2sample->Sumw2();
 					chain->Draw("abs(rapidity_tt):mass_tt>>"+sample_weighted, weight+"*"+cuts[s] );
 					chain->Draw("-abs(rapidity_tt):mass_tt>>+"+sample_weighted,weight+"*"+cuts[s]);
 					h2sample->Scale(1/2.0);
 					if(i==0){
-						h2dist[k]=h2sample->Clone();
-						h2dist[k]->SumW2();
+						h2dist[k]=(TH2F*)h2sample->Clone();
+						h2dist[k]->Sumw2();
 						h2dist[k]->SetName("ttbar_"+weight_EW);
 						h2dist[k]->SetTitle("ttbar_"+weight_EW);
 					}
@@ -156,7 +157,7 @@ void prepare(){
 						h2dist[k]->Add(h2sample);
 					if (i==sample_id[0]){
 						process_id.push_back(-k);
-						process_name=h2dist[k]->GetName();
+						TString process_name=h2dist[k]->GetName();
 						process_names.push_back(process_name);
 						Floor(h2dist[k]);
 						h2dist[k]->Draw("colz text");
@@ -171,31 +172,33 @@ void prepare(){
 						RooDataHist* datahist=new RooDataHist(process_name+"_datahist",process_name+"_datahist",RooArgSet(*mtt,*ytt),h2dist[k]);
 						RooHistPdf* hist_pdf=new RooHistPdf(process_name,process_name,RooArgSet(*mtt,*ytt),*datahist);
 						w.import(*hist_pdf,RecycleConflictNodes());
-						nprocess++;
 
 					}
+                    delete h2sample;
 
 				}  
-
+                if (i==sample_id[0]) nprocess++;
 			}
 			else{
 				TH2F* h2sample=new TH2F(sample_name,sample_name,9,mtt_edges, 11, ytt_edges);
-				h2sample->SumW2();
-				chain->Draw("abs(rapidity_tt):mass_tt>>"+sample_name, Form("%f*%s",global_weight,cuts[s]));
-				chain->Draw("-abs(rapidity_tt):mass_tt>>+"+sample_name,Form("%f*%s",global_weight,cuts[s]));
+				h2sample->Sumw2();
+				chain->Draw("abs(rapidity_tt):mass_tt>>"+sample_name, Form("%f*%s",global_weight,cuts[s].Data()));
+				chain->Draw("-abs(rapidity_tt):mass_tt>>+"+sample_name,Form("%f*%s",global_weight,cuts[s].Data()));
 				h2sample->Scale(1/2.0);
 				if(i>sample_id[nprocess-1] && i <= sample_id[nprocess]){
 					if(i==sample_id[nprocess-1]+1){
-						h2dist[nsignal-1+nprocess]=h2sample->Clone();
-						h2dist[nsignal-1+nprocess]->SumW2();
+						h2dist[nsignal-1+nprocess]=(TH2F*)h2sample->Clone();
+						h2dist[nsignal-1+nprocess]->Sumw2();
 						h2dist[nsignal-1+nprocess]->SetName(process[nprocess]);
 						h2dist[nsignal-1+nprocess]->SetTitle(process[nprocess]);
 					}
 					else
-						h2dist[nsignal-1+nprocess]->Add(h2sample);
+						{h2dist[nsignal-1+nprocess]->Add(h2sample);
+                       // cout<<nsignal-1+nprocess<<endl;
+                        }
 					if(i==sample_id[nprocess]){
 						process_id.push_back(nprocess);
-						process_name=h2dist[nsignal-1+nprocess]->GetName();
+						TString process_name=h2dist[nsignal-1+nprocess]->GetName();
 						process_names.push_back(process_name);
 						Floor(h2dist[nsignal-1+nprocess]);
 						h2dist[nsignal-1+nprocess]->Draw("colz text");
@@ -220,6 +223,7 @@ void prepare(){
 						w.import(*hist_pdf,RecycleConflictNodes());
 						nprocess++;
 					}
+                    delete h2sample;
 
 				}
 			}
@@ -254,12 +258,13 @@ void prepare(){
 		
 		//build dataset, but for expected results dataset is not needed.
 		TChain *chain_data=new TChain("mytree");
-		chain_data->Add(fileNames[0]); 
+		chain_data->Add(dir+fileNames[0]); 
 	    RooDataHist *data;
-	    TH2F* hist_data=new TH2F("hist_data","hist_data",9,mtt_edges, 11, ytt_edges)
-	    chain_data->Draw("abs(rapidity_tt):mass_tt>>"+"hist_data");
-		chain_data->Draw("-abs(rapidity_tt):mass_tt>>+"+"hist_data");
-		hist_data->Scale(1/2.0)
+	    TString hist_data_name="hist_data";
+        TH2F* hist_data=new TH2F(hist_data_name,hist_data_name,9,mtt_edges, 11, ytt_edges);
+	    chain_data->Draw("abs(rapidity_tt):mass_tt>>"+hist_data_name);
+		chain_data->Draw("-abs(rapidity_tt):mass_tt>>+"+hist_data_name);
+		hist_data->Scale(1/2.0);
 	    data=new RooDataHist("data_obs","",RooArgSet(*mtt,*ytt),Import(*hist_data));
 	    w.import(*data);
 	    w.Print();
@@ -277,8 +282,8 @@ void prepare(){
 	cout<<entries[1][0]<<" events in 4jets from ttbar semiletonic channel"<<endl;
 	Float_t nttbar_3jet=entries[0][0]+entries[0][1]+entries[0][2];
 	Float_t nttbar_4jet=entries[1][0]+entries[1][1]+entries[1][2];
-	cout<<nttbar_3jet<<"events in ttbar 3jets "<endl;
-	cout<<nttbar_4jet<<"events in ttbar 4jets "<endl;
+	cout<<nttbar_3jet<<" events in ttbar 3jets "<<endl;
+	cout<<nttbar_4jet<<" events in ttbar 4jets "<<endl;
 	cout<<"expect "<<nttbar_4jet+nttbar_3jet<<" events in ttbar"<<endl;
 
 }
