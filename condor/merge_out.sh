@@ -1,21 +1,38 @@
 dir=output
+txt=condor_sec.txt
 rm -rf $dir
 mkdir $dir
-input="dataset.txt"
-i=0
-for process in `cat $input`
+cd condor_out
+for var in `ls`
 do 
-    var=Chunk$i
-    cp $var/condor_out/run.out $dir/${var}_run.out 2>/dev/null
-    cp $var/condor_out/run.err $dir/${var}_run.err 2>/dev/null
-    cp $var/condor_out/run.log $dir/${var}_run.log 2>/dev/null
-    mv $var/new*.root $dir 2>/dev/null || :
-#    rm -rf $var
-    let i=i+1
+    cp $var/run.log ../$dir/${var}_run.log 2>/dev/null
+    cp $var/run.err ../$dir/${var}_run.err 2>/dev/null
+	if  cp $var/run.out ../$dir/${var}_run.out 2>/dev/null
+	then 
+		if  mv $var/*.root ../$dir 2>/dev/null
+		then 
+			if cat $var/run.err | grep "error"
+			then
+				echo "$dir have errors !!!!"
+				echo $var >> $txt
+			fi
+		else
+			echo "$var didn't succed"
+			echo $var >> $txt
+				
+		fi	
+
+	else
+		echo "$var didn't finish"
+		echo $var >> $txt
+	fi
+    
+#   rm -rf $var
 done
-cd $dir
+cd ../$dir
 cat *_run.out > all2.out
 cat *_run.err > all2.err
 cat *_run.log > all2.log
-rm *run*
-
+rm *_run.*
+echo "if any see any anomalous tips, please have a cheack,"
+echo "The failed tasks(if have) are summaried in $txt "
