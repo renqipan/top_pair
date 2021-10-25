@@ -125,7 +125,7 @@ void prepare(){
 		for(int i=0;i<nsample;i++) { //loop over samples
 			TChain* chain=new TChain("mytree");
 			TChain* chain2=new TChain("rawtree");
-			fileNames[i]=fileNames[i].ReplaceAll(".root","_*.root")
+			fileNames[i]=fileNames[i].ReplaceAll(".root","_*.root");
 			chain->Add(dir+fileNames[i]);
 			chain2->Add(dir+fileNames[i]);
 			Int_t nMC, ncut;
@@ -136,7 +136,7 @@ void prepare(){
 			Int_t entry_cut=chain->Draw("mass_tt",cuts[s]);
 			entries[s][i]=entry_cut*global_weight; //number of events in each channel
 			TString sample_name=fileNames[i];
-			sample_name=sample_name.ReplaceAll(".root","_hist");
+			sample_name=sample_name.ReplaceAll("_*.root","_hist");
 			sample_name=sample_name.ReplaceAll("new_","");
 			if(i <= sample_id[0]){
 				for(int k=0;k<nsignal;k++){ //loop over EW weights
