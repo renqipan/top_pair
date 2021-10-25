@@ -1,0 +1,77 @@
+
+Processing ../get_info_3jet_condor.cpp("TTToSemiLeptonic_TuneCP5_13TeV-powheg.txt")...
+TTToSemiLeptonic_TuneCP5_13TeV-powheg.root is reading and processing
+total number of events: 476408000
+infomation is writing. Please wait for a while
+infomation is writing. Please wait for a while
+TTToSemiLeptonic_TuneCP5_13TeV-powheg.root has 27000000 events
+new_TTToSemiLeptonic_TuneCP5_13TeV-powheg.root is created
+27000000 events are written into rawtree.
+3942688 events are written into mytree.
+2242933 events have at least 4 jets
+1699755 events have 3 jets
+
+Processing ../get_info_3jet_condor.cpp("TTTo2L2Nu_TuneCP5_13TeV-powheg.txt")...
+TTTo2L2Nu_TuneCP5_13TeV-powheg.root is reading and processing
+total number of events: 141600442
+infomation is writing. Please wait for a while
+infomation is writing. Please wait for a while
+TTTo2L2Nu_TuneCP5_13TeV-powheg.root has 23000000 events
+new_TTTo2L2Nu_TuneCP5_13TeV-powheg.root is created
+23000000 events are written into rawtree.
+1064693 events are written into mytree.
+325987 events have at least 4 jets
+738706 events have 3 jets
+
+Processing ../get_info_3jet_condor.cpp("TTToHadronic_TuneCP5_13TeV-powheg.txt")...
+TTToHadronic_TuneCP5_13TeV-powheg.root is reading and processing
+total number of events: 322546000
+infomation is writing. Please wait for a while
+infomation is writing. Please wait for a while
+TTToHadronic_TuneCP5_13TeV-powheg.root has 23000000 events
+new_TTToHadronic_TuneCP5_13TeV-powheg.root is created
+23000000 events are written into rawtree.
+21303 events are written into mytree.
+13762 events have at least 4 jets
+7541 events have 3 jets
+
+Processing ../get_info_3jet_condor.cpp("WJetsToLNu_HT-100To200_TuneCP5_13TeV-madgraphMLM.txt")...
+WJetsToLNu_HT-100To200_TuneCP5_13TeV-madgraphMLM.root is reading and processing
+total number of events: 66195407
+infomation is writing. Please wait for a while
+infomation is writing. Please wait for a while
+ file probably overwritten: stopping reporting error messages
+===>File is more than 2 Gigabytes
+WJetsToLNu_HT-100To200_TuneCP5_13TeV-madgraphMLM.root has 23000000 events
+new_WJetsToLNu_HT-100To200_TuneCP5_13TeV-madgraphMLM.root is created
+23000000 events are written into rawtree.
+248913 events are written into mytree.
+22786 events have at least 4 jets
+226127 events have 3 jets
+
+Processing ../get_info_3jet_condor.cpp("WJetsToLNu_HT-200To400_TuneCP5_13TeV-madgraphMLM.txt")...
+WJetsToLNu_HT-200To400_TuneCP5_13TeV-madgraphMLM.root is reading and processing
+total number of events: 45104237
+infomation is writing. Please wait for a while
+infomation is writing. Please wait for a while
+WJetsToLNu_HT-200To400_TuneCP5_13TeV-madgraphMLM.root has 23000000 events
+new_WJetsToLNu_HT-200To400_TuneCP5_13TeV-madgraphMLM.root is created
+23000000 events are written into rawtree.
+925907 events are written into mytree.
+165666 events have at least 4 jets
+760241 events have 3 jets
+
+Processing ../get_info_3jet_condor.cpp("TT_TuneCUETP8M2T4_13TeV-powheg.txt")...
+TT_TuneCUETP8M2T4_13TeV-powheg.root is reading and processing
+total number of events: 76915549
+infomation is writing. Please wait for a while
+infomation is writing. Please wait for a while
+ file probably overwritten: stopping reporting error messages
+===>Your file is may be bigger than the maximum file size allowed on your system
+    Check your AFS maximum file size limit for example
+TT_TuneCUETP8M2T4_13TeV-powheg.root has 27000000 events
+new_TT_TuneCUETP8M2T4_13TeV-powheg.root is created
+27000000 events are written into rawtree.
+0 events are written into mytree.
+0 events have at least 4 jets
+0 events have 3 jets

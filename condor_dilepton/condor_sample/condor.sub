@@ -1,13 +1,13 @@
 executable              = run.sh
-arguments               = $(dataset) $(Process) 
-Initialdir              = /afs/cern.ch/user/r/repan/work/top_pair/condor_dilepton/Chunk$(Process)
+arguments               = $(dir)
+Initialdir              = /afs/cern.ch/user/r/repan/work/top_pair/condor_dilepton/condor_out/$(dir)
 						
-output                  = condor_out/run.out
-error                   = condor_out/run.err
-log                     = condor_out/run.log
+output                  = run.out
+error                   = run.err
+log                     = run.log
 						
 RequestMemory           = 2000
 ShouldTransferFiles     = NO
 +JobFlavour             = "nextweek"
 x509userproxy           = $ENV(HOME)/temp/x509up
-Queue dataset from ../dataset.txt
+Queue dir from ../condor_list.txt

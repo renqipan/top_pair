@@ -1,4 +1,5 @@
-#writen by Renqi Pan in August 30,2021
+#writen by Renqi Pan in Oct 22,2021
+# to write dataset files into .txt and divide
 input="dataset.txt"
 i=0
 for dataset in `cat $input`
@@ -24,24 +25,27 @@ done
 
 source adjust_entry.sh
 
-echo "divide each dataset into several pieces"
-i=0
-divide=8
-for dataset in `cat $input`
+echo "divide each dataset into several pieces "
+for var in `ls | grep Chunk`
 do 
-	var="Chunk$i"
     cd $var
-    if [[ $dataset =~ "_pythia" ]]
+    process=$( ls *.txt )
+    process=${process%%.txt*}
+    divide=8  #divide datasets into n tasks
+    if [[ $process =~ "TTToSemiLeptonic" || $process =~ "TTTo2L2Nu" 
+    	|| $process =~ "TTToHadronic"  ]]
 	then
-		temp=${dataset%%_pythia8*}
-	else
-    	temp=${dataset%%-pythia8*}
-    fi
-    process=${temp:1}
+		divide=$(($divide *3 ))
+	elif [[ $process =~ "WJetsToLNu_HT-100To200" || $process =~ "WJetsToLNu_HT-200To400" ||
+    	$process =~ "ST_t-channel_top_4f"  ]]
+    then
+    	divide=$(($divide *2 ))
+	fi
+
 	total=$(cat *.txt | wc -l)
-	lines=$(($total/7))
-	remind=$(($total%7))
-	echo "total=$total lines=$lines divide=$divide remind=$remind"
+	lines=$(($total / $(($divide-1)) ))
+	remind=$(($total % $(($divide-1)) ))
+	echo "total=$total line=$lines divide=$divide remind=$remind"
     num_txt=1
 	num_line=1
 	#touch ${process}_{1..8}.txt
@@ -79,13 +83,12 @@ do
 
 		done
 	fi
-
 	cd ../
-	let i=i+1
 done
 out=condor_out
 rm -rf $out
 mkdir $out
+divide=$(($divide *3 ))
 exp="mv *_{1.."$divide"} "$out
 eval $exp
 rm -rf Chunk*

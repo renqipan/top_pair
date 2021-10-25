@@ -11,15 +11,7 @@ do
 	then 
 		if  mv $var/*.root ../$dir 2>/dev/null
 		then 
-			if cat $var/run.err | grep "error"
-			then
-				echo "$dir have errors !!!!"
-				echo $var >> $txt
-			fi
-		else
-			echo "$var didn't succed"
-			echo $var >> $txt
-				
+			flag=true	
 		fi	
 
 	else
@@ -29,6 +21,7 @@ do
     
 #   rm -rf $var
 done
+mv $txt ..
 cd ../$dir
 cat *_run.out > all2.out
 cat *_run.err > all2.err
@@ -36,3 +29,4 @@ cat *_run.log > all2.log
 rm *_run.*
 echo "if any see any anomalous tips, please have a cheack,"
 echo "The failed tasks(if have) are summaried in $txt "
+cd ..

@@ -1,0 +1,36 @@
+
+Processing ../get_info_3jet_condor.cpp("ST_t-channel_top_4f_InclusiveDecays_TuneCP5_13TeV-powheg-madspin.txt")...
+ST_t-channel_top_4f_InclusiveDecays_TuneCP5_13TeV-powheg-madspin.root is reading and processing
+total number of events: 47707100
+infomation is writing. Please wait for a while
+infomation is writing. Please wait for a while
+ST_t-channel_top_4f_InclusiveDecays_TuneCP5_13TeV-powheg-madspin.root has 47707100 events
+new_ST_t-channel_top_4f_InclusiveDecays_TuneCP5_13TeV-powheg-madspin.root is created
+47707100 events are written into rawtree.
+354203 events are written into mytree.
+65126 events have at least 4 jets
+289077 events have 3 jets
+
+Processing ../get_info_3jet_condor.cpp("ST_tW_top_5f_inclusiveDecays_TuneCP5_13TeV-powheg.txt")...
+ST_tW_top_5f_inclusiveDecays_TuneCP5_13TeV-powheg.root is reading and processing
+total number of events: 9598000
+infomation is writing. Please wait for a while
+infomation is writing. Please wait for a while
+ST_tW_top_5f_inclusiveDecays_TuneCP5_13TeV-powheg.root has 9598000 events
+new_ST_tW_top_5f_inclusiveDecays_TuneCP5_13TeV-powheg.root is created
+9598000 events are written into rawtree.
+192227 events are written into mytree.
+69239 events have at least 4 jets
+122988 events have 3 jets
+
+Processing ../get_info_3jet_condor.cpp("QCD_Pt-15to7000_TuneCP5_Flat2018_13TeV.txt")...
+QCD_Pt-15to7000_TuneCP5_Flat2018_13TeV.root is reading and processing
+total number of events: 19979800
+infomation is writing. Please wait for a while
+infomation is writing. Please wait for a while
+QCD_Pt-15to7000_TuneCP5_Flat2018_13TeV.root has 19979800 events
+new_QCD_Pt-15to7000_TuneCP5_Flat2018_13TeV.root is created
+19979800 events are written into rawtree.
+79 events are written into mytree.
+26 events have at least 4 jets
+53 events have 3 jets
