@@ -125,6 +125,7 @@ void prepare(){
 		for(int i=0;i<nsample;i++) { //loop over samples
 			TChain* chain=new TChain("mytree");
 			TChain* chain2=new TChain("rawtree");
+			fileNames[i]=fileNames[i].ReplaceAll(".root","_*.root")
 			chain->Add(dir+fileNames[i]);
 			chain2->Add(dir+fileNames[i]);
 			Int_t nMC, ncut;
