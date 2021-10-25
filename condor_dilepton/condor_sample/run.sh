@@ -6,6 +6,18 @@ cd /afs/cern.ch/user/r/repan/work/top_pair/condor_dilepton/condor_out/$1
 file=$(ls *.txt)
 root -l -q -b ../../get_dilepton_condor.cpp"(\"$file\")"
 
+if rootfile=$(ls *.root) 2> /dev/null
+then
+	if [ $rootfile =~ "TTTo" ]
+	then
+		echo $rootfile
+		root -l -q -b ../../add_weight_branch.c"(\"$rootfile\")"
+	fi
+else
+	echo "the root file doesn't exist. task unfinished"
+fi
+
+
 #var=$1
 #if [[ $var =~ "_pythia" ]]
 #then

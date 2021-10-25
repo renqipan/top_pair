@@ -1,10 +1,11 @@
 #include <iostream>
 #include <cstdio>
 using namespace std;
-void add_weight_branch(){
+void add_weight_branch(TString fileName){
 	//add weight(kappa=2) to generator level tree
 	
     TH2F* hist[17];
+    //TString dir="/afs/cern.ch/user/r/repan/work/top_pair/correction_roots/";
     TString dir="/Users/renqi/Documents/top_pairs/EW_2Dcorrection/";
     Int_t Cpq3[17]={ 0, 1, 0, 0, 0, 2, 0, 0, 0, 1, 1, 1, 0, 0, 0, 2, 1 };
     Int_t Cpu[17]={  0, 0, 1, 0, 0, 0, 2, 0, 0, 1, 0, 0, 1, 1, 0, 2, 1 };
@@ -17,10 +18,10 @@ void add_weight_branch(){
       TFile* fhist=TFile::Open(dir+file);
       hist[i]=(TH2F*)fhist->Get("h2");
     }
-    std::vector <TString> files={"new_TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_1TopNanoAODv6p1_2018.root",
-                                "semi_TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_1TopNanoAODv6p1_2018.root"};
-  for(int k=0;k<files.size();k++){
-      TString fileName=files[k];
+   // std::vector <TString> files={"new_TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_1TopNanoAODv6p1_2018.root",
+    //                            "semi_TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_1TopNanoAODv6p1_2018.root"};
+  //for(int k=0;k<files.size();k++){
+      //TString fileName=files[k];
       if (fileName.Contains("TT")){
           TFile *file=new TFile(fileName,"update");
           TTree *mytree=(TTree*) file->Get("mytree");
@@ -57,6 +58,6 @@ void add_weight_branch(){
       else
           perror("the sample is not a TT process");       
 
-  }
+ //}
       
 }
