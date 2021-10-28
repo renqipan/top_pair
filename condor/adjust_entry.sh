@@ -5,6 +5,10 @@ for dir in $( ls | grep Chunk)
 do   
 	cd $dir
 	dataset=$(ls | grep .txt)
+	echo $dir
+	echo $dataset
+	count=$(cat $dataset | wc -l )
+	echo "number of lines: $count"
 	if [[ $dataset =~ "TTToSemiLeptonic" ]]
 	then
 		entries=50267258
@@ -30,7 +34,6 @@ do
 	fi
 	if $flag
 	then
-		echo $dataset
 		echo "number of entries is adjusted to $entries."
 		echo "delete extra root files"
 		sum=0
@@ -39,7 +42,7 @@ do
 		do
 			if [ $sum -lt $entries ]
 			then 
-				run='root -l -q -b read_entry.cpp"(\"$line\")"'
+				run='root -l -q -b ../read_entry.cpp"(\"$line\")"'
 				txt=$(eval $run 2> .out | grep has)
 				num=${txt#* }
 				num=${num% *}
@@ -50,8 +53,8 @@ do
 			fi
 		done
 		head -n $num_line $dataset > tmp.txt && mv tmp.txt $dataset
-		echo $dir
 		echo "line $(($num_line+1)) to the last line are deleted"
+		echo ""
 
 	fi
 	cd ../	
