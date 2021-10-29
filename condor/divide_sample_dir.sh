@@ -35,7 +35,7 @@ do
     if [[ $process =~ "TTToSemiLeptonic" || $process =~ "TTTo2L2Nu" 
     	|| $process =~ "TTToHadronic"  ]]
 	then
-		divide=$(($divide *3 ))
+		divide=$(($divide *2 ))
 	elif [[ $process =~ "WJetsToLNu_HT-100To200" || $process =~ "WJetsToLNu_HT-200To400" ||
     	$process =~ "ST_t-channel_top_4f"  ]]
     then
@@ -88,7 +88,7 @@ done
 out=condor_out
 rm -rf $out
 mkdir $out
-divide=$(($divide *3 ))
+divide=$(($divide *2 ))
 exp="mv *_{1.."$divide"} "$out
 eval $exp
 rm -rf Chunk*

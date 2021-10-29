@@ -88,7 +88,7 @@ void prepare(){
 								1.0,1.0,1.0,
 								1.21,1.21,1.21,1.21,1.21,1.21,1.21,
 								1.0, 1.0, 1.0,1.0, 1.0, 1.0,1.0, 1.0,};		
-	TString dir="/afs/cern.ch/user/r/repan/work/top_pair/condor/output/";
+	TString dir="./output/";
 	TString process[]={"ttbar","DYJets","STop","VV","WJets","QCD"};
 	Int_t sample_id[]={2, 10, 15, 18, 25, 33};
 	const int nsignal=9;
@@ -121,11 +121,12 @@ void prepare(){
 		std::vector<float> yield_array;  //rate(event yeild)
 		std::vector<TString> bkg_norm;  //background  normlization uncertainty
 		std::vector<TString> sig_norm;   //signal norlization uncertainty
-    	TH2F* h2dist[nsignal+5];//9 signal + 5 background
+    		TH2F* h2dist[nsignal+5];//9 signal + 5 background
 		for(int i=0;i<nsample;i++) { //loop over samples
 			TChain* chain=new TChain("mytree");
 			TChain* chain2=new TChain("rawtree");
-			fileNames[i]=fileNames[i].ReplaceAll(".root","_*.root");
+			if(s==0)
+				fileNames[i]=fileNames[i].ReplaceAll(".root","_*.root");
 			chain->Add(dir+fileNames[i]);
 			chain2->Add(dir+fileNames[i]);
 			Int_t nMC, ncut;
@@ -217,6 +218,8 @@ void prepare(){
 						else if(process_name.Contains("QCD")){
 							bkg_norm.push_back("1.30");
 						}
+						else
+							bkg_norm.push_back("-");
 						cout<<"after reweight there are "<<yield<<" events in "<<process_name<<" in "<<cutsName[s]<<endl;
 						
 						RooDataHist* datahist=new RooDataHist(process_name+"_datahist",process_name+"_datahist",RooArgSet(*mtt,*ytt),h2dist[nsignal-1+nprocess]);
