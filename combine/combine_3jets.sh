@@ -8,13 +8,13 @@ cd datacard/
 text2workspace.py ttbar_3jets.txt -o workspace_ttbar_3jets.root --PO doStage0 --PO doacttbar -P HiggsAnalysis.CombinedLimit.stagex_ttwc:stagex_ttwc -m 125 --X-allow-no-background  -v 7 
 
 #combine -M MultiDimFit workspace_ttbar_3jets.root -S 1 -t -1 --expectSignal=1 --algo=grid --points=40 --alignEdges=1 -P x --floatOtherPOIs=1 --X-rtd TMCSO_AdaptivePseudoAsimov=10 -n ttbar_3jets_x -v 3 -m 125 --setParameterRanges x=-1.0,1.0 --saveInactivePOI=1
-combine -M MultiDimFit workspace_ttbar_3jets.root -S 1 -t -1 --expectSignal=1 --algo=grid --points=40 --alignEdges=1 -P y --floatOtherPOIs=1 --X-rtd TMCSO_AdaptivePseudoAsimov=10 -n ttbar_3jets_y -v 3 -m 125 --setParameterRanges y=-2.0,2.0:x=0.0,0.0 --saveInactivePOI=1 
-combine -M MultiDimFit workspace_ttbar_3jets.root -S 1 -t -1 --expectSignal=1 --algo=grid --points=40 --alignEdges=1 -P z --floatOtherPOIs=1 --X-rtd TMCSO_AdaptivePseudoAsimov=10 -n ttbar_3jets_z -v 3 -m 125 --setParameterRanges z=-2.0,2.0:x=0.0,0.0 --saveInactivePOI=1
-combine -M MultiDimFit workspace_ttbar_3jets.root -S 1 -t -1 --expectSignal=1 --algo=grid --points=40 --alignEdges=1 -P k --floatOtherPOIs=1 --X-rtd TMCSO_AdaptivePseudoAsimov=10 -n ttbar_3jets_k -v 3 -m 125 --setParameterRanges k=-2.0,2.0:x=0.0,0.0 --saveInactivePOI=1
+combine -M MultiDimFit workspace_ttbar_3jets.root -S 1 -t -1 --expectSignal=1 --algo=grid --points=60 --alignEdges=1 -P y --floatOtherPOIs=1 --X-rtd TMCSO_AdaptivePseudoAsimov=10 -n ttbar_3jets_y -v 3 -m 125 --setParameterRanges y=-2.5,2.5:x=0.0,0.0 --saveInactivePOI=1 
+combine -M MultiDimFit workspace_ttbar_3jets.root -S 1 -t -1 --expectSignal=1 --algo=grid --points=60 --alignEdges=1 -P z --floatOtherPOIs=1 --X-rtd TMCSO_AdaptivePseudoAsimov=10 -n ttbar_3jets_z -v 3 -m 125 --setParameterRanges z=-1.0,3.0:x=0.0,0.0 --saveInactivePOI=1
+combine -M MultiDimFit workspace_ttbar_3jets.root -S 1 -t -1 --expectSignal=1 --algo=grid --points=60 --alignEdges=1 -P k --floatOtherPOIs=1 --X-rtd TMCSO_AdaptivePseudoAsimov=10 -n ttbar_3jets_k -v 3 -m 125 --setParameterRanges k=-2.5,2.5:x=0.0,0.0 --saveInactivePOI=1
 
-combine -M MultiDimFit workspace_ttbar_3jets.root -S 1 -t -1 --expectSignal=1 --algo=grid --points=1600 --alignEdges=1  -P k -P y --floatOtherPOIs=1 --X-rtd TMCSO_AdaptivePseudoAsimov=10 -n ttbar_3jets_2Dyk -v 3 -m 125 --setParameterRanges y=-2.0,2.0:k=-2.0,2.0:x=0.0,0.0
-combine -M MultiDimFit workspace_ttbar_3jets.root -S 1 -t -1 --expectSignal=1 --algo=grid --points=1600 --alignEdges=1  -P z -P k --floatOtherPOIs=1 --X-rtd TMCSO_AdaptivePseudoAsimov=10 -n ttbar_3jets_2Dzk -v 3 -m 125 --setParameterRanges z=-2.0,2.0:k=-2.0,2.0:x=0.0,0.0
-combine -M MultiDimFit workspace_ttbar_3jets.root -S 1 -t -1 --expectSignal=1 --algo=grid --points=1600 --alignEdges=1  -P y -P z --floatOtherPOIs=1 --X-rtd TMCSO_AdaptivePseudoAsimov=10 -n ttbar_3jets_2Dyz -v 3 -m 125 --setParameterRanges y=-2.0,2.0:z=-2.0,2.0:x=0.0,0.0
+combine -M MultiDimFit workspace_ttbar_3jets.root -S 1 -t -1 --expectSignal=1 --algo=grid --points=3600 --alignEdges=1  -P k -P y --floatOtherPOIs=1 --X-rtd TMCSO_AdaptivePseudoAsimov=10 -n ttbar_3jets_2Dyk -v 3 -m 125 --setParameterRanges y=-2.5,2.5:k=-2.5,2.5:x=0.0,0.0
+combine -M MultiDimFit workspace_ttbar_3jets.root -S 1 -t -1 --expectSignal=1 --algo=grid --points=3600 --alignEdges=1  -P z -P k --floatOtherPOIs=1 --X-rtd TMCSO_AdaptivePseudoAsimov=10 -n ttbar_3jets_2Dzk -v 3 -m 125 --setParameterRanges z=-1.0,3.0:k=-2.5,2.5:x=0.0,0.0
+combine -M MultiDimFit workspace_ttbar_3jets.root -S 1 -t -1 --expectSignal=1 --algo=grid --points=3600 --alignEdges=1  -P y -P z --floatOtherPOIs=1 --X-rtd TMCSO_AdaptivePseudoAsimov=10 -n ttbar_3jets_2Dyz -v 3 -m 125 --setParameterRanges y=-2.5,2.5:z=-1.0,3.0:x=0.0,0.0
 rename higgsCombine limit_ *.root
 rename MultiDimFit.mH125. '' *.root
 

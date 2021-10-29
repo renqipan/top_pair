@@ -30,7 +30,7 @@ void Floor(TH2F* histo){
 		}
 	}
 }
-void prepare(){
+void prepare2(){
 	const int nsample=34;
 	TString fileNames[nsample]={"new_TTToSemiLeptonic_TuneCP5_13TeV-powheg.root",
                             "new_TTTo2L2Nu_TuneCP5_13TeV-powheg.root",
@@ -147,9 +147,7 @@ void prepare(){
 			        TString sample_weighted=sample_name+"_"+weight_EW;
 			        TH2F* h2sample=new TH2F(sample_weighted,sample_weighted,9,mtt_edges, 11, ytt_edges);
 			        h2sample->Sumw2();
-					chain->Draw("abs(rapidity_tt):mass_tt>>"+sample_weighted, weight+"*"+cuts[s] );
-					chain->Draw("-abs(rapidity_tt):mass_tt>>+"+sample_weighted,weight+"*"+cuts[s]);
-					h2sample->Scale(1/2.0);
+					chain->Draw("rapidity_tt:mass_tt>>"+sample_weighted, weight+"*"+cuts[s] );
 					if(i==0){
 						h2dist[k]=(TH2F*)h2sample->Clone();
 						//h2dist[k]->Sumw2();
@@ -185,9 +183,7 @@ void prepare(){
 			else{
 				TH2F* h2sample=new TH2F(sample_name,sample_name,9,mtt_edges, 11, ytt_edges);
 				h2sample->Sumw2();
-				chain->Draw("abs(rapidity_tt):mass_tt>>"+sample_name, Form("%f*%s",global_weight,cuts[s].Data()));
-				chain->Draw("-abs(rapidity_tt):mass_tt>>+"+sample_name,Form("%f*%s",global_weight,cuts[s].Data()));
-				h2sample->Scale(1/2.0);
+				chain->Draw("rapidity_tt:mass_tt>>"+sample_name, Form("%f*%s",global_weight,cuts[s].Data()));
 				if(i>sample_id[nprocess-1] && i <= sample_id[nprocess]){
 					if(i==sample_id[nprocess-1]+1){
 						h2dist[nsignal-1+nprocess]=(TH2F*)h2sample->Clone();
@@ -267,9 +263,7 @@ void prepare(){
 	    RooDataHist *data;
 	    TString hist_data_name="hist_data";
         TH2F* hist_data=new TH2F(hist_data_name,hist_data_name,9,mtt_edges, 11, ytt_edges);
-	    chain_data->Draw("abs(rapidity_tt):mass_tt>>"+hist_data_name);
-		chain_data->Draw("-abs(rapidity_tt):mass_tt>>+"+hist_data_name);
-		hist_data->Scale(1/2.0);
+	    chain_data->Draw("rapidity_tt:mass_tt>>"+hist_data_name);
 	    data=new RooDataHist("data_obs","",RooArgSet(*mtt,*ytt),Import(*hist_data));
 	    w.import(*data);
 	    w.Print();
