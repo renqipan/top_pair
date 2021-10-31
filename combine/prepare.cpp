@@ -31,7 +31,7 @@ void Floor(TH2F* histo){
 	}
 }
 void prepare(){
-	const int nsample=34;
+	const int nsample=26;
 	TString fileNames[nsample]={"new_TTToSemiLeptonic_TuneCP5_13TeV-powheg.root",
                             "new_TTTo2L2Nu_TuneCP5_13TeV-powheg.root",
                             "new_TTToHadronic_TuneCP5_13TeV-powheg.root",
@@ -63,7 +63,7 @@ void prepare(){
                             "new_WJetsToLNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM.root",
                             "new_WJetsToLNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM.root",
 
-                            "new_QCD_HT100to200_TuneCP5_PSWeights_13TeV-madgraphMLM.root",
+                         /*   "new_QCD_HT100to200_TuneCP5_PSWeights_13TeV-madgraphMLM.root",
 							"new_QCD_HT200to300_TuneCP5_PSWeights_13TeV-madgraphMLM.root",
                             "new_QCD_HT300to500_TuneCP5_PSWeights_13TeV-madgraphMLM.root",
                             "new_QCD_HT500to700_TuneCP5_PSWeights_13TeV-madgraphMLM.root",
@@ -71,7 +71,7 @@ void prepare(){
                             "new_QCD_HT1000to1500_TuneCP5_PSWeights_13TeV-madgraphMLM.root",
                             "new_QCD_HT1500to2000_TuneCP5_PSWeights_13TeV-madgraphMLM.root",
                             "new_QCD_HT2000toInf_TuneCP5_PSWeights_13TeV-madgraphMLM.root",
-                            
+                          */  
                    
 };
 							
@@ -80,14 +80,15 @@ void prepare(){
 									3.36, 136.02, 80.95, 35.6, 35.6,
 									118.7, 16.5, 47.1,
 									1345.7, 359.7, 48.9, 12.1, 5.5, 1.3, 0.032,
-								    27990000, 1712000, 347700, 32100, 6831, 1207, 119.9, 25.2,
+								    //27990000, 1712000, 347700, 32100, 6831, 1207, 119.9, 25.2,
 								    };
 	Float_t K_Factor[nsample]={1.0, 1.0, 1.0,
 								1.23,1.23,1.23,1.23,1.23,1.23,1.23,1.23,
 								1.0,1.0,1.0,1.0,1.0,
 								1.0,1.0,1.0,
 								1.21,1.21,1.21,1.21,1.21,1.21,1.21,
-								1.0, 1.0, 1.0,1.0, 1.0, 1.0,1.0, 1.0,};		
+								//1.0, 1.0, 1.0,1.0, 1.0, 1.0,1.0, 1.0,
+							};		
 	TString dir="./output/";
 	TString process[]={"ttbar","DYJets","STop","VV","WJets","QCD"};
 	Int_t sample_id[]={2, 10, 15, 18, 25, 33};
@@ -152,7 +153,6 @@ void prepare(){
 					h2sample->Scale(1/2.0);
 					if(i==0){
 						h2dist[k]=(TH2F*)h2sample->Clone();
-						//h2dist[k]->Sumw2();
 						h2dist[k]->SetName("ttbar_"+weight_EW);
 						h2dist[k]->SetTitle("ttbar_"+weight_EW);
 					}
@@ -191,7 +191,6 @@ void prepare(){
 				if(i>sample_id[nprocess-1] && i <= sample_id[nprocess]){
 					if(i==sample_id[nprocess-1]+1){
 						h2dist[nsignal-1+nprocess]=(TH2F*)h2sample->Clone();
-						//h2dist[nsignal-1+nprocess]->Sumw2();
 						h2dist[nsignal-1+nprocess]->SetName(process[nprocess]);
 						h2dist[nsignal-1+nprocess]->SetTitle(process[nprocess]);
 					}
@@ -238,7 +237,7 @@ void prepare(){
 		card.open (outputDir+"/"+category+".txt");
 		card <<"Datacard for event category: "<< category<<endl;
 		card<< "imax 1 number of channels"<<endl;
-		card<< "jmax 13 number of processes minus 1"<<endl;
+		card<< "jmax 12 number of processes minus 1"<<endl;
 		card<< "kmax * number of nuisance parameters"<<endl;
 		card<<"---------------------------------"<<endl;
 		card<<endl;
