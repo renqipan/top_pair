@@ -25,8 +25,12 @@ void writeline(vector<float> arr , ofstream &card){
 void Floor(TH2F* histo){
 	for (int i=0;i<histo->GetNbinsX();i++){
 		for (int j=0;j<histo->GetNbinsY();j++){
-			if(histo->GetBinContent(i+1,j+1)==0)
-				histo->SetBinContent(i+1,j+1,1.E-8);
+			if(!(histo->GetBinContent(i+1,j+1)>1.E-6)){
+				histo->SetBinContent(i+1,j+1,1.E-6);
+				float xx=histo->GetXaxis()->GetBinCenter(i+1);
+				float yy=histo->GetYaxis()->GetBinCenter(j+1);
+				cout<<"warning!!!!! No events in x: "<<xx<<" y: "<<yy<<endl;
+			}
 		}
 	}
 }
