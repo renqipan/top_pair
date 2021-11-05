@@ -217,7 +217,7 @@ void get_info_3jet() {
   TString inputFile ="TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_1TopNanoAODv6p1_2018.root";
   chain.Add(inputFile);
   chain.Add("TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_1TopNanoAODv5p1_2018.root");
-  TString output = "semi_"+inputFile;
+  TString output = "new_"+inputFile;
   TFile *file = new TFile(output, "RECREATE");
   TTree *mytree = new TTree("mytree", " tree with branches");
   TTree *rawtree = new TTree("rawtree", "tree without selection");
@@ -684,7 +684,7 @@ void get_info_3jet() {
       MtW=sqrt(2*(mom_lep.Pt()*MET_pt-mom_lep.Px()*nu_px-mom_lep.Py()*nu_py));
       
         recons_tt();
-        if( minimum < 19.0  ){ 
+        if( minimum < 1900000.0  ){ 
         /////////////////////////////////////////
         //add weights according to invariant mass and rapidity difference at generator level.
           if(inputFile.Contains("TTToSemiLeptonic")||inputFile.Contains("TTTo2L2Nu")||inputFile.Contains("TTToHadronic")){
@@ -795,7 +795,7 @@ void get_info_3jet() {
 		          LHE_nhad = 0;
 		          LHE_nlep = 0;
 		          LHE_tao = 0;
-		          for (int i = 1; i < nLHEPart; i++) {
+		          for (int i = nLHEPart-6; i < nLHEPart; i++) {
 		            if (LHEPart_pdgId[i] == 2 || LHEPart_pdgId[i] == 4 ||
 		                LHEPart_pdgId[i] == -2 || LHEPart_pdgId[i] == -4) {
 		              LHE_nhad++;

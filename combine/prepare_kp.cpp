@@ -29,25 +29,18 @@ void Floor(TH2F* histo){
 				histo->SetBinContent(i+1,j+1,1.E-6);
 				float xx=histo->GetXaxis()->GetBinCenter(i+1);
 				float yy=histo->GetYaxis()->GetBinCenter(j+1);
-				cout<<"warning!!!!! No events in x: "<<xx<<" y: "<<yy<<endl;
+				//cout<<"warning!!!!! No events in x: "<<xx<<" y: "<<yy<<endl;
 			}
 		}
 	}
 }
-void prepare(){
-	const int nsample=26;
+void prepare_kp(){
+	const int nsample=8;
 	TString fileNames[nsample]={"new_TTToSemiLeptonic_TuneCP5_13TeV-powheg.root",
                             "new_TTTo2L2Nu_TuneCP5_13TeV-powheg.root",
                             "new_TTToHadronic_TuneCP5_13TeV-powheg.root",
 
-                            "new_DYJetsToLL_M-50_HT-70to100_TuneCP5_PSweights_13TeV-madgraphMLM.root",
-                            "new_DYJetsToLL_M-50_HT-100to200_TuneCP5_PSweights_13TeV-madgraphMLM.root",
-                            "new_DYJetsToLL_M-50_HT-200to400_TuneCP5_PSweights_13TeV-madgraphMLM.root",
-                            "new_DYJetsToLL_M-50_HT-400to600_TuneCP5_PSweights_13TeV-madgraphMLM.root",
-                            "new_DYJetsToLL_M-50_HT-600to800_TuneCP5_PSweights_13TeV-madgraphMLM.root",
-                            "new_DYJetsToLL_M-50_HT-800to1200_TuneCP5_PSweights_13TeV-madgraphMLM.root",
-                            "new_DYJetsToLL_M-50_HT-1200to2500_TuneCP5_PSweights_13TeV-madgraphMLM.root",                           
-                            "new_DYJetsToLL_M-50_HT-2500toInf_TuneCP5_PSweights_13TeV-madgraphMLM.root",
+                            
                         
                             "new_ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-amcatnlo.root",
                             "new_ST_t-channel_antitop_4f_InclusiveDecays_TuneCP5_13TeV-powheg-madspin.root",
@@ -55,7 +48,7 @@ void prepare(){
                             "new_ST_tW_antitop_5f_inclusiveDecays_TuneCP5_13TeV-powheg.root",
                             "new_ST_tW_top_5f_inclusiveDecays_TuneCP5_13TeV-powheg.root",                                                                               
                             
-                            "new_WW_TuneCP5_13TeV.root",
+                           /* "new_WW_TuneCP5_13TeV.root",
                             "new_WZ_TuneCP5_13TeV.root",
                             "new_ZZ_TuneCP5_13TeV.root",
                             
@@ -67,7 +60,7 @@ void prepare(){
                             "new_WJetsToLNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM.root",
                             "new_WJetsToLNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM.root",
 
-                         /*   "new_QCD_HT100to200_TuneCP5_PSWeights_13TeV-madgraphMLM.root",
+                            "new_QCD_HT100to200_TuneCP5_PSWeights_13TeV-madgraphMLM.root",
 							"new_QCD_HT200to300_TuneCP5_PSWeights_13TeV-madgraphMLM.root",
                             "new_QCD_HT300to500_TuneCP5_PSWeights_13TeV-madgraphMLM.root",
                             "new_QCD_HT500to700_TuneCP5_PSWeights_13TeV-madgraphMLM.root",
@@ -79,28 +72,28 @@ void prepare(){
                    
 };
 							
-	Float_t cross_sections[nsample]={366.91, 89.05, 377.96,
-									169.9, 147.4, 41.0, 5.7, 1.4, 0.63, 0.15, 0.0036,
-									3.36, 136.02, 80.95, 35.6, 35.6,
-									118.7, 16.5, 47.1,
-									1345.7, 359.7, 48.9, 12.1, 5.5, 1.3, 0.032,
+	Float_t cross_sections[nsample]={366.91, 0.05, 0.96,
+									3.36*1.7, 136.02*1.7, 80.95*1.7, 35.6*1.7, 35.6*1.7,
+									//118.7, 16.5, 47.1,
+									//1345.7, 359.7, 48.9, 12.1, 5.5, 1.3, 0.032,
 								    //27990000, 1712000, 347700, 32100, 6831, 1207, 119.9, 25.2,
 								    };
 	Float_t K_Factor[nsample]={1.0, 1.0, 1.0,
-								1.23,1.23,1.23,1.23,1.23,1.23,1.23,1.23,
 								1.0,1.0,1.0,1.0,1.0,
-								1.0,1.0,1.0,
-								1.21,1.21,1.21,1.21,1.21,1.21,1.21,
+								//1.0,1.0,1.0,
+								//1.21,1.21,1.21,1.21,1.21,1.21,1.21,
 								//1.0, 1.0, 1.0,1.0, 1.0, 1.0,1.0, 1.0,
 							};		
 	TString dir="./output/";
-	TString process[]={"ttbar","DYJets","STop","VV","WJets","QCD"};
-	Int_t sample_id[]={2, 10, 15, 18, 25, 33};
-	const int nsignal=9;
+	TString process[]={"ttbar","STop","VV","WJets","QCD"};
+	Int_t sample_id[]={2,7, 15, 18, 25, 33};
+	const int nsignal=6;
 	Int_t Cpq3[9]={ 0, 1, 0, 0, 0, 2, 0, 0, 1};
 	Int_t Cpu[9]={  0, 0, 1, 0, 0, 0, 2, 0, 1};
 	Int_t ReCup[9]={0, 0, 0, 1, 0, 0, 0, 2, 0};
 	Int_t ImCup[9]={0, 0, 0, 0, 1, 0, 0, 0, 0};
+	Int_t kappa[6]={1,0,2,0,0,2};
+	Int_t kappat[6]={0,0,0,1,2,2};
 	float lumi=137.1;
 	Double_t mtt_edges[9]={0,370,420,500,600,700,800,950,2000};
 	Double_t ytt_edges[10]={-5.0,-1.4,-0.9,-0.5,-0.15,0.15,0.5,0.9,1.4,5.0};
@@ -111,7 +104,7 @@ void prepare(){
 	RooRealVar* ytt=new RooRealVar("rapidity_tt","rapidity_tt",-5,5);
 	mtt->setBins(8);
 	ytt->setBins(9);
-	TString cuts[]={"(jet_num == 3)","(jet_num >= 4)"};
+	TString cuts[]={"(jet_num == 3)","(jet_num == 4)"};
 	TString cutsName[]={"3jets","4jets"};
 	Float_t entries[2][nsample];// number of events in 3jets and 4jets final states
 	for(int s=0; s<2; s++){ //loop over final states
@@ -147,7 +140,7 @@ void prepare(){
 			sample_name=sample_name.ReplaceAll("new_","");
 			if(i <= sample_id[0]){
 				for(int k=0;k<nsignal;k++){ //loop over EW weights
-			        TString weight_EW=Form("weight_ci%d%d%d%d",Cpq3[k],Cpu[k],ReCup[k],ImCup[k]);
+			        TString weight_EW=Form("weight_kappa%d%d",kappa[k],kappat[k]);
 			        TString weight=Form("%f*%s",global_weight,weight_EW.Data());
 			        TString sample_weighted=sample_name+"_"+weight_EW;
 			        TH2F* h2sample=new TH2F(sample_weighted,sample_weighted,8,mtt_edges, 9, ytt_edges);
@@ -241,7 +234,7 @@ void prepare(){
 		card.open (outputDir+"/"+category+".txt");
 		card <<"Datacard for event category: "<< category<<endl;
 		card<< "imax 1 number of channels"<<endl;
-		card<< "jmax 12 number of processes minus 1"<<endl;
+		card<< "jmax 6 number of processes minus 1"<<endl;
 		card<< "kmax * number of nuisance parameters"<<endl;
 		card<<"---------------------------------"<<endl;
 		card<<endl;

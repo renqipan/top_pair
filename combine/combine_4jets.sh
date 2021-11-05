@@ -12,9 +12,9 @@ combine -M MultiDimFit workspace_ttbar_4jets.root -S 1 -t -1 --expectSignal=1 --
 combine -M MultiDimFit workspace_ttbar_4jets.root -S 1 -t -1 --expectSignal=1 --algo=grid --points=60 --alignEdges=1 -P z --floatOtherPOIs=1 --X-rtd TMCSO_AdaptivePseudoAsimov=10 -n ttbar_4jets_z -v 3 -m 125 --setParameterRanges z=-1.0,3.0:x=0.0,0.0 --saveInactivePOI=1
 combine -M MultiDimFit workspace_ttbar_4jets.root -S 1 -t -1 --expectSignal=1 --algo=grid --points=60 --alignEdges=1 -P k --floatOtherPOIs=1 --X-rtd TMCSO_AdaptivePseudoAsimov=10 -n ttbar_4jets_k -v 3 -m 125 --setParameterRanges k=-2.0,2.0:x=0.0,0.0 --saveInactivePOI=1
 
-combine -M MultiDimFit workspace_ttbar_4jets.root -S 1 -t -1 --expectSignal=1 --algo=grid --points=3600 --alignEdges=1  -P k -P y --floatOtherPOIs=1 --X-rtd TMCSO_AdaptivePseudoAsimov=10 -n ttbar_4jets_2Dyk -v 3 -m 125 --setParameterRanges y=-2.0,2.0:k=-2.0,2.0:x=0.0,0.0
-combine -M MultiDimFit workspace_ttbar_4jets.root -S 1 -t -1 --expectSignal=1 --algo=grid --points=3600 --alignEdges=1  -P z -P k --floatOtherPOIs=1 --X-rtd TMCSO_AdaptivePseudoAsimov=10 -n ttbar_4jets_2Dzk -v 3 -m 125 --setParameterRanges z=-1.0,3.0:k=-2.0,2.0:x=0.0,0.0
-combine -M MultiDimFit workspace_ttbar_4jets.root -S 1 -t -1 --expectSignal=1 --algo=grid --points=3600 --alignEdges=1  -P y -P z --floatOtherPOIs=1 --X-rtd TMCSO_AdaptivePseudoAsimov=10 -n ttbar_4jets_2Dyz -v 3 -m 125 --setParameterRanges y=-2.0,2.0:z=-1.0,3.0:x=0.0,0.0
+combine -M MultiDimFit workspace_ttbar_4jets.root -S 1 -t -1 --expectSignal=1 --algo=grid --points=3600 --alignEdges=1  -P k -P y --floatOtherPOIs=1 --X-rtd TMCSO_AdaptivePseudoAsimov=10 -n ttbar_4jets_2Dyk -v 3 -m 125 --setParameterRanges y=-2.0,2.0:k=-2.0,2.0:x=0.0,0.0 --saveInactivePOI=1
+combine -M MultiDimFit workspace_ttbar_4jets.root -S 1 -t -1 --expectSignal=1 --algo=grid --points=3600 --alignEdges=1  -P z -P k --floatOtherPOIs=1 --X-rtd TMCSO_AdaptivePseudoAsimov=10 -n ttbar_4jets_2Dzk -v 3 -m 125 --setParameterRanges z=-1.0,3.0:k=-2.0,2.0:x=0.0,0.0 --saveInactivePOI=1
+combine -M MultiDimFit workspace_ttbar_4jets.root -S 1 -t -1 --expectSignal=1 --algo=grid --points=3600 --alignEdges=1  -P y -P z --floatOtherPOIs=1 --X-rtd TMCSO_AdaptivePseudoAsimov=10 -n ttbar_4jets_2Dyz -v 3 -m 125 --setParameterRanges y=-2.0,2.0:z=-1.0,3.0:x=0.0,0.0 --saveInactivePOI=1
 rename higgsCombine limit_ *.root
 rename MultiDimFit.mH125. '' *.root
 
