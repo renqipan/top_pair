@@ -650,22 +650,6 @@ void get_info_3jet_condor(TString inputFile) {
       }
 
     }
-  // sort leptons according to their pt and make the first jet has maximum pt
- /*   for (int k = 0; k < nlepton; k++) {
-      for (int j = k + 1; j < nlepton; j++) {
-        if (p4_lepton[k].Pt() < p4_lepton[j].Pt()) {
-          TLorentzVector temp;
-          Int_t temp_charge;
-          temp = p4_lepton[k];
-          p4_lepton[k] = p4_lepton[j];
-          p4_lepton[j] = temp;
-          temp_charge = lepton_charge[k];
-          lepton_charge[k] = lepton_charge[j];
-          lepton_charge[j] = temp_charge;
-        }
-      }
-    }
-    */
     
 ////////////////////////////////////////////////////////////////////
 // select satisfied jets
@@ -724,7 +708,7 @@ void get_info_3jet_condor(TString inputFile) {
       MtW=sqrt(2*(mom_lep.Pt()*MET_pt-mom_lep.Px()*nu_px-mom_lep.Py()*nu_py));
       
         recons_tt();
-        if( minimum < 19.0  ){ 
+        if( minimum < 190.0  ){ 
         /////////////////////////////////////////
         //add weights according to invariant mass and rapidity difference at generator level.
           if(inputFile.Contains("TTToSemiLeptonic")||inputFile.Contains("TTTo2L2Nu")||inputFile.Contains("TTToHadronic")){
@@ -768,7 +752,7 @@ void get_info_3jet_condor(TString inputFile) {
 	          LHE_nhad = 0;
 	          LHE_nlep = 0;
 	          LHE_tao = 0;
-	          for (int i = 1; i < nLHEPart; i++) {
+	          for (int i = nLHEPart-6; i < nLHEPart; i++) {
 	            if (LHEPart_pdgId[i] == 2 || LHEPart_pdgId[i] == 4 ||
 	                LHEPart_pdgId[i] == -2 || LHEPart_pdgId[i] == -4) {
 	              LHE_nhad++;
@@ -835,7 +819,7 @@ void get_info_3jet_condor(TString inputFile) {
 		          LHE_nhad = 0;
 		          LHE_nlep = 0;
 		          LHE_tao = 0;
-		          for (int i = 1; i < nLHEPart; i++) {
+		          for (int i = nLHEPart-6; i < nLHEPart; i++) {
 		            if (LHEPart_pdgId[i] == 2 || LHEPart_pdgId[i] == 4 ||
 		                LHEPart_pdgId[i] == -2 || LHEPart_pdgId[i] == -4) {
 		              LHE_nhad++;

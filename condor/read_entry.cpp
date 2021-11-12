@@ -1,7 +1,7 @@
 using namespace std;
 void read_entry(TString fileName){
 //	TString dir="/Users/renqi/Documents/top_pairs/root_files/";
-	 dir="root://cms-xrd-global.cern.ch/";
+	TString dir="root://cms-xrd-global.cern.ch/";
 	TFile* file=TFile::Open(dir+fileName,"READ");
 	TTree* tree=(TTree*) file->Get("Events");
 	int entries=tree->GetEntries();

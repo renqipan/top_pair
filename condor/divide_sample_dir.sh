@@ -74,7 +74,7 @@ do
 				let num_line=num_line+1
 
 			fi
-			if [[ $num_line -eq $(($lines+1)) || ( $num_txt -eq $divide && $num_line -eq $(($remind+1)) ) ]]; then
+			if [[ ( $num_line -eq $(($lines+1)) && $num_txt -le $(($divide-1)) ) || ( $num_txt -eq $divide && $num_line -eq $(($remind+1)) ) ]]; then
 				let num_txt=num_txt+1
 				let num_line=1
 				echo $txt_name

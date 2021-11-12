@@ -29,7 +29,7 @@ void Floor(TH2F* histo){
 				histo->SetBinContent(i+1,j+1,1.E-6);
 				float xx=histo->GetXaxis()->GetBinCenter(i+1);
 				float yy=histo->GetYaxis()->GetBinCenter(j+1);
-				cout<<"warning!!!!! No events in x: "<<xx<<" y: "<<yy<<endl;
+				//cout<<"warning!!!!! No events in x: "<<xx<<" y: "<<yy<<endl;
 			}
 		}
 	}
@@ -96,11 +96,11 @@ void prepare(){
 	TString dir="./output/";
 	TString process[]={"ttbar","DYJets","STop","VV","WJets","QCD"};
 	Int_t sample_id[]={2, 10, 15, 18, 25, 33};
-	const int nsignal=9;
-	Int_t Cpq3[9]={ 0, 1, 0, 0, 0, 2, 0, 0, 1};
-	Int_t Cpu[9]={  0, 0, 1, 0, 0, 0, 2, 0, 1};
-	Int_t ReCup[9]={0, 0, 0, 1, 0, 0, 0, 2, 0};
-	Int_t ImCup[9]={0, 0, 0, 0, 1, 0, 0, 0, 0};
+	const int nsignal=6;
+	Int_t Cpq3[6]={ 0, 0, 0, 0, 0, 0};
+	Int_t Cpu[6]={  0, 1, 0, 0, 2, 0};
+	Int_t ReCup[6]={0, 0, 1, 0, 0, 2};
+	Int_t ImCup[6]={0, 0, 0, 1, 0, 0};
 	float lumi=137.1;
 	Double_t mtt_edges[9]={0,370,420,500,600,700,800,950,2000};
 	Double_t ytt_edges[10]={-5.0,-1.4,-0.9,-0.5,-0.15,0.15,0.5,0.9,1.4,5.0};
@@ -111,7 +111,7 @@ void prepare(){
 	RooRealVar* ytt=new RooRealVar("rapidity_tt","rapidity_tt",-5,5);
 	mtt->setBins(8);
 	ytt->setBins(9);
-	TString cuts[]={"(jet_num == 3)","(jet_num >= 4)"};
+	TString cuts[]={"(jet_num == 3 && likelihood<20.0)","(jet_num >= 4 && likelihood<20.0 )"};
 	TString cutsName[]={"3jets","4jets"};
 	Float_t entries[2][nsample];// number of events in 3jets and 4jets final states
 	for(int s=0; s<2; s++){ //loop over final states
@@ -126,7 +126,9 @@ void prepare(){
 		std::vector<float> yield_array;  //rate(event yeild)
 		std::vector<TString> bkg_norm;  //background  normlization uncertainty
 		std::vector<TString> sig_norm;   //signal norlization uncertainty
-    		TH2F* h2dist[nsignal+5];//9 signal + 5 background
+		std::vector<TString> cms_lumi;
+		std::vector<TString> ew_weight;
+    	TH2F* h2dist[nsignal+5];//9 signal + 5 background
 		for(int i=0;i<nsample;i++) { //loop over samples
 			TChain* chain=new TChain("mytree");
 			TChain* chain2=new TChain("rawtree");
@@ -139,7 +141,7 @@ void prepare(){
 			ncut=chain->GetEntries();
 			cout<<nMC<<" events simulated and "<<ncut<<" events selected in "<<fileNames[i]<<endl;
 			float global_weight=cross_sections[i]*1000*lumi/nMC*K_Factor[i];
-			TString condition="(mass_tt<=2000)&&(abs(rapidity_tt)<=5)";
+			TString condition="(mass_tt<=2000)&&(abs(rapidity_tt)<=5)&&(likelihood <19.0)";
 			Int_t entry_cut=chain->Draw("mass_tt",cuts[s]+"&&"+condition);
 			entries[s][i]=entry_cut*global_weight; //number of events in each channel
 			TString sample_name=fileNames[i];
@@ -174,6 +176,8 @@ void prepare(){
 						bin_arr.push_back(category);
 						sig_norm.push_back("1.05");
 						bkg_norm.push_back("-");
+						cms_lumi.push_back("1.025");
+						ew_weight.push_back("1.01");
 						cout<<"after reweight there are "<<yield<<" events in "<<process_name<<" in "<<cutsName[s]<<endl;
 						
 						RooDataHist* datahist=new RooDataHist(process_name+"_datahist",process_name+"_datahist",RooArgSet(*mtt,*ytt),h2dist[k]);
@@ -213,6 +217,8 @@ void prepare(){
 						yield_array.push_back(yield);
 						bin_arr.push_back(category);
 						sig_norm.push_back("-");
+						cms_lumi.push_back("1.025");
+						ew_weight.push_back("-");
 						if (process_name.Contains("STop")){
 							bkg_norm.push_back("1.15");
 						}
@@ -241,7 +247,7 @@ void prepare(){
 		card.open (outputDir+"/"+category+".txt");
 		card <<"Datacard for event category: "<< category<<endl;
 		card<< "imax 1 number of channels"<<endl;
-		card<< "jmax 12 number of processes minus 1"<<endl;
+		card<< "jmax 9 number of processes minus 1"<<endl;
 		card<< "kmax * number of nuisance parameters"<<endl;
 		card<<"---------------------------------"<<endl;
 		card<<endl;
@@ -263,7 +269,10 @@ void prepare(){
 		writeline(sig_norm,card);
 		card<<"bkg_norm"<<"\t lnN \t";
 		writeline(bkg_norm,card);
-		
+		card<<"cms_lumi"<<"\t lnN \t";
+		writeline(cms_lumi,card);
+		card<<"EW_weight"<<"\t lnN \t";
+		writeline(ew_weight,card);
 		//build dataset, but for expected results dataset is not needed.
 		TChain *chain_data=new TChain("mytree");
 		chain_data->Add(dir+fileNames[0]); 

@@ -612,7 +612,7 @@ void get_info_condor(TString inputFile) {
           LHE_nhad = 0;
           LHE_nlep = 0;
           LHE_tao = 0;
-          for (int i = 1; i < nLHEPart; i++) {
+          for (int i = nLHEPart-6; i < nLHEPart; i++) {
             if (LHEPart_pdgId[i] == 2 || LHEPart_pdgId[i] == 4 ||
                 LHEPart_pdgId[i] == -2 || LHEPart_pdgId[i] == -4) {
               LHE_nhad++;

@@ -9,28 +9,20 @@ do
     cp $var/run.err ../$dir/${var}_run.err 2>/dev/null
 	if  cp $var/run.out ../$dir/${var}_run.out 2>/dev/null
 	then 
-		if  mv $var/*.root ../$dir 2>/dev/null
-		then 
-			flag=true	
-	    else
-		    echo "$var didn't succeed"
-		    echo $var >> $txt
-		fi	
-
-	else
+	    flag=true
+    else
 		echo "$var didn't finish"
 		echo $var >> $txt
-        rm $var/*.root 
 	fi
     
 #   rm -rf $var
 done
-mv $txt ..
+mv $txt ../
 cd ../$dir
-cat *_run.out > all.out
-cat *_run.err > all.err
-cat *_run.log > all.log
+cat *_run.out > all2.out
+cat *_run.err > all2.err
+cat *_run.log > all2.log
 rm *_run.*
 echo "if any see any anomalous tips, please have a cheack,"
-echo "The failed tasks(if have) are summaried in $txt "
+echo "The failed tasks(if have) are summarized in $txt "
 cd ..
