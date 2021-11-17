@@ -10,16 +10,17 @@ Steps to run the code:
 **cd /afs/cern.ch/user/r/repan/work/top_pair/condor**  
 2. get voms-proxy  
 **voms-proxy-init --voms cms -valid 192:00 -out ~/temp/x509up**    
-3. run get_info_3jet_condor.cpp through condor  
-**source sample_dir.sh**  
+3. run get_info_3jet_condor.cpp and add_weight_branch.c through condor  
+**source divide_sample_dir.sh**  
 **cd condor_sample/**  
 **condor_submit condor.sub**  
 4. check condor processing and merge results into a directory  
-**condor_q**  
-**source merge_out.sh**  
-5. add EW weights to root files  
+**condor_q**
+**source check.sh** # check processing  
+**source merge_out.sh** #copy all root files to one directory 
+5. add EW weights to root files(if didn't add)  
 **cd /afs/cern.ch/user/r/repan/work/top_pair/condor**  
-**root -l -q -b add_weight_branch.c**
+**source add_weight.sh**
 6. wirte histogram distribution of siganl and background into  
 a root file and preapre a datacard(.txt)  
 **root -l -q -b prepare.cpp**  
