@@ -22,6 +22,14 @@ void writeline(vector<float> arr , ofstream &card){
 		card<< arr[i]<<"\t";
 	card<<endl;
 }
+void writeline(vector<Double_t> arr , ofstream &card){
+	//	gStyle->SetPaintTextFormat("2.2f");
+	card<< std::fixed;
+	card<< std::setprecision(3);
+	for (int i=0;i<arr.size();i++)
+		card<< arr[i]<<"\t";
+	card<<endl;
+}
 void Floor(TH2D* histo){
 	for (int i=0;i<histo->GetNbinsX();i++){
 		for (int j=0;j<histo->GetNbinsY();j++){
@@ -34,7 +42,7 @@ void Floor(TH2D* histo){
 		}
 	}
 }
-void prepare(){
+void prepare_test(){
 	const int nsample=26;
 	TString fileNames[nsample]={"new_TTToSemiLeptonic_TuneCP5_13TeV-powheg.root",
                             "new_TTTo2L2Nu_TuneCP5_13TeV-powheg.root",
@@ -123,7 +131,7 @@ void prepare(){
 		std::vector<TString> process_names; //names of sigal and bkg
 		std::vector<int> process_id;  //process ID; minus and zero for sigal; positive for bkg
 		std::vector<TString> bin_arr;   //category name
-		std::vector<float> yield_array;  //rate(event yeild)
+		std::vector<Double_t> yield_array;  //rate(event yeild)
 		std::vector<TString> bkg_norm;  //background  normlization uncertainty
 		std::vector<TString> sig_norm;   //signal norlization uncertainty
 		std::vector<TString> cms_lumi;
@@ -140,7 +148,7 @@ void prepare(){
 			nMC=chain2->GetEntries();
 			ncut=chain->GetEntries();
 			cout<<nMC<<" events simulated and "<<ncut<<" events selected in "<<fileNames[i]<<endl;
-			float global_weight=cross_sections[i]*1000*lumi/nMC*K_Factor[i];
+			float global_weight=cross_sections[i]*1000.0*lumi/nMC*K_Factor[i];
 			TString condition="(mass_tt<=2000.0)&&(abs(rapidity_tt)<=5.0)&&(likelihood <20.0)";
 			Int_t entry_cut=chain->Draw("mass_tt",cuts[s]+"&&"+condition);
 			entries[s][i]=entry_cut*global_weight; //number of events in each channel
@@ -152,12 +160,12 @@ void prepare(){
 			        TString weight_EW=Form("weight_ci%d%d%d%d",Cpq3[k],Cpu[k],ReCup[k],ImCup[k]);
 			        TString weight=Form("%f*%s",global_weight,weight_EW.Data());
 			        TString sample_weighted=sample_name+"_"+weight_EW;
-			        TH2D* h2sample=new TH2D(sample_weighted,sample_weighted,8,mtt_edges, 9, ytt_edges);
+			        TH2D* h2sample=new TH2D(sample_weighted,sample_weighted,4,0.0,2000.0,4,-5.0,5.0);
 			        h2sample->Sumw2();
 					chain->Draw("abs(rapidity_tt):mass_tt>>"+sample_weighted, weight+"*"+cuts[s] );
 					chain->Draw("-abs(rapidity_tt):mass_tt>>+"+sample_weighted,weight+"*"+cuts[s]);
+                    cout<<"weight*cuts[s]: "<<weight+"*"+cuts[s]<<endl;
 					h2sample->Scale(0.5);
-                    cout<<" weight*cuts[s]: "<< weight+"*"+cuts[s]<<endl;
 					if(i==0){
 						h2dist[k]=(TH2D*)h2sample->Clone();
 						h2dist[k]->SetName("ttbar_"+weight_EW);
@@ -172,7 +180,7 @@ void prepare(){
 						Floor(h2dist[k]);
 						h2dist[k]->Draw("colz text");
 						gPad->Print(outputDir+"/"+process_name+"_"+cutsName[s]+"_hist.png");
-						float yield=h2dist[k]->GetSumOfWeights();
+						Double_t yield=h2dist[k]->Integral();
 						yield_array.push_back(yield);
 						bin_arr.push_back(category);
 						sig_norm.push_back("1.05");
@@ -192,7 +200,7 @@ void prepare(){
                 if (i==sample_id[0]) nprocess++;
 			}
 			else{
-				TH2D* h2sample=new TH2D(sample_name,sample_name,8,mtt_edges, 9, ytt_edges);
+				TH2D* h2sample=new TH2D(sample_name,sample_name,4,0.0,2000.0,4,-5.0,5.0);
 				h2sample->Sumw2();
 				chain->Draw("abs(rapidity_tt):mass_tt>>"+sample_name, Form("%f*%s",global_weight,cuts[s].Data()));
 				chain->Draw("-abs(rapidity_tt):mass_tt>>+"+sample_name,Form("%f*%s",global_weight,cuts[s].Data()));
@@ -214,7 +222,7 @@ void prepare(){
 						Floor(h2dist[nsignal-1+nprocess]);
 						h2dist[nsignal-1+nprocess]->Draw("colz text");
 						gPad->Print(outputDir+"/"+process_name+"_"+cutsName[s]+"_hist.png");
-						float yield=h2dist[nsignal-1+nprocess]->GetSumOfWeights();
+						Double_t yield=h2dist[nsignal-1+nprocess]->Integral();
 						yield_array.push_back(yield);
 						bin_arr.push_back(category);
 						sig_norm.push_back("-");

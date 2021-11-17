@@ -1,0 +1,20 @@
+Datacard for event category: ttbar_3jets
+imax 1 number of channels
+jmax 9 number of processes minus 1
+kmax * number of nuisance parameters
+---------------------------------
+
+shapes * ttbar_3jets ttbar_3jets.root w:$PROCESS w:$PROCESS_$SYSTEMATIC
+---------------------------------
+bin           ttbar_3jets
+observation   -1
+---------------------------------
+
+bin 	ttbar_3jets	ttbar_3jets	ttbar_3jets	ttbar_3jets	ttbar_3jets	ttbar_3jets	
+process 	ttbar_weight_ci0000	ttbar_weight_ci0100	ttbar_weight_ci0010	ttbar_weight_ci0001	ttbar_weight_ci0200	ttbar_weight_ci0020	
+process 	0	-1	-2	-3	-4	-5	
+rate 	1085367.000	1033790.938	1075486.750	1078841.375	951852.062	1085738.375	
+sig_norm	 lnN 	1.05	1.05	1.05	1.05	1.05	1.05	
+bkg_norm	 lnN 	-	-	-	-	-	-	
+cms_lumi	 lnN 	1.025	1.025	1.025	1.025	1.025	1.025	
+EW_weight	 lnN 	1.01	1.01	1.01	1.01	1.01	1.01	

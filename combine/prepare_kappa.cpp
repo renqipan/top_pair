@@ -22,7 +22,7 @@ void writeline(vector<float> arr , ofstream &card){
 		card<< arr[i]<<"\t";
 	card<<endl;
 }
-void Floor(TH2F* histo){
+void Floor(TH2D* histo){
 	for (int i=0;i<histo->GetNbinsX();i++){
 		for (int j=0;j<histo->GetNbinsY();j++){
 			if(!(histo->GetBinContent(i+1,j+1)>1.E-6)){
@@ -34,7 +34,7 @@ void Floor(TH2F* histo){
 		}
 	}
 }
-void prepare_kp(){
+void prepare_kappa(){
 	const int nsample=8;
 	TString fileNames[nsample]={"new_TTToSemiLeptonic_TuneCP5_13TeV-powheg.root",
                             "new_TTTo2L2Nu_TuneCP5_13TeV-powheg.root",
@@ -97,7 +97,7 @@ void prepare_kp(){
 	float lumi=137.1;
 	Double_t mtt_edges[9]={0,370,420,500,600,700,800,950,2000};
 	Double_t ytt_edges[10]={-5.0,-1.4,-0.9,-0.5,-0.15,0.15,0.5,0.9,1.4,5.0};
-//	TH2F* h2dist[nsignal+5];//9 signal + 5 background
+//	TH2D* h2dist[nsignal+5];//9 signal + 5 background
 	TString outputDir="datacard";
 
 	RooRealVar* mtt=new RooRealVar("mass_tt","mass_tt",0,2000);
@@ -109,7 +109,7 @@ void prepare_kp(){
 	Float_t entries[2][nsample];// number of events in 3jets and 4jets final states
 	for(int s=0; s<2; s++){ //loop over final states
 		int nprocess=0; //count process was dealed with
-		TString category="ttbar_"+cutsName[s];
+		TString category="ttbar_kappa_"+cutsName[s];
 		TFile *file=new TFile(outputDir+"/"+category+".root","recreate");
 		RooWorkspace w("w");
 
@@ -119,7 +119,7 @@ void prepare_kp(){
 		std::vector<float> yield_array;  //rate(event yeild)
 		std::vector<TString> bkg_norm;  //background  normlization uncertainty
 		std::vector<TString> sig_norm;   //signal norlization uncertainty
-    		TH2F* h2dist[nsignal+5];//9 signal + 5 background
+    		TH2D* h2dist[nsignal+5];//9 signal + 5 background
 		for(int i=0;i<nsample;i++) { //loop over samples
 			TChain* chain=new TChain("mytree");
 			TChain* chain2=new TChain("rawtree");
@@ -143,13 +143,13 @@ void prepare_kp(){
 			        TString weight_EW=Form("weight_kappa%d%d",kappa[k],kappat[k]);
 			        TString weight=Form("%f*%s",global_weight,weight_EW.Data());
 			        TString sample_weighted=sample_name+"_"+weight_EW;
-			        TH2F* h2sample=new TH2F(sample_weighted,sample_weighted,8,mtt_edges, 9, ytt_edges);
+			        TH2D* h2sample=new TH2D(sample_weighted,sample_weighted,8,mtt_edges, 9, ytt_edges);
 			        h2sample->Sumw2();
 					chain->Draw("abs(rapidity_tt):mass_tt>>"+sample_weighted, weight+"*"+cuts[s] );
 					chain->Draw("-abs(rapidity_tt):mass_tt>>+"+sample_weighted,weight+"*"+cuts[s]);
 					h2sample->Scale(1/2.0);
 					if(i==0){
-						h2dist[k]=(TH2F*)h2sample->Clone();
+						h2dist[k]=(TH2D*)h2sample->Clone();
 						h2dist[k]->SetName("ttbar_"+weight_EW);
 						h2dist[k]->SetTitle("ttbar_"+weight_EW);
 					}
@@ -180,14 +180,14 @@ void prepare_kp(){
                 if (i==sample_id[0]) nprocess++;
 			}
 			else{
-				TH2F* h2sample=new TH2F(sample_name,sample_name,8,mtt_edges, 9, ytt_edges);
+				TH2D* h2sample=new TH2D(sample_name,sample_name,8,mtt_edges, 9, ytt_edges);
 				h2sample->Sumw2();
 				chain->Draw("abs(rapidity_tt):mass_tt>>"+sample_name, Form("%f*%s",global_weight,cuts[s].Data()));
 				chain->Draw("-abs(rapidity_tt):mass_tt>>+"+sample_name,Form("%f*%s",global_weight,cuts[s].Data()));
 				h2sample->Scale(1/2.0);
 				if(i>sample_id[nprocess-1] && i <= sample_id[nprocess]){
 					if(i==sample_id[nprocess-1]+1){
-						h2dist[nsignal-1+nprocess]=(TH2F*)h2sample->Clone();
+						h2dist[nsignal-1+nprocess]=(TH2D*)h2sample->Clone();
 						h2dist[nsignal-1+nprocess]->SetName(process[nprocess]);
 						h2dist[nsignal-1+nprocess]->SetTitle(process[nprocess]);
 					}
@@ -262,7 +262,7 @@ void prepare_kp(){
 		chain_data->Add(dir+fileNames[0]); 
 	    RooDataHist *data;
 	    TString hist_data_name="hist_data";
-        TH2F* hist_data=new TH2F(hist_data_name,hist_data_name,8,mtt_edges, 9, ytt_edges);
+        TH2D* hist_data=new TH2D(hist_data_name,hist_data_name,8,mtt_edges, 9, ytt_edges);
 	    chain_data->Draw("abs(rapidity_tt):mass_tt>>"+hist_data_name);
 		chain_data->Draw("-abs(rapidity_tt):mass_tt>>+"+hist_data_name);
 		hist_data->Scale(1/2.0);

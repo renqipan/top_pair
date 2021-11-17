@@ -23,7 +23,7 @@ do
 	let i=i+1
 done
 
-source adjust_entry.sh
+#source adjust_entry.sh
 
 echo "divide each dataset into several pieces "
 for var in `ls | grep Chunk`
@@ -31,13 +31,12 @@ do
     cd $var
     process=$( ls *.txt )
     process=${process%%.txt*}
-    divide=8  #divide datasets into n tasks
+    divide=10  #divide datasets into n tasks
     if [[ $process =~ "TTToSemiLeptonic" || $process =~ "TTTo2L2Nu" 
     	|| $process =~ "TTToHadronic"  ]]
 	then
-		divide=$(($divide *2 ))
-	elif [[ $process =~ "WJetsToLNu_HT-100To200" || $process =~ "WJetsToLNu_HT-200To400" ||
-    	$process =~ "ST_t-channel_top_4f"  ]]
+		divide=$(($divide *3 ))
+	elif [[ $process =~ "WJetsToLNu_HT-100To200" || $process =~ "WJetsToLNu_HT-200To400" || $process =~ "WZ_TuneCP5" ]]
     then
     	divide=$(($divide *2 ))
 	fi
@@ -45,6 +44,11 @@ do
 	total=$(cat *.txt | wc -l)
 	lines=$(($total / $(($divide-1)) ))
 	remind=$(($total % $(($divide-1)) ))
+	if [[ $remind -gt $lines ]];then
+		let divide=divide+1
+		lines=$(($total / $(($divide-1)) ))
+		remind=$(($total % $(($divide-1)) ))
+    fi
 	echo "total=$total line=$lines divide=$divide remind=$remind"
     num_txt=1
 	num_line=1
@@ -85,12 +89,12 @@ do
 	fi
 	cd ../
 done
-out=condor_out
+out=condor_test
 rm -rf $out
 mkdir $out
-divide=$(($divide *2 ))
+divide=$(($divide *3 ))
 exp="mv *_{1.."$divide"} "$out
-eval $exp
+eval $exp 2> /dev/null
 rm -rf Chunk*
 ls $out  > condor_list.txt
 echo "directories are written into condor_list.txt"
