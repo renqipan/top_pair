@@ -15,7 +15,7 @@ Steps to run the code:
 **cd condor_sample/**  
 **condor_submit condor.sub**  
 4. check condor processing and merge results into a directory  
-**condor_q**
+**condor_q**  
 **source check.sh** # check processing  
 **source merge_out.sh** #copy all root files to one directory 
 5. add EW weights to root files(if didn't add)  
