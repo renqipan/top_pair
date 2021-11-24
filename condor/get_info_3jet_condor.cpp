@@ -378,7 +378,30 @@ void get_info_3jet_condor(TString inputFile) {
   chain.SetBranchAddress("Electron_dxy",Electron_dxy);
   chain.SetBranchAddress("PV_npvsGood",&PV_npvsGood);
 
+//for systematic uncertainties
+  if(inputFile.Contains("TTTo")||inputFile.Contains("ST_")||inputFile.Contains("WJetsTo")||
+    inputFile.Contains("DYJetsTo")){
+  Float_t btagWeight_DeepCSVB,Generator_weight;
+  Float_t LHEScaleWeight[9], PSWeight[4],LHEPdfWeight[103];
+  UInt_t nLHEPdfWeight,nLHEScaleWeight,nPSWeight;
+  chain.SetBranchAddress("btagWeight_DeepCSVB",&btagWeight_DeepCSVB);
+  chain.SetBranchAddress("Generator_weight",&Generator_weight);
+  chain.SetBranchAddress("nLHEScaleWeight",&nLHEScaleWeight);
+  chain.SetBranchAddress("nLHEPdfWeight",&nLHEPdfWeight);
+  chain.SetBranchAddress("nPSWeight",&nPSWeight);
+  chain.SetBranchAddress("LHEScaleWeight",LHEScaleWeight);
+  chain.SetBranchAddress("PSWeight",PSWeight);
+  chain.SetBranchAddress("LHEPdfWeight",LHEPdfWeight);
 
+  mytree->Branch("btagWeight_DeepCSVB",&btagWeight_DeepCSVB,"btagWeight_DeepCSVB/F");
+  mytree->Branch("Generator_weight",&Generator_weight,"Generator_weight/F");
+  mytree->Branch("nLHEPdfWeight",&nLHEPdfWeight,"nLHEPdfWeight/I");
+  mytree->Branch("nLHEScaleWeight",&nLHEScaleWeight,"nLHEScaleWeight/I");
+  mytree->Branch("nPSWeight",&nPSWeight,"nPSWeight/I");
+  mytree->Branch("LHEScaleWeight",LHEScaleWeight,"LHEScaleWeight[nLHEScaleWeight]/F");
+  mytree->Branch("LHEPdfWeight",LHEPdfWeight,"LHEPdfWeight[nLHEPdfWeight]/F");
+  mytree->Branch("PSWeight",PSWeight,"PSWeight[nPSWeight]/F");
+}
 
   mytree->Branch("MET_phi", &MET_phi, "MET_phi/F");
   mytree->Branch("MET_pt", &MET_pt, "MET_pt/F");

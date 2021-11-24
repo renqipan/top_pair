@@ -214,9 +214,9 @@ void recons_tt() {
 // select the semileptonic final states and reconstruct top quark pairs.
 void get_info_3jet() {
   TChain chain("Events");
-  TString inputFile ="TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_1TopNanoAODv6p1_2018.root";
+  TString inputFile ="TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8.root";
   chain.Add(inputFile);
-  chain.Add("TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_1TopNanoAODv5p1_2018.root");
+  //chain.Add("TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_1TopNanoAODv6p1_2018.root");
   TString output = "new_"+inputFile;
   TFile *file = new TFile(output, "RECREATE");
   TTree *mytree = new TTree("mytree", " tree with branches");
@@ -363,9 +363,30 @@ void get_info_3jet() {
   chain.SetBranchAddress("Electron_dz",Electron_dz);
   chain.SetBranchAddress("Electron_dxy",Electron_dxy);
   chain.SetBranchAddress("PV_npvsGood",&PV_npvsGood);
+//for systematic uncertainties
+  if(inputFile.Contains("TTTo")||inputFile.Contains("ST_")||inputFile.Contains("WJetsTo")||
+    inputFile.Contains("DYJetsTo")){
+  Float_t btagWeight_DeepCSVB,Generator_weight;
+  Float_t LHEScaleWeight[9], PSWeight[4],LHEPdfWeight[103];
+  UInt_t nLHEPdfWeight,nLHEScaleWeight,nPSWeight;
+  chain.SetBranchAddress("btagWeight_DeepCSVB",&btagWeight_DeepCSVB);
+  chain.SetBranchAddress("Generator_weight",&Generator_weight);
+  chain.SetBranchAddress("nLHEScaleWeight",&nLHEScaleWeight);
+  chain.SetBranchAddress("nLHEPdfWeight",&nLHEPdfWeight);
+  chain.SetBranchAddress("nPSWeight",&nPSWeight);
+  chain.SetBranchAddress("LHEScaleWeight",LHEScaleWeight);
+  chain.SetBranchAddress("PSWeight",PSWeight);
+  chain.SetBranchAddress("LHEPdfWeight",LHEPdfWeight);
 
-
-
+  mytree->Branch("btagWeight_DeepCSVB",&btagWeight_DeepCSVB,"btagWeight_DeepCSVB/F");
+  mytree->Branch("Generator_weight",&Generator_weight,"Generator_weight/F");
+  mytree->Branch("nLHEPdfWeight",&nLHEPdfWeight,"nLHEPdfWeight/I");
+  mytree->Branch("nLHEScaleWeight",&nLHEScaleWeight,"nLHEScaleWeight/I");
+  mytree->Branch("nPSWeight",&nPSWeight,"nPSWeight/I");
+  mytree->Branch("LHEScaleWeight",LHEScaleWeight,"LHEScaleWeight[nLHEScaleWeight]/F");
+  mytree->Branch("LHEPdfWeightLH",LHEPdfWeight,"LHEPdfWeight[nLHEPdfWeight]/F");
+  mytree->Branch("PSWeight",PSWeight,"PSWeight[nPSWeight]/F");
+}
   mytree->Branch("MET_phi", &MET_phi, "MET_phi/F");
   mytree->Branch("MET_pt", &MET_pt, "MET_pt/F");
   mytree->Branch("nlepton", &nlepton, "nlepton/I");
@@ -609,22 +630,6 @@ void get_info_3jet() {
       }
 
     }
-  // sort leptons according to their pt and make the first jet has maximum pt
- /*   for (int k = 0; k < nlepton; k++) {
-      for (int j = k + 1; j < nlepton; j++) {
-        if (p4_lepton[k].Pt() < p4_lepton[j].Pt()) {
-          TLorentzVector temp;
-          Int_t temp_charge;
-          temp = p4_lepton[k];
-          p4_lepton[k] = p4_lepton[j];
-          p4_lepton[j] = temp;
-          temp_charge = lepton_charge[k];
-          lepton_charge[k] = lepton_charge[j];
-          lepton_charge[j] = temp_charge;
-        }
-      }
-    }
-    */
     
 ////////////////////////////////////////////////////////////////////
 // select satisfied jets
@@ -684,7 +689,7 @@ void get_info_3jet() {
       MtW=sqrt(2*(mom_lep.Pt()*MET_pt-mom_lep.Px()*nu_px-mom_lep.Py()*nu_py));
       
         recons_tt();
-        if( minimum < 1900000.0  ){ 
+        if( minimum < 190.0  ){ 
         /////////////////////////////////////////
         //add weights according to invariant mass and rapidity difference at generator level.
           if(inputFile.Contains("TTToSemiLeptonic")||inputFile.Contains("TTTo2L2Nu")||inputFile.Contains("TTToHadronic")){
@@ -728,7 +733,7 @@ void get_info_3jet() {
 	          LHE_nhad = 0;
 	          LHE_nlep = 0;
 	          LHE_tao = 0;
-	          for (int i = 1; i < nLHEPart; i++) {
+	          for (int i = nLHEPart-6; i < nLHEPart; i++) {
 	            if (LHEPart_pdgId[i] == 2 || LHEPart_pdgId[i] == 4 ||
 	                LHEPart_pdgId[i] == -2 || LHEPart_pdgId[i] == -4) {
 	              LHE_nhad++;
