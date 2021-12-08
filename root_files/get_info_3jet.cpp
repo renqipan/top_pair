@@ -214,7 +214,7 @@ void recons_tt() {
 // select the semileptonic final states and reconstruct top quark pairs.
 void get_info_3jet() {
   TChain chain("Events");
-  TString inputFile ="TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8.root";
+  TString inputFile ="TTToHadronic_TuneCP5_13TeV-powheg.root";
   chain.Add(inputFile);
   //chain.Add("TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_1TopNanoAODv6p1_2018.root");
   TString output = "new_"+inputFile;
@@ -364,28 +364,28 @@ void get_info_3jet() {
   chain.SetBranchAddress("Electron_dxy",Electron_dxy);
   chain.SetBranchAddress("PV_npvsGood",&PV_npvsGood);
 //for systematic uncertainties
-  if(inputFile.Contains("TTTo")||inputFile.Contains("ST_")||inputFile.Contains("WJetsTo")||
-    inputFile.Contains("DYJetsTo")){
+  std::vector<Float_t> weight_up;
+  std::vector<Float_t> weight_down;
+  std::vector<TString> weight_name;
   Float_t btagWeight_DeepCSVB,Generator_weight;
   Float_t LHEScaleWeight[9], PSWeight[4],LHEPdfWeight[103];
   UInt_t nLHEPdfWeight,nLHEScaleWeight,nPSWeight;
-  chain.SetBranchAddress("btagWeight_DeepCSVB",&btagWeight_DeepCSVB);
-  chain.SetBranchAddress("Generator_weight",&Generator_weight);
-  chain.SetBranchAddress("nLHEScaleWeight",&nLHEScaleWeight);
-  chain.SetBranchAddress("nLHEPdfWeight",&nLHEPdfWeight);
-  chain.SetBranchAddress("nPSWeight",&nPSWeight);
-  chain.SetBranchAddress("LHEScaleWeight",LHEScaleWeight);
-  chain.SetBranchAddress("PSWeight",PSWeight);
-  chain.SetBranchAddress("LHEPdfWeight",LHEPdfWeight);
+  if(inputFile.Contains("TTTo")||inputFile.Contains("ST_")||inputFile.Contains("WJetsTo")||
+    inputFile.Contains("DYJetsTo")){
+    chain.SetBranchAddress("btagWeight_DeepCSVB",&btagWeight_DeepCSVB);
+    chain.SetBranchAddress("Generator_weight",&Generator_weight);
+    chain.SetBranchAddress("nLHEScaleWeight",&nLHEScaleWeight);
+    chain.SetBranchAddress("nLHEPdfWeight",&nLHEPdfWeight);
+    chain.SetBranchAddress("nPSWeight",&nPSWeight);
+    chain.SetBranchAddress("LHEScaleWeight",LHEScaleWeight);
+    chain.SetBranchAddress("PSWeight",PSWeight);
+    chain.SetBranchAddress("LHEPdfWeight",LHEPdfWeight);
 
-  mytree->Branch("btagWeight_DeepCSVB",&btagWeight_DeepCSVB,"btagWeight_DeepCSVB/F");
-  mytree->Branch("Generator_weight",&Generator_weight,"Generator_weight/F");
-  mytree->Branch("nLHEPdfWeight",&nLHEPdfWeight,"nLHEPdfWeight/I");
-  mytree->Branch("nLHEScaleWeight",&nLHEScaleWeight,"nLHEScaleWeight/I");
-  mytree->Branch("nPSWeight",&nPSWeight,"nPSWeight/I");
-  mytree->Branch("LHEScaleWeight",LHEScaleWeight,"LHEScaleWeight[nLHEScaleWeight]/F");
-  mytree->Branch("LHEPdfWeightLH",LHEPdfWeight,"LHEPdfWeight[nLHEPdfWeight]/F");
-  mytree->Branch("PSWeight",PSWeight,"PSWeight[nPSWeight]/F");
+    mytree->Branch("btagWeight_DeepCSVB",&btagWeight_DeepCSVB,"btagWeight_DeepCSVB/F");
+    mytree->Branch("Generator_weight",&Generator_weight,"Generator_weight/F");
+    mytree->Branch("weight_name",&weight_name);
+    mytree->Branch("weight_up",&weight_up);
+    mytree->Branch("weight_down",&weight_down);
 }
   mytree->Branch("MET_phi", &MET_phi, "MET_phi/F");
   mytree->Branch("MET_pt", &MET_pt, "MET_pt/F");
@@ -700,6 +700,27 @@ void get_info_3jet() {
                      }
                }
         ////////////////////////////////////////////// 
+        //add weights for systematic uncertainty
+        if(inputFile.Contains("TTTo")||inputFile.Contains("ST_")||inputFile.Contains("WJetsTo")||
+              inputFile.Contains("DYJetsTo")){
+            weight_name.clear();
+            weight_up.clear();
+            weight_down.clear();
+            weight_name.push_back("muR");
+            weight_up.push_back(LHEScaleWeight[3]);
+            weight_down.push_back(LHEScaleWeight[6]);
+            weight_name.push_back("muF");
+            weight_up.push_back(LHEScaleWeight[1]);
+            weight_down.push_back(LHEScaleWeight[2]);
+            weight_name.push_back("ISR");
+            weight_up.push_back(PSWeight[0]);
+            weight_down.push_back(PSWeight[2]);
+            weight_name.push_back("FSR");
+            weight_up.push_back(PSWeight[1]);
+            weight_down.push_back(PSWeight[3]);
+
+        }
+        /////////////////////////////////////////////////  
         if(jet_num >= 4)
             count_4jet++;
         else if(jet_num==3)
