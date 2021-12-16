@@ -35,7 +35,10 @@ void Floor(TH2D* histo){
 	}
 }
 void prepare(){
+	TString dosys_th_th=true;
 	const int nsample=26;
+	const int nsignal=6;
+
 	TString fileNames[nsample]={"new_TTToSemiLeptonic_TuneCP5_13TeV-powheg.root",
                             "new_TTTo2L2Nu_TuneCP5_13TeV-powheg.root",
                             "new_TTToHadronic_TuneCP5_13TeV-powheg.root",
@@ -55,9 +58,9 @@ void prepare(){
                             "new_ST_tW_antitop_5f_inclusiveDecays_TuneCP5_13TeV-powheg.root",
                             "new_ST_tW_top_5f_inclusiveDecays_TuneCP5_13TeV-powheg.root",                                                                               
                             
-                            "new_WW_TuneCP5_13TeV.root",
-                            "new_WZ_TuneCP5_13TeV.root",
-                            "new_ZZ_TuneCP5_13TeV.root",
+                            "new_WWTo1L1Nu2Q_TuneCP5_13TeV-amcatnloFXFX.root",
+                            "new_ZZTo2L2Nu_TuneCP5_13TeV_powheg.root",
+                            "new_WZTo1L1Nu2Q_TuneCP5_13TeV-amcatnloFXFX.root",
                             
                             "new_WJetsToLNu_HT-100To200_TuneCP5_13TeV-madgraphMLM.root",
                             "new_WJetsToLNu_HT-200To400_TuneCP5_13TeV-madgraphMLM.root",
@@ -82,7 +85,7 @@ void prepare(){
 	Float_t cross_sections[nsample]={366.91, 89.05, 377.96,
 									169.9, 147.4, 41.0, 5.7, 1.4, 0.63, 0.15, 0.0036,
 									3.36, 136.02, 80.95, 35.6, 35.6,
-									118.7, 16.5, 47.1,
+									45.68, 0.9738, 11.66,
 									1345.7, 359.7, 48.9, 12.1, 5.5, 1.3, 0.032,
 								    //27990000, 1712000, 347700, 32100, 6831, 1207, 119.9, 25.2,
 								    };
@@ -93,24 +96,23 @@ void prepare(){
 								1.21,1.21,1.21,1.21,1.21,1.21,1.21,
 								//1.0, 1.0, 1.0,1.0, 1.0, 1.0,1.0, 1.0,
 							};		
-	TString dir="./output/";
+	TString dir="./output2/";
 	TString process[]={"ttbar","DYJets","STop","VV","WJets","QCD"};
 	Int_t sample_id[]={2, 10, 15, 18, 25, 33};
-	const int nsignal=6;
 	Int_t Cpq3[6]={ 0, 0, 0, 0, 0, 0};
 	Int_t Cpu[6]={  0, 1, 0, 0, 2, 0};
 	Int_t ReCup[6]={0, 0, 1, 0, 0, 2};
 	Int_t ImCup[6]={0, 0, 0, 1, 0, 0};
 	float lumi=137.1;
+	TString outputDir="datacard2";
+
 	Double_t mtt_edges[9]={0,370,420,500,600,700,800,950,2000};
 	Double_t ytt_edges[10]={-5.0,-1.4,-0.9,-0.5,-0.15,0.15,0.5,0.9,1.4,5.0};
-//	TH2D* h2dist[nsignal+5];//9 signal + 5 background
-	TString outputDir="datacard";
-
 	RooRealVar* mtt=new RooRealVar("mass_tt","mass_tt",0,2000);
 	RooRealVar* ytt=new RooRealVar("rapidity_tt","rapidity_tt",-5,5);
-	mtt->setBins(8);
-	ytt->setBins(9);
+	const int xbin=8, ybin=9;
+	mtt->setBins(xbin);
+	ytt->setBins(ybin);
 	TString cuts[]={"(jet_num == 3 && likelihood<20.0)","(jet_num >= 4 && likelihood<20.0 )"};
 	TString cutsName[]={"3jets","4jets"};
 	Float_t entries[2][nsample];// number of events in 3jets and 4jets final states
@@ -124,11 +126,20 @@ void prepare(){
 		std::vector<int> process_id;  //process ID; minus and zero for sigal; positive for bkg
 		std::vector<TString> bin_arr;   //category name
 		std::vector<float> yield_array;  //rate(event yeild)
-		std::vector<TString> bkg_norm;  //background  normlization uncertainty
+		std::vector<TString> STop_norm;  //single top  normlization uncertainty
+		std::vector<TString> VV_norm;  //diboson  normlization uncertainty
+		std::vector<TString> DYJets_norm;  //Drell-Yan+jets  normlization uncertainty
+		std::vector<TString> WJets_norm;  // WJets normlization uncertainty
 		std::vector<TString> sig_norm;   //signal norlization uncertainty
 		std::vector<TString> cms_lumi;
 		std::vector<TString> ew_weight;
-    	TH2D* h2dist[nsignal+5];//9 signal + 5 background
+    	TH2D* h2dist[nsignal+4];//6 signal + 4 background
+    	std::vector<TH2D> h2sys_up[nsignal+4];//2D array [process][sys]
+		std::vector<TH2D> h2sys_dn[nsignal+4];//2D array [process][sys]
+    	//////////////////////////////////////////////
+    	//for systematic uncentaitny
+		  std::vector<TString> sysNames;
+
 		for(int i=0;i<nsample;i++) { //loop over samples
 			TChain* chain=new TChain("mytree");
 			TChain* chain2=new TChain("rawtree");
@@ -141,30 +152,73 @@ void prepare(){
 			ncut=chain->GetEntries();
 			cout<<nMC<<" events simulated and "<<ncut<<" events selected in "<<fileNames[i]<<endl;
 			float global_weight=cross_sections[i]*1000*lumi/nMC*K_Factor[i];
+			TString gen_weight="Generator_weight/abs(Generator_weight)";
 			TString condition="(mass_tt<=2000.0)&&(abs(rapidity_tt)<=5.0)&&(likelihood <20.0)";
-			Int_t entry_cut=chain->Draw("mass_tt",cuts[s]+"&&"+condition);
+			chain->Draw("mass_tt",Form("%s*%s*%s",cuts[s],condition,gen_weight));
+			Float_t entry_cut=chain->GetSumOfWeights();
 			entries[s][i]=entry_cut*global_weight; //number of events in each channel
 			TString sample_name=fileNames[i];
 			sample_name=sample_name.ReplaceAll("_*.root","_hist");
 			sample_name=sample_name.ReplaceAll("new_","");
+			//for sysmetic uncentainties with weights in Nanoaod		
+			if(i==0){ //get the systematic weight names at first sample
+					TH1D* hname=new TH1D("hname","hname",20,0,20);
+					chain->Draw("weight_name>>hname");
+					for(int k=0;k<hname->GetNbinsX();k++){
+					TString sysname=hname->GetBinLabel(k+1);
+					sysNames.push_back(sysname);
+					cout<<"systematic: "<<sysname<<endl;
+				}
+
+			}
+			std::vector<TH2D> h2sample_sysup;
+			std::vector<TH2D> h2sample_sysdn;
+				
 			if(i <= sample_id[0]){
 				for(int k=0;k<nsignal;k++){ //loop over EW weights
 			        TString weight_EW=Form("weight_ci%d%d%d%d",Cpq3[k],Cpu[k],ReCup[k],ImCup[k]);
-			        TString weight=Form("%f*%s",global_weight,weight_EW.Data());
+			        TString weight=Form("%f*%s*%s",global_weight,weight_EW.Data(),gen_weight);
 			        TString sample_weighted=sample_name+"_"+weight_EW;
-			        TH2D* h2sample=new TH2D(sample_weighted,sample_weighted,8,mtt_edges, 9, ytt_edges);
+			        TH2D* h2sample=new TH2D(sample_weighted,sample_weighted,xbin,mtt_edges, ybin, ytt_edges);
 			        h2sample->Sumw2();
-					chain->Draw("abs(rapidity_tt):mass_tt>>"+sample_weighted, weight+"*"+cuts[s] );
-					chain->Draw("-abs(rapidity_tt):mass_tt>>+"+sample_weighted,weight+"*"+cuts[s]);
-					h2sample->Scale(0.5);
-                    cout<<" weight*cuts[s]: "<< weight+"*"+cuts[s]<<endl;
+					chain->Draw("rapidity_tt:mass_tt>>"+sample_weighted, weight+"*"+cuts[s] );
+					
+					if(dosys_th){	
+						for(int n=0;n < sysNames.size();n++){
+							TString h2sysName=sample_weighted+"_"+sysNames[n];
+							TH2D* h2sys_up=new TH2D(h2sysName+"_up",h2sysName+"_up",xbin,mtt_edges,ybin, ytt_edges);
+							TH2D* h2sys_dn=new TH2D(h2sysName+"_dn",h2sysName+"_dn",xbin,mtt_edges,ybin, ytt_edges);
+			        		h2sys_up->Sumw2();
+			        		h2sys_dn->Sumw2();
+							chain->Draw("rapidity_tt:mass_tt>>"h2sysName+"_up", Form("%s*%s*weight_up*(weight_name==%s)",weight,cuts[s],sysNames[n]));
+							chain->Draw("rapidity_tt:mass_tt>>"h2sysName+"_dn", Form("%s*%s*weight_down*(weight_name==%s)",weight,cuts[s],sysNames[n]));
+							h2sample_sysup.push_back(h2sys_up);
+							h2sample_sysdn.push_back(h2sys_dn);
+							delete h2sys_dn, h2sys_up;
+						}
+					}
+
 					if(i==0){
 						h2dist[k]=(TH2D*)h2sample->Clone();
 						h2dist[k]->SetName("ttbar_"+weight_EW);
 						h2dist[k]->SetTitle("ttbar_"+weight_EW);
+						if(dosys_th){
+							for(int n=0;n<sysNames.size();n++){
+								h2sys_up[k][n]=(TH2D*)h2sample_sysup->Clone();
+								h2sys_dn[k][n]=(TH2D*)h2sample_sysdn->Clone();
+								h2sys_up[k][n]->SetName("ttbar_"+weight_EW+"_"+sysNames[n]+"Up");
+								h2sys_dn[k][n]->SetName("ttbar_"+weight_EW+"_"+sysNames[n]+"Down");
+							}
+						}
 					}
 					else
 						h2dist[k]->Add(h2sample);
+					    if(dosys_th){
+							for(int n=0;n<sysNames.size();n++){
+								h2sys_up[k][n]->Add(h2sample_sysup[n]);
+								h2sys_dn[k][n]->Add(h2sample_sysdn[n]);
+							}
+						}
 					if (i==sample_id[0]){
 						process_id.push_back(-k);
 						TString process_name=h2dist[k]->GetName();
@@ -176,7 +230,10 @@ void prepare(){
 						yield_array.push_back(yield);
 						bin_arr.push_back(category);
 						sig_norm.push_back("1.05");
-						bkg_norm.push_back("-");
+						STop_norm.push_back("-");
+						VV_norm.push_back("-");
+						WJets_norm.push_back("-");
+						DYJets_norm.push_back("-");
 						cms_lumi.push_back("1.025");
 						ew_weight.push_back("1.01");
 						cout<<"after reweight there are "<<yield<<" events in "<<process_name<<" in "<<cutsName[s]<<endl;
@@ -184,28 +241,69 @@ void prepare(){
 						RooDataHist* datahist=new RooDataHist(process_name+"_datahist",process_name+"_datahist",RooArgSet(*mtt,*ytt),h2dist[k]);
 						RooHistPdf* hist_pdf=new RooHistPdf(process_name,process_name,RooArgSet(*mtt,*ytt),*datahist);
 						w.import(*hist_pdf,RecycleConflictNodes());
+						if(dosys_th){
+							for(int n=0;n<sysNames.size();n++){
+								TString pro_sysup_name=h2sys_up[k][n]->GetName();
+								TString pro_sysdn_name=h2sys_dn[k][n]->GetName();
+								RooDataHist* hist_up=new RooDataHist(pro_sysup_name+"_hist",pro_sysup_name+"_hist",RooArgSet(*mtt,*ytt),h2sys_up[k][n]);
+								RooHistPdf* pdf_up=new RooHistPdf(pro_sysup_name,pro_sysup_name,RooArgSet(*mtt,*ytt),*hist_up);
+								RooDataHist* hist_dn=new RooDataHist(pro_sysdn_name+"_hist",pro_sysdn_name+"_hist",RooArgSet(*mtt,*ytt),h2sys_dn[k][n]);
+								RooHistPdf* pdf_dn=new RooHistPdf(pro_sysdn_name,pro_sysdn_name,RooArgSet(*mtt,*ytt),*hist_dn);
+								w.import(*pdf_up,RecycleConflictNodes());
+								w.import(*pdf_dn,RecycleConflictNodes());
+								delete hist_up,hist_dn,pdf_up,pdf_dn;
+							}
+						}
 
 					}
-                    delete h2sample;
+                    delete h2sample, h2sample_sysup, h2sample_sysdn;
 
-				}  
+				}  //end of loop over EW weights
                 if (i==sample_id[0]) nprocess++;
 			}
 			else{
-				TH2D* h2sample=new TH2D(sample_name,sample_name,8,mtt_edges, 9, ytt_edges);
+				TH2D* h2sample=new TH2D(sample_name,sample_name,xbin,mtt_edges, ybin, ytt_edges);
 				h2sample->Sumw2();
-				chain->Draw("abs(rapidity_tt):mass_tt>>"+sample_name, Form("%f*%s",global_weight,cuts[s].Data()));
-				chain->Draw("-abs(rapidity_tt):mass_tt>>+"+sample_name,Form("%f*%s",global_weight,cuts[s].Data()));
-				h2sample->Scale(0.5);
+				chain->Draw("rapidity_tt:mass_tt>>"+sample_name, Form("%f*%s*%s",global_weight,cuts[s].Data(),gen_weight));
+				if(dosys_th){	
+						for(int n=0;n< sysNames.size();n++){
+							TString h2sysName=sample_name+"_"+sysNames[n];
+							TH2D* h2sys_up=new TH2D(h2sysName+"_up",h2sysName+"_up",xbin,mtt_edges,ybin, ytt_edges);
+							TH2D* h2sys_dn=new TH2D(h2sysName+"_dn",h2sysName+"_dn",xbin,mtt_edges,ybin, ytt_edges);
+			        		h2sys_up->Sumw2();
+			        		h2sys_dn->Sumw2();
+							chain->Draw("rapidity_tt:mass_tt>>"h2sysName+"_up", Form("%f*%s*%s*weight_up*(weight_name==%s)",global_weight,gen_weight,cuts[s],sysNames[n]));
+							chain->Draw("rapidity_tt:mass_tt>>"h2sysName+"_dn", Form("%f*%s*%s*weight_down*(weight_name==%s)",global_weight,gen_weight,cuts[s],sysNames[n]));
+							h2sample_sysup.push_back(h2sys_up);
+							h2sample_sysdn.push_back(h2sys_dn);
+							delete h2sys_dn, h2sys_up;
+						}
+					}
+
 				if(i>sample_id[nprocess-1] && i <= sample_id[nprocess]){
 					if(i==sample_id[nprocess-1]+1){
 						h2dist[nsignal-1+nprocess]=(TH2D*)h2sample->Clone();
 						h2dist[nsignal-1+nprocess]->SetName(process[nprocess]);
 						h2dist[nsignal-1+nprocess]->SetTitle(process[nprocess]);
+
+						if(dosys_th){
+							for(int n=0;n<sysNames.size();n++){
+								h2sys_up[nsignal-1+nprocess][n]=(TH2D*)h2sample_sysup->Clone();
+								h2sys_dn[nsignal-1+nprocess][n]=(TH2D*)h2sample_sysdn->Clone();
+								h2sys_up[nsignal-1+nprocess][n]->SetName(process[nprocess]+"_"+sysNames[n]+"Up");
+								h2sys_dn[nsignal-1+nprocess][n]->SetName(process[nprocess]+"_"+sysNames[n]+"Down");
+							}
+						}
 					}
 					else
-						{h2dist[nsignal-1+nprocess]->Add(h2sample);
-                       // cout<<nsignal-1+nprocess<<endl;
+						{
+							h2dist[nsignal-1+nprocess]->Add(h2sample);
+	                        if(dosys_th){
+								for(int n=0;n<sysNames.size();n++){
+									h2sys_up[nsignal-1+nprocess][n]->Add(h2sample_sysup[n]);
+									h2sys_dn[nsignal-1+nprocess][n]->Add(h2sample_sysdn[n]);
+								}
+							}
                         }
 					if(i==sample_id[nprocess]){
 						process_id.push_back(nprocess);
@@ -221,24 +319,50 @@ void prepare(){
 						cms_lumi.push_back("1.025");
 						ew_weight.push_back("-");
 						if (process_name.Contains("STop")){
-							bkg_norm.push_back("1.15");
+							STop_norm.push_back("1.15");
+							VV_norm.push_back("-");
+							WJets_norm.push_back("-");
+							DYJets_norm.push_back("-");
 						}
 						else if(process_name.Contains("WJets")){
-							bkg_norm.push_back("1.30");
+							STop_norm.push_back("-");
+							VV_norm.push_back("-");
+							WJets_norm.push_back("1.30");
+							DYJets_norm.push_back("-");
 						}
-						else if(process_name.Contains("QCD")){
-							bkg_norm.push_back("1.30");
+						else if(process_name.Contains("DYJets")){
+							STop_norm.push_back("-");
+							VV_norm.push_back("-");
+							WJets_norm.push_back("-");
+							DYJets_norm.push_back("1.30");
 						}
-						else
-							bkg_norm.push_back("-");
+						else if(process_name.Contains("VV")){
+							STop_norm.push_back("-");
+							VV_norm.push_back("1.30");
+							WJets_norm.push_back("-");
+							DYJets_norm.push_back("-");
+						}
 						cout<<"after reweight there are "<<yield<<" events in "<<process_name<<" in "<<cutsName[s]<<endl;
 						
 						RooDataHist* datahist=new RooDataHist(process_name+"_datahist",process_name+"_datahist",RooArgSet(*mtt,*ytt),h2dist[nsignal-1+nprocess]);
 						RooHistPdf* hist_pdf=new RooHistPdf(process_name,process_name,RooArgSet(*mtt,*ytt),*datahist);
 						w.import(*hist_pdf,RecycleConflictNodes());
+						if(dosys_th){
+							for(int n=0;n<sysNames.size();n++){
+								TString pro_sysup_name=h2sys_up[nsignal-1+nprocess][n]->GetName();
+								TString pro_sysdn_name=h2sys_dn[nsignal-1+nprocess][n]->GetName();
+								RooDataHist* hist_up=new RooDataHist(pro_sysup_name+"_hist",pro_sysup_name+"_hist",RooArgSet(*mtt,*ytt),h2sys_up[nsignal-1+nprocess][n]);
+								RooHistPdf* pdf_up=new RooHistPdf(pro_sysup_name,pro_sysup_name,RooArgSet(*mtt,*ytt),*hist_up);
+								RooDataHist* hist_dn=new RooDataHist(pro_sysdn_name+"_hist",pro_sysdn_name+"_hist",RooArgSet(*mtt,*ytt),h2sys_dn[nsignal-1+nprocess][n]);
+								RooHistPdf* pdf_dn=new RooHistPdf(pro_sysdn_name,pro_sysdn_name,RooArgSet(*mtt,*ytt),*hist_dn);
+								w.import(*pdf_up,RecycleConflictNodes());
+								w.import(*pdf_dn,RecycleConflictNodes());
+								delete hist_up,hist_dn,pdf_up,pdf_dn;
+							}
+						}
 						nprocess++;
 					}
-                    delete h2sample;
+                    delete h2sample, h2sample_sysdn, h2sample_sysup;
 
 				}
 			}
@@ -268,21 +392,35 @@ void prepare(){
 		writeline(yield_array,card);
 		card<<"sig_norm"<<"\t lnN \t";
 		writeline(sig_norm,card);
-		card<<"bkg_norm"<<"\t lnN \t";
-		writeline(bkg_norm,card);
-		//card<<"cms_lumi"<<"\t lnN \t";
-		//writeline(cms_lumi,card);
-	//	card<<"EW_weight"<<"\t lnN \t";
-	//	writeline(ew_weight,card);
+		card<<"DYJets_norm"<<"\t lnN \t";
+		writeline(DYJets_norm,card);
+		card<<"STop_norm"<<"\t lnN \t";
+		writeline(STop_norm,card);
+		card<<"VV_normli"<<"\t lnN \t";
+		writeline(VV_norm,card);
+		card<<"WJets_norm"<<"\t lnN \t";
+		writeline(WJets_norm,card);
+		card<<"cms_lumi"<<"\t lnN \t";
+		writeline(cms_lumi,card);
+		card<<"EW_weight"<<"\t lnN \t";
+		writeline(ew_weight,card);
+		if(dosys_th){
+			for(int n=0;n<sysNames.size();n++){
+				card<<sysNames[n]<<"\t shape \t"
+				for(int p=0;p<nsignal+4;p++){
+					card<<"1"<<"\t"
+				}
+				card<<endl;
+
+			}
+		}
 		//build dataset, but for expected results dataset is not needed.
 		TChain *chain_data=new TChain("mytree");
-		chain_data->Add(dir+fileNames[0]); 
+		chain_data->Add(dir+fileNames[0]); //fake data now
 	    RooDataHist *data;
 	    TString hist_data_name="hist_data";
         TH2D* hist_data=new TH2D(hist_data_name,hist_data_name,8,mtt_edges, 9, ytt_edges);
 	    chain_data->Draw("abs(rapidity_tt):mass_tt>>"+hist_data_name);
-		chain_data->Draw("-abs(rapidity_tt):mass_tt>>+"+hist_data_name);
-		hist_data->Scale(0.5);
 	    data=new RooDataHist("data_obs","",RooArgSet(*mtt,*ytt),Import(*hist_data));
 	    w.import(*data);
 	    w.Print();
@@ -291,8 +429,10 @@ void prepare(){
 		file->cd();
 		w.Write();
 		file->Close();
+		delete hist_data;
+		delete h2dist, h2sys_up, h2sys_dn;
 	
-	}
+	}// end of loop over final states
 	cout.setf(ios::fixed, ios::floatfield); // set fixed floating format
 	cout.precision(2); // for fixed format, two decimal places
 	//cout << fixed << setprecision(2); // same effects, but using manipulators	
