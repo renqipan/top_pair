@@ -370,7 +370,7 @@ void prepare(){
 			}
 			/////////////////////////////////////////////////
 			//add experimentcal uncentainties: jes, jer and met
-			//read tree "jesUp","jesDown","jerUp","jerDown","unclusup","unclusdown"
+			//read tree "jesUp","jesDown","jerUp","jerDown","unclusUp","unclusDown"
 			if(dosys_ex){
 				std::vector<TString> treeNames={"jesUp","jesDown","jerUp","jerDown","unclusUp","unclusDown"};
 				std::vector<TString> sys_ex={"jes","jer","met_unclus"}; //nuisance paramters
