@@ -35,7 +35,8 @@ void Floor(TH2D* histo){
 	}
 }
 void prepare(){
-	TString dosys_th_th=true;
+	bool dosys_th=true;
+	bool dosys_ex=true;
 	const int nsample=26;
 	const int nsignal=6;
 
@@ -211,7 +212,7 @@ void prepare(){
 							}
 						}
 					}
-					else
+					else{
 						h2dist[k]->Add(h2sample);
 					    if(dosys_th){
 							for(int n=0;n<sysNames.size();n++){
@@ -219,6 +220,7 @@ void prepare(){
 								h2sys_dn[k][n]->Add(h2sample_sysdn[n]);
 							}
 						}
+					}	
 					if (i==sample_id[0]){
 						process_id.push_back(-k);
 						TString process_name=h2dist[k]->GetName();
@@ -366,7 +368,96 @@ void prepare(){
 
 				}
 			}
-		}
+			/////////////////////////////////////////////////
+			//add experimentcal uncentainties: jes, jer and met
+			//read tree "jesUp","jesDown","jerUp","jerDown","unclusup","unclusdown"
+			if(dosys_ex){
+				std::vector<TString> treeNames={"jesUp","jesDown","jerUp","jerDown","unclusUp","unclusDown"};
+				std::vector<TString> sys_ex={"jes","jer","met_unclus"}; //nuisance paramters
+				for(int t=0;t< treeNames.size();t++){
+					cout<<"current tree: "<<treeNames[t]<<endl;
+					TChain* chain=new TChain(treeNames[t]);
+					chain->Add(dir+fileNames[i]);
+					Int_t nMC, ncut;
+					nMC=chain2->GetEntries();
+					ncut=chain->GetEntries();
+					chain->Draw("mass_tt",Form("%s*%s*%s",cuts[s],condition,gen_weight));
+					Float_t entry_cut=chain->GetSumOfWeights();
+					Float_t total_event=entry_cut*global_weight;
+					if(treeNames.Contains("up")){
+						treeNames.ReplaceAll("up","Up");
+					} 
+					else if(treeNames.Contains("down")){
+						treeNames.ReplaceAll("down","Down");
+					}
+					if(i <= sample_id[0]){
+						for(int k=0;k<nsignal;k++){ //loop over EW weights
+					        TString weight_EW=Form("weight_ci%d%d%d%d",Cpq3[k],Cpu[k],ReCup[k],ImCup[k]);
+					        TString weight=Form("%f*%s*%s",global_weight,weight_EW.Data(),gen_weight);
+					        TString sample_weighted=sample_name+"_"+weight_EW;
+					        TH2D* h2sample=new TH2D(sample_weighted,sample_weighted,xbin,mtt_edges, ybin, ytt_edges);
+					        h2sample->Sumw2();
+							chain->Draw("rapidity_tt:mass_tt>>"+sample_weighted, weight+"*"+cuts[s] );
+							
+							if(i==0){
+								h2dist[k]=(TH2D*)h2sample->Clone();
+								h2dist[k]->SetName("ttbar_"+weight_EW+"_"+treeNames[t]);
+								h2dist[k]->SetTitle("ttbar_"+weight_EW+"_"+treeNames[t]);
+			
+							}
+							else{
+								h2dist[k]->Add(h2sample);
+							}
+							if (i==sample_id[0]){
+								TString process_name=h2dist[k]->GetName();								
+								RooDataHist* datahist=new RooDataHist(process_name+"_datahist",process_name+"_datahist",RooArgSet(*mtt,*ytt),h2dist[k]);
+								RooHistPdf* hist_pdf=new RooHistPdf(process_name,process_name,RooArgSet(*mtt,*ytt),*datahist);
+								w.import(*hist_pdf,RecycleConflictNodes());
+							
+
+							}
+		                    delete h2sample;
+
+						}  //end of loop over EW weights
+		                if (i==sample_id[0]) nprocess++;
+					}
+					else{
+						TH2D* h2sample=new TH2D(sample_name,sample_name,xbin,mtt_edges, ybin, ytt_edges);
+						h2sample->Sumw2();
+						chain->Draw("rapidity_tt:mass_tt>>"+sample_name, Form("%f*%s*%s",global_weight,cuts[s].Data(),gen_weight));
+					
+
+						if(i>sample_id[nprocess-1] && i <= sample_id[nprocess]){
+							if(i==sample_id[nprocess-1]+1){
+								h2dist[nsignal-1+nprocess]=(TH2D*)h2sample->Clone();
+								h2dist[nsignal-1+nprocess]->SetName(process[nprocess]+"_"+treeNames[t]);
+								h2dist[nsignal-1+nprocess]->SetTitle(process[nprocess]+"_"+treeNames[t]);
+							}
+							else
+								{
+									h2dist[nsignal-1+nprocess]->Add(h2sample);
+			                       
+		                        }
+							if(i==sample_id[nprocess]){
+								TString process_name=h2dist[nsignal-1+nprocess]->GetName();							
+								RooDataHist* datahist=new RooDataHist(process_name+"_datahist",process_name+"_datahist",RooArgSet(*mtt,*ytt),h2dist[nsignal-1+nprocess]);
+								RooHistPdf* hist_pdf=new RooHistPdf(process_name,process_name,RooArgSet(*mtt,*ytt),*datahist);
+								w.import(*hist_pdf,RecycleConflictNodes());
+								nprocess++;
+							}
+		                    delete h2sample;
+
+						}
+					}
+					delete chain;				    
+
+				}// end of loop over trees
+
+			}
+			
+
+
+		}  //end of loop over samples
 			
 		ofstream card;
 		card.open (outputDir+"/"+category+".txt");
@@ -404,6 +495,9 @@ void prepare(){
 		writeline(cms_lumi,card);
 		card<<"EW_weight"<<"\t lnN \t";
 		writeline(ew_weight,card);
+		for(int k=0;k<sys_ex.size();k++){
+			sysNames.push_back(sys_ex[k]);// add exprimental nuisance pamaraters
+		}
 		if(dosys_th){
 			for(int n=0;n<sysNames.size();n++){
 				card<<sysNames[n]<<"\t shape \t"
