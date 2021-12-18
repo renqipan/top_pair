@@ -203,36 +203,22 @@ void recons_tt() {
     rectop_costheta=mom_top.CosTheta();
     rapidity_tt = mom_top.Rapidity() - mom_antitop.Rapidity();
     mass_tt = (mom_antitop + mom_top).M();
-    deltaR_bb=mom_jets[bjets_index[bjet_lep]].DeltaR(mom_jets[bjets_index[bjet_had]]);
-    rapidity_bl=mom_jets[bjets_index[bjet_lep]].Rapidity()-mom_lep.Rapidity();
-    rapidity_bb=mom_jets[bjets_index[bjet_lep]].Rapidity()-mom_jets[bjets_index[bjet_had]].Rapidity();
-    mass_bbjjl=(mom_jets[jets_index[min_j1]] + mom_jets[jets_index[min_j2]] +
-                mom_jets[bjets_index[bjet_had]]+mom_lep + mom_jets[bjets_index[bjet_lep]]).M();
+  //  deltaR_bb=mom_jets[bjets_index[bjet_lep]].DeltaR(mom_jets[bjets_index[bjet_had]]);
+   // rapidity_bl=mom_jets[bjets_index[bjet_lep]].Rapidity()-mom_lep.Rapidity();
+   // rapidity_bb=mom_jets[bjets_index[bjet_lep]].Rapidity()-mom_jets[bjets_index[bjet_had]].Rapidity();
+   // mass_bbjjl=(mom_jets[jets_index[min_j1]] + mom_jets[jets_index[min_j2]] +
+    //            mom_jets[bjets_index[bjet_had]]+mom_lep + mom_jets[bjets_index[bjet_lep]]).M();
     }
 }
 ///////////////////////////////////////////////////////////////////////
 // select the semileptonic final states and reconstruct top quark pairs.
-void get_info_3jet_condor(TString inputFile) {
-  TString dir="root://cms-xrd-global.cern.ch/";
+void get_info_3jet_condor(TString indir, TString inputFile) {
   TChain chain("Events");
-  ifstream infile;
-  infile.open(inputFile);
-  if(!infile.is_open()){
-    cout<<"error: reading input file failed!!! "<<endl;
-    exit(1);
-  }
-  else{
-       std::string line;
-       while (getline(infile,line)){
-       TString file_dir(line);
-        if(file_dir.BeginsWith("/store"))
-          chain.Add(dir+file_dir);
-        else throw std::invalid_argument("error dasgoclient root file lists");
-        }
-  }
-  TString process=inputFile.ReplaceAll(".txt",".root");
-  TString output = "new_"+process;
-  TFile *file = new TFile(output, "RECREATE");
+  //TString indir=".";
+  //TString inputFile ="TTToSemiLeptonic_Skim.root";
+  chain.Add(indir+"/"+inputFile);
+  TString output = "new_"+inputFile;
+  TFile *file = new TFile(indir+"/"+output, "RECREATE");
   TTree *mytree = new TTree("mytree", " tree with branches");
   TTree *rawtree = new TTree("rawtree", "tree without selection");
   Int_t nevents = 0, nevents2 = 0,count_4jet=0, count_3jet=0; // count the number of events written in tree
@@ -272,13 +258,12 @@ void get_info_3jet_condor(TString inputFile) {
     chain.SetBranchAddress("LHEPart_mass", LHEPart_mass);
     chain.SetBranchAddress("LHEPart_phi", LHEPart_phi);
     chain.SetBranchAddress("LHEPart_pt", LHEPart_pt);
-    chain.SetBranchAddress("LHEPart_phi", LHEPart_phi);
     chain.SetBranchAddress("LHEPart_pdgId", LHEPart_pdgId);
     chain.SetBranchAddress("nLHEPart", &nLHEPart);
     mytree->Branch("M_tt_gen", &M_tt_gen, "M_tt_gen/F");
     mytree->Branch("delta_rapidity_gen", &delta_rapidity_gen,"delta_rapidity_gen/F");
   }
-  if (inputFile.Contains("TTToSemiLeptonic")) {
+  if (inputFile.Contains("ttbar_semi") ||inputFile.Contains("TTToSemiLeptonic")) {
     mytree->Branch("lep_charge", &lep_charge, "lep_charge/F");
     mytree->Branch("top_pt", &top_pt, "top_pt/F");
     mytree->Branch("top_eta", &top_eta, "top_eta/F");
@@ -340,8 +325,8 @@ void get_info_3jet_condor(TString inputFile) {
   Float_t Jet_btagCSVV2[45], Jet_eta[45], Jet_mass[45], Jet_phi[45], Jet_pt[45];
   Float_t jet_btagCSVV2[45], jet_eta[45], jet_mass[45], jet_phi[45], jet_pt[45],jet_partonFlavour[45],jet_btaged[45];
   Float_t MtW;
-  chain.SetBranchAddress("MET_pt", &MET_pt);
-  chain.SetBranchAddress("MET_phi", &MET_phi);
+  chain.SetBranchAddress("MET_T1Smear_pt", &MET_pt);
+  chain.SetBranchAddress("MET_T1Smear_phi", &MET_phi);
   chain.SetBranchAddress("Electron_phi", Electron_phi);
   chain.SetBranchAddress("Electron_pt", Electron_pt);
   chain.SetBranchAddress("Electron_mass", Electron_mass);
@@ -359,7 +344,7 @@ void get_info_3jet_condor(TString inputFile) {
   chain.SetBranchAddress("Jet_btagCSVV2", Jet_btagCSVV2);
   chain.SetBranchAddress("Jet_btagDeepB", Jet_btagDeepB);
   chain.SetBranchAddress("Jet_eta", Jet_eta);
-  chain.SetBranchAddress("Jet_pt", Jet_pt);
+  chain.SetBranchAddress("Jet_pt_nom", Jet_pt);
   chain.SetBranchAddress("Jet_phi", Jet_phi);
   chain.SetBranchAddress("Jet_mass", Jet_mass);
 
@@ -377,7 +362,6 @@ void get_info_3jet_condor(TString inputFile) {
   chain.SetBranchAddress("Electron_dz",Electron_dz);
   chain.SetBranchAddress("Electron_dxy",Electron_dxy);
   chain.SetBranchAddress("PV_npvsGood",&PV_npvsGood);
-
 //for systematic uncertainties
   std::vector<Float_t> weight_up;
   std::vector<Float_t> weight_down;
@@ -385,24 +369,20 @@ void get_info_3jet_condor(TString inputFile) {
   Float_t btagWeight_DeepCSVB,Generator_weight;
   Float_t LHEScaleWeight[9], PSWeight[4],LHEPdfWeight[103];
   UInt_t nLHEPdfWeight,nLHEScaleWeight,nPSWeight;
-  if(inputFile.Contains("TTTo")||inputFile.Contains("ST_")||inputFile.Contains("WJetsTo")||
-    inputFile.Contains("DYJetsTo")){
-    chain.SetBranchAddress("btagWeight_DeepCSVB",&btagWeight_DeepCSVB);
-    chain.SetBranchAddress("Generator_weight",&Generator_weight);
-    chain.SetBranchAddress("nLHEScaleWeight",&nLHEScaleWeight);
-    chain.SetBranchAddress("nLHEPdfWeight",&nLHEPdfWeight);
-    chain.SetBranchAddress("nPSWeight",&nPSWeight);
-    chain.SetBranchAddress("LHEScaleWeight",LHEScaleWeight);
-    chain.SetBranchAddress("PSWeight",PSWeight);
-    chain.SetBranchAddress("LHEPdfWeight",LHEPdfWeight);
+  chain.SetBranchAddress("btagWeight_DeepCSVB",&btagWeight_DeepCSVB);
+  chain.SetBranchAddress("Generator_weight",&Generator_weight);
+  chain.SetBranchAddress("nLHEScaleWeight",&nLHEScaleWeight);
+  chain.SetBranchAddress("nLHEPdfWeight",&nLHEPdfWeight);
+  chain.SetBranchAddress("nPSWeight",&nPSWeight);
+  chain.SetBranchAddress("LHEScaleWeight",LHEScaleWeight);
+  chain.SetBranchAddress("PSWeight",PSWeight);
+  chain.SetBranchAddress("LHEPdfWeight",LHEPdfWeight);
 
-    mytree->Branch("btagWeight_DeepCSVB",&btagWeight_DeepCSVB,"btagWeight_DeepCSVB/F");
-    mytree->Branch("Generator_weight",&Generator_weight,"Generator_weight/F");
-    mytree->Branch("weight_name",&weight_name);
-    mytree->Branch("weight_up",&weight_up);
-    mytree->Branch("weight_down",&weight_down);
-}
-
+  mytree->Branch("btagWeight_DeepCSVB",&btagWeight_DeepCSVB,"btagWeight_DeepCSVB/F");
+  mytree->Branch("Generator_weight",&Generator_weight,"Generator_weight/F");
+  mytree->Branch("weight_name",&weight_name);
+  mytree->Branch("weight_up",&weight_up);
+  mytree->Branch("weight_down",&weight_down);
   mytree->Branch("MET_phi", &MET_phi, "MET_phi/F");
   mytree->Branch("MET_pt", &MET_pt, "MET_pt/F");
   mytree->Branch("nlepton", &nlepton, "nlepton/I");
@@ -441,52 +421,26 @@ void get_info_3jet_condor(TString inputFile) {
   mytree->Branch("mass_thad", &mass_thad, "mass_thad/F");
   mytree->Branch("mass_tlep", &mass_tlep, "mass_tlep/F");
   mytree->Branch("MtW",&MtW,"MtW/F");
-  mytree->Branch("rapidity_bb",&rapidity_bb,"rapidity_bb/F");
-  mytree->Branch("deltaR_bb",&deltaR_bb,"deltaR_bb/F");
-  mytree->Branch("mass_bbjjl",&mass_bbjjl,"mass_bbjjl/F");
-  mytree->Branch("rapidity_bl",&rapidity_bl,"rapidity_bl/F");
+  //mytree->Branch("rapidity_bb",&rapidity_bb,"rapidity_bb/F");
+  //mytree->Branch("deltaR_bb",&deltaR_bb,"deltaR_bb/F");
+  //mytree->Branch("mass_bbjjl",&mass_bbjjl,"mass_bbjjl/F");
+  //mytree->Branch("rapidity_bl",&rapidity_bl,"rapidity_bl/F");
   mytree->Branch("likelihood",&minimum,"minimum/D" );
   //////////////////////////////////////////////////////////////////////
   // loop over entry
   cout << "infomation is writing. Please wait for a while" << endl;
   cout << "infomation is writing. Please wait for a while" << endl;
   Int_t njet_need =3; // the number of at least jets of semileptonic final state
-  int total_entry=chain.GetEntries();
-  if(inputFile.Contains("TTToSemiLeptonic")||inputFile.Contains("TTToHadronic")){
-    if(total_entry > 3.0E+7)
-       total_entry=3.0E+7;
-  }
-  else if(inputFile.Contains("WJetsToLNu_HT-100To200")){
-    if(total_entry > 2.2E+8)
-       total_entry=2.2E+8;
-  }
-  else if (inputFile.Contains("QCD_HT100to200")||inputFile.Contains("QCD_HT200to300")||
-    inputFile.Contains("QCD_HT300to500")||inputFile.Contains("QCD_Pt-15to7000")){
-        if(total_entry > 1.E+9)
-          total_entry=1.E+9;
-    } 
-  else if (inputFile.Contains("DYJetsToLL_M-50_HT-2500toInf")||inputFile.Contains("DYJetsToLL_M-50_HT-1200to2500")||
-    inputFile.Contains("DYJetsToLL_M-50_HT-800to1200")||inputFile.Contains("DYJetsToLL_M-50_HT-600to800")||
-    inputFile.Contains("WJetsToLNu_HT-2500ToInf")||inputFile.Contains("WJetsToLNu_HT-1200To2500")) {
-      if(total_entry > 7.6E+5)
-        total_entry=7.6E+5;
-  }  
-  else{
-    if(total_entry > 2.3E+7)
-       total_entry=2.3E+7;
-  }
-  for (Int_t entry = 0; entry < total_entry; entry++) {
+  for (Int_t entry =0; entry < chain.GetEntries(); entry++) {
+
     chain.GetEntry(entry);
     int index_b, index_antib, index_up, index_down, index_lep, index_nu;
-    TLorentzVector p4_b, p4_antib, p4_up, p4_down, p4_lep, p4_nu, p4_top,
-        p4_antitop;
-    if (inputFile.Contains("ttbar_semi") ||
-        inputFile.Contains("TTToSemiLeptonic")) {
+    TLorentzVector p4_b, p4_antib, p4_up, p4_down, p4_lep, p4_nu, p4_top,p4_antitop;
+    if (inputFile.Contains("ttbar_semi") ||inputFile.Contains("TTToSemiLeptonic")) {
       // get information of ttbar process at parton level from LHEPart
       //  int index_b,index_antib,index_up,index_down,index_lep,index_nu;
       for (int i = 0; i < nLHEPart; i++) {
-        //    cout<<Form("LHEPart_pdgId[%d]:
-        //",i)<<LHEPart_pdgId[i]<<endl;
+        //    cout<<Form("LHEPart_pdgId[%d]: ",i)<<LHEPart_pdgId[i]<<endl;
         if (LHEPart_pdgId[i] == 5)
           index_b = i;
         else if (LHEPart_pdgId[i] == -5)
@@ -506,9 +460,6 @@ void get_info_3jet_condor(TString inputFile) {
                  LHEPart_pdgId[i] == -14 || LHEPart_pdgId[i] == -16)
           index_nu = i;
       }
-
-      //  TLorentzVector p4_b,
-      //  p4_antib,p4_up,p4_down,p4_lep,p4_nu,p4_top,p4_antitop;
       p4_b.SetPtEtaPhiM(LHEPart_pt[index_b], LHEPart_eta[index_b],
                         LHEPart_phi[index_b], LHEPart_mass[index_b]);
       p4_antib.SetPtEtaPhiM(LHEPart_pt[index_antib], LHEPart_eta[index_antib],
@@ -684,21 +635,21 @@ void get_info_3jet_condor(TString inputFile) {
       for (int i = 0; i < nJet; i++) {
           mom_jets[i].SetPtEtaPhiM(Jet_pt[i], Jet_eta[i], Jet_phi[i],Jet_mass[i]);     
           if (abs(Jet_eta[i]) < 2.4 && Jet_pt[i] > 30 && Jet_jetId[i]==6 && 
-            mom_jets[i].DeltaR(mom_lep)>0.4 ) {
-              //mom_jets[i].SetPtEtaPhiM(Jet_pt[i], Jet_eta[i], Jet_phi[i],Jet_mass[i]);
-              jet_index[jet_num] = i;
-              jet_num = jet_num + 1;
-              if (Jet_btagDeepB[i] > 0.45) {
-                Jet_btaged[i] = 1;
-                nBtag++;
-              } 
-              else
-                Jet_btaged[i] = 0;
-              btag_num = btag_num + Jet_btaged[i];
+          mom_jets[i].DeltaR(mom_lep)>0.4 ) {
+       //     mom_jets[i].SetPtEtaPhiM(Jet_pt[i], Jet_eta[i], Jet_phi[i],Jet_mass[i]);
+            jet_index[jet_num] = i;
+            jet_num = jet_num + 1;
+            if (Jet_btagDeepB[i] > 0.45) {
+              Jet_btaged[i] = 1;
+              nBtag++;
+            } 
+            else
+              Jet_btaged[i] = 0;
+            btag_num = btag_num + Jet_btaged[i];
 
-          }
+        }
       }
-
+      
     }
 
     if (jet_num >= njet_need && nBtag >= 2){
@@ -719,11 +670,11 @@ void get_info_3jet_condor(TString inputFile) {
           lepton_phi[i] = p4_lepton[i].Phi();
           lepton_mass[i] = p4_lepton[i].M();
         }
+
     }
     
     //////////////////////////////////////////////////////////////////
     // select ttbar semiletopnic final state
-    
     // select satisfied events
     if (jet_flag == true && lepton_flag == true && PV_npvsGood >=1 ) {
       nu_px = MET_pt * cos(MET_phi);
@@ -735,39 +686,35 @@ void get_info_3jet_condor(TString inputFile) {
         /////////////////////////////////////////
         //add weights according to invariant mass and rapidity difference at generator level.
           if(inputFile.Contains("TTToSemiLeptonic")||inputFile.Contains("TTTo2L2Nu")||inputFile.Contains("TTToHadronic")){
-              for(Int_t i=0;i<8;i++){
-                  Int_t nbin=hist[i]->FindBin(M_tt_gen,delta_rapidity_gen);
-                  weight[i]=1.0+hist[i]->GetBinContent(nbin);
-                  //  cout<<"weight[i]: "<<weight[i]<<endl;
-                  }
-          }
+                  for(Int_t i=0;i<8;i++){
+                       Int_t nbin=hist[i]->FindBin(M_tt_gen,delta_rapidity_gen);
+                       weight[i]=1.0+hist[i]->GetBinContent(nbin);
+                     //  cout<<"weight[i]: "<<weight[i]<<endl;
+                     }
+               }
         ////////////////////////////////////////////// 
         //add weights for systematic uncertainty
-        if(inputFile.Contains("TTTo")||inputFile.Contains("ST_")||inputFile.Contains("WJetsTo")||
-              inputFile.Contains("DYJetsTo")){
-            weight_name.clear();
-            weight_up.clear();
-            weight_down.clear();
-            weight_name.push_back("muR");
-            weight_up.push_back(LHEScaleWeight[3]);
-            weight_down.push_back(LHEScaleWeight[6]);
-            weight_name.push_back("muF");
-            weight_up.push_back(LHEScaleWeight[1]);
-            weight_down.push_back(LHEScaleWeight[2]);
-            weight_name.push_back("ISR");
-            weight_up.push_back(PSWeight[0]);
-            weight_down.push_back(PSWeight[2]);
-            weight_name.push_back("FSR");
-            weight_up.push_back(PSWeight[1]);
-            weight_down.push_back(PSWeight[3]);
+          weight_name.clear();
+          weight_up.clear();
+          weight_down.clear();
+          weight_name.push_back("muR");
+          weight_up.push_back(LHEScaleWeight[3]);
+          weight_down.push_back(LHEScaleWeight[6]);
+          weight_name.push_back("muF");
+          weight_up.push_back(LHEScaleWeight[1]);
+          weight_down.push_back(LHEScaleWeight[2]);
+          weight_name.push_back("ISR");
+          weight_up.push_back(PSWeight[0]);
+          weight_down.push_back(PSWeight[2]);
+          weight_name.push_back("FSR");
+          weight_up.push_back(PSWeight[1]);
+          weight_down.push_back(PSWeight[3]);
 
-        }
-          
         /////////////////////////////////////////////////  
         if(jet_num >= 4)
             count_4jet++;
-        else if (jet_num==3)
-            count_3jet++; 
+        else if(jet_num==3)
+            count_3jet++;  
         // calculate tt efficiency
         if (inputFile.Contains("ttbar_semi") ||inputFile.Contains("TTToSemiLeptonic")) {
         	if(jet_num >=4){
@@ -917,11 +864,244 @@ void get_info_3jet_condor(TString inputFile) {
   file->cd();
   mytree->Write();
   rawtree->Write();
-  cout << inputFile << " has " << total_entry << " events" << endl;
+ // delete mytree;
+ // delete rawtree;
+  cout << inputFile << " has " << chain.GetEntries() << " events" << endl;
   cout << output << " is created" << endl;
   cout << nevents << " events are written into "<< "rawtree." << endl;
   cout << nevents2 << " events are written into "<< "mytree." << endl;
   cout<<count_4jet<<" events have at least 4 jets"<<endl;
   cout<<count_3jet<<" events have 3 jets"<<endl;
   file->Close();
+ // delete file;
+  /////////////////////////////////////////////////////////////////
+    //jec and jer 
+  TString jetpt[4]={"Jet_pt_jesTotalUp","Jet_pt_jesTotalDown","Jet_pt_jerUp","Jet_pt_jerDown"};
+  TString metpt[6]={"MET_T1_pt_jesTotalUp","MET_T1_pt_jesTotalDown","MET_T1Smear_pt_jerUp","MET_T1Smear_pt_jerDown","MET_T1Smear_pt_unclustEnUp","MET_T1Smear_pt_unclustEnDown"};
+  TString metphi[6]={"MET_T1_phi_jesTotalUp","MET_T1_phi_jesTotalDown","MET_T1Smear_phi_jerUp","MET_T1Smear_phi_jerDown","MET_T1Smear_phi_unclustEnUp","MET_T1Smear_phi_unclustEnDown"};
+  TString sysname[]={"jesUp","jesDown","jerUp","jerDown","unclusUp","unclusDown"};
+  Float_t masstt[6],ytt[6],massgen[6],ygen[6];
+  Float_t Jet_pt_re[6][45],met_pt_re[6],met_phi_re[6],weight_gen[6]; 
+  UInt_t num_jet[6];
+  Double_t min_like[6];   
+  TFile* refile =new TFile(indir+"/"+output,"update");
+  //TBranch* branch[8];
+  TTree *upmytree[6];
+  for(int i=0;i<6;i++)
+      upmytree[i]=new TTree(sysname[i],"tree with systematics");
+  for(int i=0;i<6;i++){
+      upmytree[i]->Branch("mass_tt",&masstt[i],"mass_tt/F");
+      upmytree[i]->Branch("rapidity_tt",&ytt[i],"rapidity_tt/F");
+      upmytree[i]->Branch("jet_num",&num_jet[i],"jet_num/I"); 
+      upmytree[i]->Branch("Generator_weight",&weight_gen[i],"Generator_weight/F");
+      upmytree[i]->Branch("likelihood",&min_like[i],"likelihood/D" );
+      if(inputFile.Contains("TTToSemiLeptonic")||inputFile.Contains("TTTo2L2Nu")||inputFile.Contains("TTToHadronic")){
+          upmytree[i]->Branch("M_tt_gen", &massgen[i], "M_tt_gen/F");
+          upmytree[i]->Branch("delta_rapidity_gen", &ygen[i],"delta_rapidity_gen/F"); 
+      }       
+  }
+  //loop for different systematics
+  for(int num=0;num<6;num++){
+      if(num<4)
+          chain.SetBranchAddress(jetpt[num],Jet_pt_re[num]);
+      chain.SetBranchAddress(metpt[num],&met_pt_re[num]);
+      chain.SetBranchAddress(metphi[num],&met_phi_re[num]);
+      for(int entry=0;entry<chain.GetEntries();entry++){
+          chain.GetEntry(entry);
+          int index_b, index_antib, index_up, index_down, index_lep, index_nu;
+          TLorentzVector p4_b, p4_antib, p4_up, p4_down, p4_lep, p4_nu, p4_top,p4_antitop;
+          if(inputFile.Contains("ttbar_semi")||inputFile.Contains("TTToSemiLeptonic")){
+      // get information of ttbar process at parton level from LHEPart
+      //  int index_b,index_antib,index_up,index_down,index_lep,index_nu;
+              for(int i = 0;i<nLHEPart;i++) {
+        //    cout<<Form("LHEPart_pdgId[%d]: ",i)<<LHEPart_pdgId[i]<<endl;
+                  if(LHEPart_pdgId[i]==5) index_b = i;
+                  else if (LHEPart_pdgId[i]==-5) index_antib = i;
+                  else if (LHEPart_pdgId[i]==2||LHEPart_pdgId[i] == 4||LHEPart_pdgId[i]==-2||LHEPart_pdgId[i]==-4)
+                      index_up = i;
+                  else if(LHEPart_pdgId[i]==1||LHEPart_pdgId[i]==3||LHEPart_pdgId[i]==-1||LHEPart_pdgId[i]==-3)
+                      index_down = i;
+                  else if(LHEPart_pdgId[i]==11||LHEPart_pdgId[i]==13||LHEPart_pdgId[i]==15||LHEPart_pdgId[i]==-11||
+                      LHEPart_pdgId[i]==-13||LHEPart_pdgId[i]==-15)
+                      index_lep = i;
+                  else if(LHEPart_pdgId[i]==12||LHEPart_pdgId[i]==14||LHEPart_pdgId[i] ==16||LHEPart_pdgId[i]==-12||
+                      LHEPart_pdgId[i]==-14||LHEPart_pdgId[i]==-16)
+                      index_nu = i;
+              }
+              p4_b.SetPtEtaPhiM(LHEPart_pt[index_b],LHEPart_eta[index_b],LHEPart_phi[index_b],LHEPart_mass[index_b]);
+              p4_antib.SetPtEtaPhiM(LHEPart_pt[index_antib],LHEPart_eta[index_antib],LHEPart_phi[index_antib],LHEPart_mass[index_antib]);
+              p4_up.SetPtEtaPhiM(LHEPart_pt[index_up], LHEPart_eta[index_up],LHEPart_phi[index_up],LHEPart_mass[index_up]);
+              p4_down.SetPtEtaPhiM(LHEPart_pt[index_down],LHEPart_eta[index_down],LHEPart_phi[index_down],LHEPart_mass[index_down]);
+              p4_lep.SetPtEtaPhiM(LHEPart_pt[index_lep],LHEPart_eta[index_lep],LHEPart_phi[index_lep], LHEPart_mass[index_lep]);
+              p4_nu.SetPtEtaPhiM(LHEPart_pt[index_nu],LHEPart_eta[index_nu],LHEPart_phi[index_nu], LHEPart_mass[index_nu]);
+              if(LHEPart_pdgId[index_lep]>0){
+                  p4_antitop=p4_antib+p4_lep+p4_nu;
+                  p4_top=p4_b+p4_up+p4_down;
+                  lep_charge=-1.0;
+              } 
+              else{
+                  p4_top=p4_b+p4_lep+p4_nu;
+                  p4_antitop=p4_antib+p4_up+p4_down;
+                  lep_charge=1.0;
+              }
+              massgen[num]=(p4_top+p4_antitop).M();
+              delta_rapidity_gen=p4_top.Rapidity()-p4_antitop.Rapidity();
+          }
+          if(inputFile.Contains("TTTo2L2Nu")){
+        // get information of ttbar process at parton level from LHEPart
+              int index_b, index_antib, index_lepn, index_nun, index_lepp, index_nup;
+              TLorentzVector p4_b, p4_antib, p4_lepn, p4_nun, p4_lepp, p4_nup, p4_top,p4_antitop;
+              for(int i = 0; i < nLHEPart; i++) {
+                  if (LHEPart_pdgId[i] == 5) index_b = i;
+                  else if (LHEPart_pdgId[i] == -5) index_antib = i;
+                  else if (LHEPart_pdgId[i] == 11|| LHEPart_pdgId[i] == 13||LHEPart_pdgId[i] == 15)
+                      index_lepn = i;
+                  else if (LHEPart_pdgId[i] == 12 || LHEPart_pdgId[i] == 14 || LHEPart_pdgId[i] == 16)
+                      index_nun = i;
+                  else if (LHEPart_pdgId[i] == -11 || LHEPart_pdgId[i] == -13 || LHEPart_pdgId[i] == -15)
+                      index_lepp = i;
+                  else if (LHEPart_pdgId[i] == -12 ||LHEPart_pdgId[i] == -14 || LHEPart_pdgId[i] == -16)
+                      index_nup = i;
+              } 
+              p4_b.SetPtEtaPhiM(LHEPart_pt[index_b], LHEPart_eta[index_b],LHEPart_phi[index_b], LHEPart_mass[index_b]);
+              p4_antib.SetPtEtaPhiM(LHEPart_pt[index_antib], LHEPart_eta[index_antib],LHEPart_phi[index_antib],LHEPart_mass[index_antib]);
+              p4_lepp.SetPtEtaPhiM(LHEPart_pt[index_lepp],LHEPart_eta[index_lepp],LHEPart_phi[index_lepp],LHEPart_mass[index_lepp]);
+              p4_lepn.SetPtEtaPhiM(LHEPart_pt[index_lepn],LHEPart_eta[index_lepn],LHEPart_phi[index_lepn],LHEPart_mass[index_lepn]);
+              p4_nup.SetPtEtaPhiM(LHEPart_pt[index_nup],LHEPart_eta[index_nup],LHEPart_phi[index_nup],LHEPart_mass[index_nup]);
+              p4_nun.SetPtEtaPhiM(LHEPart_pt[index_nun],LHEPart_eta[index_nun],LHEPart_phi[index_nun],LHEPart_mass[index_nun]);
+              p4_top=p4_b+p4_lepp+p4_nun;
+              p4_antitop=p4_antib+p4_lepn+p4_nup;      
+              massgen[num]=(p4_top+p4_antitop).M();
+              ygen[num]=p4_top.Rapidity()-p4_antitop.Rapidity();
+          }
+          if(inputFile.Contains("TTToHadronic")){
+              int index_b, index_antib, index_upbar, index_up, index_downbar, index_down;
+              TLorentzVector p4_b, p4_antib, p4_upbar, p4_up, p4_downbar, p4_down, p4_top,p4_antitop;
+              for(int i = 0; i < nLHEPart; i++) {
+                  if (LHEPart_pdgId[i] == 5) index_b = i;
+                  else if (LHEPart_pdgId[i] == -5) index_antib = i;
+                  else if (LHEPart_pdgId[i] == 2|| LHEPart_pdgId[i] == 4)
+                      index_up = i;
+                  else if (LHEPart_pdgId[i] == -2 || LHEPart_pdgId[i] == -4)
+                      index_upbar = i;
+                  else if (LHEPart_pdgId[i] == 1 || LHEPart_pdgId[i] == 3)
+                      index_down = i;
+                  else if (LHEPart_pdgId[i] == -1 ||LHEPart_pdgId[i] == -3)
+                      index_downbar = i;
+              } 
+              p4_b.SetPtEtaPhiM(LHEPart_pt[index_b], LHEPart_eta[index_b],LHEPart_phi[index_b], LHEPart_mass[index_b]);
+              p4_antib.SetPtEtaPhiM(LHEPart_pt[index_antib], LHEPart_eta[index_antib],LHEPart_phi[index_antib],LHEPart_mass[index_antib]);
+              p4_up.SetPtEtaPhiM(LHEPart_pt[index_up], LHEPart_eta[index_up],LHEPart_phi[index_up], LHEPart_mass[index_up]);
+              p4_upbar.SetPtEtaPhiM(LHEPart_pt[index_upbar], LHEPart_eta[index_upbar],LHEPart_phi[index_upbar], LHEPart_mass[index_upbar]);
+              p4_down.SetPtEtaPhiM(LHEPart_pt[index_down], LHEPart_eta[index_down],LHEPart_phi[index_down], LHEPart_mass[index_down]);
+              p4_downbar.SetPtEtaPhiM(LHEPart_pt[index_downbar], LHEPart_eta[index_downbar],LHEPart_phi[index_downbar], LHEPart_mass[index_downbar]);
+              p4_top=p4_b+p4_up+p4_downbar;
+              p4_antitop=p4_antib+p4_upbar + p4_down;      
+              massgen[num]=(p4_top+p4_antitop).M();
+              ygen[num]=p4_top.Rapidity()-p4_antitop.Rapidity();
+          }
+          if(num>=4){
+              for(int i=0;i<nJet;i++){
+                  Jet_pt_re[num][i]=Jet_pt[i];
+              }
+          }
+          TLorentzVector p4_lepton[18];
+          nlepton=nMuon+nElectron;
+          bool lepton_flag=false; // if true pass the selction
+          int num_select1=0;
+          for(int i=0;i<nlepton;i++){
+              if(i<nElectron){
+                  p4_lepton[i].SetPtEtaPhiM(Electron_pt[i],Electron_eta[i],Electron_phi[i],Electron_mass[i]);
+                  lepton_charge[i]=Electron_charge[i];
+                  if(Electron_cutBased[i]>=2&&abs(Electron_eta[i])<2.4&&
+                      (abs(Electron_eta[i])<1.4442||abs(Electron_eta[i])>1.5660)&&Electron_pt[i]>15){
+                      if((abs(Electron_deltaEtaSC[i]+Electron_eta[i])<1.479&&abs(Electron_dxy[i])<0.05&&abs(Electron_dz[i])<0.1)
+                          ||(abs(Electron_deltaEtaSC[i]+Electron_eta[i])>=1.479&&abs(Electron_dxy[i])<0.1&&abs(Electron_dz[i])<0.2)){
+                          num_select1++;
+                          if(Electron_cutBased[i]==4&& abs(Electron_eta[i]) <2.4 && 
+                              (abs(Electron_eta[i])<1.4442||abs(Electron_eta[i])>1.5660)&&Electron_pt[i]>30){  
+                              mom_lep = p4_lepton[i];       // the lepton momenton for reconstrut
+                              LepCharge = lepton_charge[i];
+                              lepton_flag=true;
+                          }
+                      }      
+                  }
+              }       
+              else{
+                  p4_lepton[i].SetPtEtaPhiM(Muon_pt[i-nElectron],Muon_eta[i-nElectron],Muon_phi[i-nElectron],Muon_mass[i-nElectron]);
+                  lepton_charge[i]=Muon_charge[i-nElectron];  
+                  if(Muon_looseId[i-nElectron]==1&&Muon_pfRelIso04_all[i-nElectron]<0.25&&Muon_pt[i-nElectron]>15&&abs(Muon_eta[i-nElectron])<2.4){    
+                      num_select1++;
+                      if(Muon_tightId[i-nElectron]==1&&Muon_pfRelIso04_all[i-nElectron]<0.15&&Muon_pt[i-nElectron]>30&&abs(Muon_eta[i-nElectron])<2.4){
+                          mom_lep=p4_lepton[i];       // the lepton momenton for reconstruct
+                          LepCharge=lepton_charge[i]; //the lepton charge for reconstruct
+                          lepton_flag=true;
+                      }
+                  }
+              }
+              if(num_select1>1){
+                  lepton_flag=false;
+                  break;
+              }
+          }
+////////////////////////////////////////////////////////////////////
+          // select satisfied jets
+          nBtag = 0;   // count number of bjet among all the jets
+          jet_num = 0; // count number fot jets satisfy the selection criteria
+          bool jet_flag=false; // if true pass the selection
+          if(lepton_flag==true){
+              for(int i=0;i<nJet;i++){
+                  mom_jets[i].SetPtEtaPhiM(Jet_pt_re[num][i],Jet_eta[i],Jet_phi[i],Jet_mass[i]);     
+                  if(abs(Jet_eta[i])<2.4&&Jet_pt_re[num][i]>30&&Jet_jetId[i]==6&&mom_jets[i].DeltaR(mom_lep)>0.4){
+                      jet_index[jet_num]=i;
+                      jet_num=jet_num+1;
+                      if(Jet_btagDeepB[i]>0.45){
+                          Jet_btaged[i]=1;
+                          nBtag++;
+                      } 
+                      else
+                          Jet_btaged[i] = 0;
+                  }
+              }
+              if(jet_num>=njet_need&&nBtag>=2){
+                  jet_flag = true;          
+                  for(int i=0;i<jet_num;i++){
+                      jet_btagCSVV2[i]=Jet_btagCSVV2[jet_index[i]];
+                      jet_btagDeepB[i]=Jet_btagDeepB[jet_index[i]];
+                  }
+                  for(int i=0;i<nlepton;i++){
+                      lepton_pt[i]=p4_lepton[i].Pt();
+                      lepton_eta[i]=p4_lepton[i].Eta();
+                      lepton_phi[i]=p4_lepton[i].Phi();
+                      lepton_mass[i]=p4_lepton[i].M();
+                  }
+              }
+          }   
+          if(jet_flag==true&&PV_npvsGood>=1){
+              nu_px = met_pt_re[num] * cos(met_phi_re[num]);
+              nu_py = met_pt_re[num] * sin(met_phi_re[num]);
+              MtW=sqrt(2*(mom_lep.Pt()*MET_pt-mom_lep.Px()*nu_px-mom_lep.Py()*nu_py));
+              recons_tt();
+              min_like[num]=minimum;
+              masstt[num]=mass_tt;
+              ytt[num]=rapidity_tt;
+              num_jet[num]=jet_num;
+              weight_gen[num]=Generator_weight;
+              if(minimum<190.0){ 
+                  //branch[num]->Fill();
+                  //branch[num+4]->Fill();   
+                  upmytree[num]->Fill();  
+              }
+          }
+      }
+  }
+  //upmytree->Write("");
+
+  refile->cd();
+  for(int i=0;i<6;i++)
+      upmytree[i]->Write();
+  for(int i=0;i<6;i++)
+      delete upmytree[i];
+  refile->Close();
+  delete refile;
 }
