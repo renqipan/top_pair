@@ -218,7 +218,7 @@ void get_info_3jet() {
   TString inputFile ="TTToSemiLeptonic_Skim.root";
   chain.Add(indir+"/"+inputFile);
   TString output = "new_"+inputFile;
-  TFile *file = new TFile(output, "RECREATE");
+  TFile *file = new TFile(indir+"/"+output, "RECREATE");
   TTree *mytree = new TTree("mytree", " tree with branches");
   TTree *rawtree = new TTree("rawtree", "tree without selection");
   Int_t nevents = 0, nevents2 = 0,count_4jet=0, count_3jet=0; // count the number of events written in tree
@@ -886,7 +886,7 @@ void get_info_3jet() {
   Float_t Jet_pt_re[6][45],met_pt_re[6],met_phi_re[6],weight_gen[6]; 
   UInt_t num_jet[6];
   Double_t min_like[6];   
-  TFile* refile =new TFile(output,"update");
+  TFile* refile =new TFile(indir+"/"+output,"update");
   //TBranch* branch[8];
   TTree *upmytree[6];
   for(int i=0;i<6;i++)
