@@ -381,9 +381,11 @@ void prepare(){
 					Int_t nMC, ncut;
 					nMC=chain2->GetEntries();
 					ncut=chain->GetEntries();
-					chain->Draw("mass_tt",Form("%s*%s*%s",cuts[s],condition,gen_weight));
-					Float_t entry_cut=chain->GetSumOfWeights();
+					TH1D hist_mass=new TH1D("hist_mass","hist_mass",50,0,2000);
+					chain->Draw("mass_tt>>hist_mass",Form("%s*%s*%s",cuts[s],condition,gen_weight));
+					Float_t entry_cut=hist_mass->GetSumOfWeights();
 					Float_t total_event=entry_cut*global_weight;
+					delete hist_mass;
 					if(treeNames.Contains("up")){
 						treeNames.ReplaceAll("up","Up");
 					} 
