@@ -31,14 +31,16 @@ do
     cd $var
     process=$( ls *.txt )
     process=${process%%.txt*}
-    divide=10  #divide datasets into n tasks
-    if [[ $process =~ "TTToSemiLeptonic" || $process =~ "TTTo2L2Nu" 
-    	|| $process =~ "TTToHadronic"  ]]
+    divide=20  #divide datasets into n tasks
+    if [[  $process =~ "TTTo2L2Nu" || $process =~ "TTToHadronic"  ]]
 	then
 		divide=$(($divide *3 ))
 	elif [[ $process =~ "WJetsToLNu_HT-100To200" || $process =~ "WJetsToLNu_HT-200To400" || $process =~ "WZ_TuneCP5" ]]
     then
     	divide=$(($divide *2 ))
+    elif [[ $process =~ "TTToSemiLeptonic" ]]
+    then 
+        divide=$(($divide *4 ))
 	fi
 
 	total=$(cat *.txt | wc -l)
@@ -89,10 +91,10 @@ do
 	fi
 	cd ../
 done
-out=condor_test
+out=condor_out
 rm -rf $out
 mkdir $out
-divide=$(($divide *3 ))
+divide=$(($divide *4 ))
 exp="mv *_{1.."$divide"} "$out
 eval $exp 2> /dev/null
 rm -rf Chunk*

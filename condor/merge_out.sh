@@ -1,4 +1,4 @@
-dir=output
+dir=output2
 txt=condor_sec.txt
 #rm -rf $dir
 mkdir -p $dir
