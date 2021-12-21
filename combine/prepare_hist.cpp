@@ -46,7 +46,7 @@ void Convert(TH2D* histo, TH1D* rehist){
 	return rehist;
 }
 
-void prepare(){
+void prepare_hist(){
 	bool dosys_th=true;
 	bool dosys_ex=true;
 	const int nsample=26;
