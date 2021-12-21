@@ -43,7 +43,6 @@ void Convert(TH2D* histo, TH1D* rehist){
 			rehist->SetBinContent(nbin,content);
 		}
 	}
-	return rehist;
 }
 
 void prepare_hist(){
@@ -133,7 +132,6 @@ void prepare_hist(){
 		int nprocess=0; //count process was dealed with
 		TString category="ttbar_"+cutsName[s];
 		TFile *file=new TFile(outputDir+"/"+category+".root","recreate");
-		RooWorkspace w("w");
 
 		std::vector<TString> process_names; //names of sigal and bkg
 		std::vector<int> process_id;  //process ID; minus and zero for sigal; positive for bkg
@@ -147,8 +145,8 @@ void prepare_hist(){
 		std::vector<TString> cms_lumi;
 		std::vector<TString> ew_weight;
     	TH2D* h2dist[nsignal+4];//6 signal + 4 background
-    	std::vector<TH2D> h2sys_up[nsignal+4];//2D array [process][sys]
-		std::vector<TH2D> h2sys_dn[nsignal+4];//2D array [process][sys]
+    	std::vector<TH2D*> h2sys_up[nsignal+4];//2D array [process][sys]
+		std::vector<TH2D*> h2sys_dn[nsignal+4];//2D array [process][sys]
     	//////////////////////////////////////////////
     	//for systematic uncentaitny
 		  std::vector<TString> sysNames;
@@ -199,28 +197,28 @@ void prepare_hist(){
 					if(dosys_th){	
 						for(int n=0;n < sysNames.size();n++){
 							TString h2sysName=sample_weighted+"_"+sysNames[n];
-							TH2D* h2sys_up=new TH2D(h2sysName+"_up",h2sysName+"_up",xbin,mtt_edges,ybin, ytt_edges);
-							TH2D* h2sys_dn=new TH2D(h2sysName+"_dn",h2sysName+"_dn",xbin,mtt_edges,ybin, ytt_edges);
-			        		h2sys_up->Sumw2();
-			        		h2sys_dn->Sumw2();
+							TH2D* h2tempsys_up=new TH2D(h2sysName+"_up",h2sysName+"_up",xbin,mtt_edges,ybin, ytt_edges);
+							TH2D* h2tempsys_dn=new TH2D(h2sysName+"_dn",h2sysName+"_dn",xbin,mtt_edges,ybin, ytt_edges);
+			        		h2tempsys_up->Sumw2();
+			        		h2tempsys_dn->Sumw2();
 							chain->Draw("rapidity_tt:mass_tt>>"h2sysName+"_up", Form("%s*%s*weight_up*(weight_name==%s)",weight,cuts[s],sysNames[n]));
 							chain->Draw("rapidity_tt:mass_tt>>"h2sysName+"_dn", Form("%s*%s*weight_down*(weight_name==%s)",weight,cuts[s],sysNames[n]));
-							h2sample_sysup.push_back(h2sys_up);
-							h2sample_sysdn.push_back(h2sys_dn);
-							delete h2sys_dn, h2sys_up;
+							h2sample_sysup.push_back(*h2tempsys_up);
+							h2sample_sysdn.push_back(*h2tempsys_dn);
+							delete h2tempsys_dn, h2tempsys_up;
 						}
 					}
 
 					if(i==0){
 						h2dist[k]=(TH2D*)h2sample->Clone();
-						h2dist[k]->SetName("ttbar_"+weight_EW);
-						h2dist[k]->SetTitle("ttbar_"+weight_EW);
+						h2dist[k]->SetName("h2ttbar_"+weight_EW);
+						h2dist[k]->SetTitle("h2ttbar_"+weight_EW);
 						if(dosys_th){
 							for(int n=0;n<sysNames.size();n++){
-								h2sys_up[k][n]=(TH2D*)h2sample_sysup->Clone();
-								h2sys_dn[k][n]=(TH2D*)h2sample_sysdn->Clone();
-								h2sys_up[k][n]->SetName("ttbar_"+weight_EW+"_"+sysNames[n]+"Up");
-								h2sys_dn[k][n]->SetName("ttbar_"+weight_EW+"_"+sysNames[n]+"Down");
+								h2sys_up[k][n]=(TH2D*)h2sample_sysup[n].Clone();
+								h2sys_dn[k][n]=(TH2D*)h2sample_sysdn[n].Clone();
+								h2sys_up[k][n]->SetName("h2ttbar_"+weight_EW+"_"+sysNames[n]+"Up");
+								h2sys_dn[k][n]->SetName("h2ttbar_"+weight_EW+"_"+sysNames[n]+"Down");
 							}
 						}
 					}
@@ -236,6 +234,7 @@ void prepare_hist(){
 					if (i==sample_id[0]){
 						process_id.push_back(-k);
 						TString process_name=h2dist[k]->GetName();
+						process_name.ReplaceAll("h2","");
 						process_names.push_back(process_name);
 						Floor(h2dist[k]);
 						h2dist[k]->Draw("colz text");
@@ -251,21 +250,29 @@ void prepare_hist(){
 						cms_lumi.push_back("1.025");
 						ew_weight.push_back("1.01");
 						cout<<"after reweight there are "<<yield<<" events in "<<process_name<<" in "<<cutsName[s]<<endl;
+
+						TH1D* h1dist=new TH1D(process_name,process_name, xbin*ybin,1,xbin*ybin);
+					 	Convert(h2dist[k],h1dist);
+						file->cd();
+						h1dist->Write();
+						delete h1dist;
 						
-						RooDataHist* datahist=new RooDataHist(process_name+"_datahist",process_name+"_datahist",RooArgSet(*mtt,*ytt),h2dist[k]);
-						RooHistPdf* hist_pdf=new RooHistPdf(process_name,process_name,RooArgSet(*mtt,*ytt),*datahist);
-						w.import(*hist_pdf,RecycleConflictNodes());
 						if(dosys_th){
 							for(int n=0;n<sysNames.size();n++){
 								TString pro_sysup_name=h2sys_up[k][n]->GetName();
 								TString pro_sysdn_name=h2sys_dn[k][n]->GetName();
-								RooDataHist* hist_up=new RooDataHist(pro_sysup_name+"_hist",pro_sysup_name+"_hist",RooArgSet(*mtt,*ytt),h2sys_up[k][n]);
-								RooHistPdf* pdf_up=new RooHistPdf(pro_sysup_name,pro_sysup_name,RooArgSet(*mtt,*ytt),*hist_up);
-								RooDataHist* hist_dn=new RooDataHist(pro_sysdn_name+"_hist",pro_sysdn_name+"_hist",RooArgSet(*mtt,*ytt),h2sys_dn[k][n]);
-								RooHistPdf* pdf_dn=new RooHistPdf(pro_sysdn_name,pro_sysdn_name,RooArgSet(*mtt,*ytt),*hist_dn);
-								w.import(*pdf_up,RecycleConflictNodes());
-								w.import(*pdf_dn,RecycleConflictNodes());
-								delete hist_up,hist_dn,pdf_up,pdf_dn;
+								pro_sysup_name.ReplaceAll("h2","");
+								pro_sysdn_name.ReplaceAll("h2","");
+								TH1D* hist1D_up=new TH1D(pro_sysup_name,pro_sysup_name, xbin*ybin,1,xbin*ybin);
+								Convert(h2sys_up[k][n],hist1D_up);
+								TH1D* hist1D_dn=new TH1D(pro_sysdn_name,pro_sysdn_name, xbin*ybin,1,xbin*ybin);
+								Convert(h2sys_dn[k][n],hist1D_dn);
+								file->cd();
+								hist1D_up->Write();
+								hist1D_dn->Write();
+								delete hist1D_up,hist1D_dn;
+
+								
 							}
 						}
 
@@ -282,30 +289,30 @@ void prepare_hist(){
 				if(dosys_th){	
 						for(int n=0;n< sysNames.size();n++){
 							TString h2sysName=sample_name+"_"+sysNames[n];
-							TH2D* h2sys_up=new TH2D(h2sysName+"_up",h2sysName+"_up",xbin,mtt_edges,ybin, ytt_edges);
-							TH2D* h2sys_dn=new TH2D(h2sysName+"_dn",h2sysName+"_dn",xbin,mtt_edges,ybin, ytt_edges);
-			        		h2sys_up->Sumw2();
-			        		h2sys_dn->Sumw2();
+							TH2D* h2tempsys_up=new TH2D(h2sysName+"_up",h2sysName+"_up",xbin,mtt_edges,ybin, ytt_edges);
+							TH2D* h2tempsys_dn=new TH2D(h2sysName+"_dn",h2sysName+"_dn",xbin,mtt_edges,ybin, ytt_edges);
+			        		h2tempsys_up->Sumw2();
+			        		h2tempsys_dn->Sumw2();
 							chain->Draw("rapidity_tt:mass_tt>>"h2sysName+"_up", Form("%f*%s*%s*weight_up*(weight_name==%s)",global_weight,gen_weight,cuts[s],sysNames[n]));
 							chain->Draw("rapidity_tt:mass_tt>>"h2sysName+"_dn", Form("%f*%s*%s*weight_down*(weight_name==%s)",global_weight,gen_weight,cuts[s],sysNames[n]));
-							h2sample_sysup.push_back(h2sys_up);
-							h2sample_sysdn.push_back(h2sys_dn);
-							delete h2sys_dn, h2sys_up;
+							h2sample_sysup.push_back(*h2tempsys_up);
+							h2sample_sysdn.push_back(*h2tempsys_dn);
+							delete h2tempsys_dn, h2tempsys_up;
 						}
 					}
 
 				if(i>sample_id[nprocess-1] && i <= sample_id[nprocess]){
 					if(i==sample_id[nprocess-1]+1){
 						h2dist[nsignal-1+nprocess]=(TH2D*)h2sample->Clone();
-						h2dist[nsignal-1+nprocess]->SetName(process[nprocess]);
-						h2dist[nsignal-1+nprocess]->SetTitle(process[nprocess]);
+						h2dist[nsignal-1+nprocess]->SetName(process[nprocess]+"h2");
+						h2dist[nsignal-1+nprocess]->SetTitle(process[nprocess]+"h2");
 
 						if(dosys_th){
 							for(int n=0;n<sysNames.size();n++){
-								h2sys_up[nsignal-1+nprocess][n]=(TH2D*)h2sample_sysup->Clone();
-								h2sys_dn[nsignal-1+nprocess][n]=(TH2D*)h2sample_sysdn->Clone();
-								h2sys_up[nsignal-1+nprocess][n]->SetName(process[nprocess]+"_"+sysNames[n]+"Up");
-								h2sys_dn[nsignal-1+nprocess][n]->SetName(process[nprocess]+"_"+sysNames[n]+"Down");
+								h2sys_up[nsignal-1+nprocess][n]=(TH2D*)h2sample_sysup[n].Clone();
+								h2sys_dn[nsignal-1+nprocess][n]=(TH2D*)h2sample_sysdn[n].Clone();
+								h2sys_up[nsignal-1+nprocess][n]->SetName(process[nprocess]+"_"+sysNames[n]+"Uph2");
+								h2sys_dn[nsignal-1+nprocess][n]->SetName(process[nprocess]+"_"+sysNames[n]+"Downh2");
 							}
 						}
 					}
@@ -322,6 +329,7 @@ void prepare_hist(){
 					if(i==sample_id[nprocess]){
 						process_id.push_back(nprocess);
 						TString process_name=h2dist[nsignal-1+nprocess]->GetName();
+						process_name.ReplaceAll("h2","");
 						process_names.push_back(process_name);
 						Floor(h2dist[nsignal-1+nprocess]);
 						h2dist[nsignal-1+nprocess]->Draw("colz text");
@@ -357,21 +365,27 @@ void prepare_hist(){
 							DYJets_norm.push_back("-");
 						}
 						cout<<"after reweight there are "<<yield<<" events in "<<process_name<<" in "<<cutsName[s]<<endl;
+						TH1D* h1dist=new TH1D(process_name,process_name, xbin*ybin,1,xbin*ybin);
+					 	Convert(h2dist[nsignal-1+nprocess],h1dist);
+						file->cd();
+						h1dist->Write();
+						delete h1dist;
 						
-						RooDataHist* datahist=new RooDataHist(process_name+"_datahist",process_name+"_datahist",RooArgSet(*mtt,*ytt),h2dist[nsignal-1+nprocess]);
-						RooHistPdf* hist_pdf=new RooHistPdf(process_name,process_name,RooArgSet(*mtt,*ytt),*datahist);
-						w.import(*hist_pdf,RecycleConflictNodes());
 						if(dosys_th){
 							for(int n=0;n<sysNames.size();n++){
 								TString pro_sysup_name=h2sys_up[nsignal-1+nprocess][n]->GetName();
 								TString pro_sysdn_name=h2sys_dn[nsignal-1+nprocess][n]->GetName();
-								RooDataHist* hist_up=new RooDataHist(pro_sysup_name+"_hist",pro_sysup_name+"_hist",RooArgSet(*mtt,*ytt),h2sys_up[nsignal-1+nprocess][n]);
-								RooHistPdf* pdf_up=new RooHistPdf(pro_sysup_name,pro_sysup_name,RooArgSet(*mtt,*ytt),*hist_up);
-								RooDataHist* hist_dn=new RooDataHist(pro_sysdn_name+"_hist",pro_sysdn_name+"_hist",RooArgSet(*mtt,*ytt),h2sys_dn[nsignal-1+nprocess][n]);
-								RooHistPdf* pdf_dn=new RooHistPdf(pro_sysdn_name,pro_sysdn_name,RooArgSet(*mtt,*ytt),*hist_dn);
-								w.import(*pdf_up,RecycleConflictNodes());
-								w.import(*pdf_dn,RecycleConflictNodes());
-								delete hist_up,hist_dn,pdf_up,pdf_dn;
+								pro_sysup_name.ReplaceAll("h2","");
+								pro_sysdn_name.ReplaceAll("h2","");
+								TH1D* hist1D_up=new TH1D(pro_sysup_name,pro_sysup_name, xbin*ybin,1,xbin*ybin);
+								Convert(h2sys_up[nsignal-1+nprocess][n],hist1D_up);
+								TH1D* hist1D_dn=new TH1D(pro_sysdn_name,pro_sysdn_name, xbin*ybin,1,xbin*ybin);
+								Convert(h2sys_dn[nsignal-1+nprocess][n],hist1D_dn);
+								file->cd();
+								hist1D_up->Write();
+								hist1D_dn->Write();
+								delete hist1D_up,hist1D_dn;
+
 							}
 						}
 						nprocess++;
@@ -415,18 +429,22 @@ void prepare_hist(){
 							
 							if(i==0){
 								h2dist[k]=(TH2D*)h2sample->Clone();
-								h2dist[k]->SetName("ttbar_"+weight_EW+"_"+treeNames[t]);
-								h2dist[k]->SetTitle("ttbar_"+weight_EW+"_"+treeNames[t]);
+								h2dist[k]->SetName("h2ttbar_"+weight_EW+"_"+treeNames[t]);
+								h2dist[k]->SetTitle("h2ttbar_"+weight_EW+"_"+treeNames[t]);
 			
 							}
 							else{
 								h2dist[k]->Add(h2sample);
 							}
 							if (i==sample_id[0]){
-								TString process_name=h2dist[k]->GetName();								
-								RooDataHist* datahist=new RooDataHist(process_name+"_datahist",process_name+"_datahist",RooArgSet(*mtt,*ytt),h2dist[k]);
-								RooHistPdf* hist_pdf=new RooHistPdf(process_name,process_name,RooArgSet(*mtt,*ytt),*datahist);
-								w.import(*hist_pdf,RecycleConflictNodes());
+								TString process_name=h2dist[k]->GetName();
+								process_name.ReplaceAll("h2","");
+								TH1D* h1dist=new TH1D(process_name,process_name, xbin*ybin,1,xbin*ybin);
+							 	Convert(h2dist[k],h1dist);
+								file->cd();
+								h1dist->Write();
+								delete h1dist;								
+								
 							
 
 							}
@@ -444,8 +462,8 @@ void prepare_hist(){
 						if(i>sample_id[nprocess-1] && i <= sample_id[nprocess]){
 							if(i==sample_id[nprocess-1]+1){
 								h2dist[nsignal-1+nprocess]=(TH2D*)h2sample->Clone();
-								h2dist[nsignal-1+nprocess]->SetName(process[nprocess]+"_"+treeNames[t]);
-								h2dist[nsignal-1+nprocess]->SetTitle(process[nprocess]+"_"+treeNames[t]);
+								h2dist[nsignal-1+nprocess]->SetName(process[nprocess]+"_"+treeNames[t]+"h2");
+								h2dist[nsignal-1+nprocess]->SetTitle(process[nprocess]+"_"+treeNames[t]+"h2");
 							}
 							else
 								{
@@ -453,10 +471,13 @@ void prepare_hist(){
 			                       
 		                        }
 							if(i==sample_id[nprocess]){
-								TString process_name=h2dist[nsignal-1+nprocess]->GetName();							
-								RooDataHist* datahist=new RooDataHist(process_name+"_datahist",process_name+"_datahist",RooArgSet(*mtt,*ytt),h2dist[nsignal-1+nprocess]);
-								RooHistPdf* hist_pdf=new RooHistPdf(process_name,process_name,RooArgSet(*mtt,*ytt),*datahist);
-								w.import(*hist_pdf,RecycleConflictNodes());
+								TString process_name=h2dist[nsignal-1+nprocess]->GetName();
+								process_name.ReplaceAll("h2","");	
+								TH1D* h1dist=new TH1D(process_name,process_name, xbin*ybin,1,xbin*ybin);
+							 	Convert(h2dist[nsignal-1+nprocess],h1dist);
+								file->cd();
+								h1dist->Write();
+								delete h1dist;							
 								nprocess++;
 							}
 		                    delete h2sample;
@@ -481,7 +502,7 @@ void prepare_hist(){
 		card<< "kmax * number of nuisance parameters"<<endl;
 		card<<"---------------------------------"<<endl;
 		card<<endl;
-		card<< "shapes * "<< category << " "<< category+".root w:$PROCESS w:$PROCESS_$SYSTEMATIC" <<endl;
+		card<< "shapes * "<< category << " "<< category+".root $PROCESS $PROCESS_$SYSTEMATIC" <<endl;
 		card<<"---------------------------------"<<endl;
 		card<< "bin           "<< category <<endl;
 		card<< "observation   "<< "-1"<<endl;
@@ -526,18 +547,20 @@ void prepare_hist(){
 		TChain *chain_data=new TChain("mytree");
 		chain_data->Add(dir+fileNames[0]); //fake data now
 	    RooDataHist *data;
-	    TString hist_data_name="hist_data";
-        TH2D* hist_data=new TH2D(hist_data_name,hist_data_name,8,mtt_edges, 9, ytt_edges);
+	    TString hist_data_name="hist2D_data";
+	    TString data_name="hist_data";
+        TH2D* hist2D_data=new TH2D(hist_data_name,hist_data_name,8,mtt_edges, 9, ytt_edges);
 	    chain_data->Draw("abs(rapidity_tt):mass_tt>>"+hist_data_name);
-	    data=new RooDataHist("data_obs","",RooArgSet(*mtt,*ytt),Import(*hist_data));
-	    w.import(*data);
-	    w.Print();
+
+	    TH1D hist1D_data=new TH1D(data_name,data_name,xbin*ybin,1,xbin*ybin);
+	    Convert(hist2D_data,hist1D_data)
+	    file->cd();
+	    hist1D_data->Write();
+	    delete hist1D_data,hist2D_data;
 
 	    card.close();
 		file->cd();
-		w.Write();
 		file->Close();
-		delete hist_data;
 		delete h2dist, h2sys_up, h2sys_dn;
 	
 	}// end of loop over final states
