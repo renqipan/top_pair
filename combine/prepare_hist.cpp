@@ -36,11 +36,14 @@ void Floor(TH2D* histo){
 }
 
 void Convert(TH2D* histo, TH1D* rehist){
+	int k=1;
 	for (int i=0;i<histo->GetNbinsX();i++){
 		for (int j=0;j<histo->GetNbinsY();j++){
 			Int_t nbin=histo->GetBin(i+1,j+1);
 			Double_t content=histo->GetBinContent(nbin);
-			rehist->SetBinContent(nbin,content);
+			Double_t error=histo->GetBinError(nbin);
+			rehist->SetBinError(k,error);
+			rehist->SetBinContent(k++,content);
 		}
 	}
 }
@@ -108,7 +111,7 @@ void prepare_hist(){
 								1.21,1.21,1.21,1.21,1.21,1.21,1.21,
 								//1.0, 1.0, 1.0,1.0, 1.0, 1.0,1.0, 1.0,
 							};		
-	TString dir="./output2/";
+	TString dir="/eos/user/y/yuekai/output2/";
 	TString process[]={"ttbar","DYJets","STop","VV","WJets","QCD"};
 	Int_t sample_id[]={2, 10, 15, 18, 25, 33};
 	Int_t Cpq3[6]={ 0, 0, 0, 0, 0, 0};
@@ -128,6 +131,9 @@ void prepare_hist(){
 	TString cuts[]={"(jet_num == 3 && likelihood<20.0)","(jet_num >= 4 && likelihood<20.0 )"};
 	TString cutsName[]={"3jets","4jets"};
 	Float_t entries[2][nsample];// number of events in 3jets and 4jets final states
+	std::vector<TString> treeNames={"jesUp","jesDown","jerUp","jerDown","unclusUp","unclusDown"};//tree for theory uncentaintires
+	std::vector<TString> sys_ex={"jes","jer","unclus"}; //nuisance paramters:unclus is met coming from unclusted particles
+
 	for(int s=0; s<2; s++){ //loop over final states
 		int nprocess=0; //count process was dealed with
 		TString category="ttbar_"+cutsName[s];
@@ -145,8 +151,9 @@ void prepare_hist(){
 		std::vector<TString> cms_lumi;
 		std::vector<TString> ew_weight;
     	TH2D* h2dist[nsignal+4];//6 signal + 4 background
-    	std::vector<TH2D*> h2sys_up[nsignal+4];//2D array [process][sys]
-		std::vector<TH2D*> h2sys_dn[nsignal+4];//2D array [process][sys]
+    	TH2D* h2sys_up[nsignal+4][20];//2D array [process][sys]
+		TH2D* h2sys_dn[nsignal+4][20];//2D array [process][sys]
+		TH2D* h2dist_jes[nsignal+4][20];
     	//////////////////////////////////////////////
     	//for systematic uncentaitny
 		  std::vector<TString> sysNames;
@@ -158,42 +165,45 @@ void prepare_hist(){
 				fileNames[i]=fileNames[i].ReplaceAll(".root","_*.root");
 			chain->Add(dir+fileNames[i]);
 			chain2->Add(dir+fileNames[i]);
+			//for sysmetic uncentainties with weights in Nanoaod		
+			if(i==0){ //get the systematic weight names at first sample
+					TH1D* hname=new TH1D("hname","hname",20,0,20);
+					chain->Draw("weight_name>>hname");
+					for(int k=0;k<hname->GetNbinsX();k++){
+					TString sysname=hname->GetXaxis()->GetBinLabel(k+1);
+					sysNames.push_back(sysname);
+					cout<<"uncentainties from theory: "<<sysname<<endl;
+				}
+
+			}
 			Int_t nMC, ncut;
 			nMC=chain2->GetEntries();
 			ncut=chain->GetEntries();
 			cout<<nMC<<" events simulated and "<<ncut<<" events selected in "<<fileNames[i]<<endl;
 			float global_weight=cross_sections[i]*1000*lumi/nMC*K_Factor[i];
 			TString gen_weight="Generator_weight/abs(Generator_weight)";
-			TString condition="(mass_tt<=2000.0)&&(abs(rapidity_tt)<=5.0)&&(likelihood <20.0)";
-			chain->Draw("mass_tt",Form("%s*%s*%s",cuts[s],condition,gen_weight));
-			Float_t entry_cut=chain->GetSumOfWeights();
+			TString condition="((mass_tt<=2000.0)&&(abs(rapidity_tt)<=5.0)&&(likelihood <20.0))";
+			TH1D* hentry=new TH1D("hentry","",20,0,2000);
+			chain->Draw("mass_tt>>hentry",Form("%s*%s*%s",cuts[s].Data(),condition.Data(),gen_weight.Data()));
+			Float_t entry_cut=hentry->GetSumOfWeights();
+			delete hentry;
 			entries[s][i]=entry_cut*global_weight; //number of events in each channel
 			TString sample_name=fileNames[i];
 			sample_name=sample_name.ReplaceAll("_*.root","_hist");
 			sample_name=sample_name.ReplaceAll("new_","");
-			//for sysmetic uncentainties with weights in Nanoaod		
-			if(i==0){ //get the systematic weight names at first sample
-					TH1D* hname=new TH1D("hname","hname",20,0,20);
-					chain->Draw("weight_name>>hname");
-					for(int k=0;k<hname->GetNbinsX();k++){
-					TString sysname=hname->GetBinLabel(k+1);
-					sysNames.push_back(sysname);
-					cout<<"systematic: "<<sysname<<endl;
-				}
-
-			}
+			
 			std::vector<TH2D> h2sample_sysup;
 			std::vector<TH2D> h2sample_sysdn;
 				
 			if(i <= sample_id[0]){
 				for(int k=0;k<nsignal;k++){ //loop over EW weights
 			        TString weight_EW=Form("weight_ci%d%d%d%d",Cpq3[k],Cpu[k],ReCup[k],ImCup[k]);
-			        TString weight=Form("%f*%s*%s",global_weight,weight_EW.Data(),gen_weight);
+			        TString weight=Form("%f*%s*%s",global_weight,weight_EW.Data(),gen_weight.Data());
 			        TString sample_weighted=sample_name+"_"+weight_EW;
 			        TH2D* h2sample=new TH2D(sample_weighted,sample_weighted,xbin,mtt_edges, ybin, ytt_edges);
 			        h2sample->Sumw2();
 					chain->Draw("rapidity_tt:mass_tt>>"+sample_weighted, weight+"*"+cuts[s] );
-					
+					cout<<"sample_weighted: "<<sample_weighted<<endl;
 					if(dosys_th){	
 						for(int n=0;n < sysNames.size();n++){
 							TString h2sysName=sample_weighted+"_"+sysNames[n];
@@ -201,11 +211,12 @@ void prepare_hist(){
 							TH2D* h2tempsys_dn=new TH2D(h2sysName+"_dn",h2sysName+"_dn",xbin,mtt_edges,ybin, ytt_edges);
 			        		h2tempsys_up->Sumw2();
 			        		h2tempsys_dn->Sumw2();
-							chain->Draw("rapidity_tt:mass_tt>>"h2sysName+"_up", Form("%s*%s*weight_up*(weight_name==%s)",weight,cuts[s],sysNames[n]));
-							chain->Draw("rapidity_tt:mass_tt>>"h2sysName+"_dn", Form("%s*%s*weight_down*(weight_name==%s)",weight,cuts[s],sysNames[n]));
+							chain->Draw("rapidity_tt:mass_tt>>"+h2sysName+"_up", Form("%s*%s*weight_up*(weight_name==\"%s\")",weight.Data(),cuts[s].Data(),sysNames[n].Data()));
+							chain->Draw("rapidity_tt:mass_tt>>"+h2sysName+"_dn", Form("%s*%s*weight_down*(weight_name==\"%s\")",weight.Data(),cuts[s].Data(),sysNames[n].Data()));
 							h2sample_sysup.push_back(*h2tempsys_up);
 							h2sample_sysdn.push_back(*h2tempsys_dn);
-							delete h2tempsys_dn, h2tempsys_up;
+							cout<<"h2sysName: "<<h2sysName<<endl;
+							delete h2tempsys_dn; delete h2tempsys_up;
 						}
 					}
 
@@ -226,8 +237,8 @@ void prepare_hist(){
 						h2dist[k]->Add(h2sample);
 					    if(dosys_th){
 							for(int n=0;n<sysNames.size();n++){
-								h2sys_up[k][n]->Add(h2sample_sysup[n]);
-								h2sys_dn[k][n]->Add(h2sample_sysdn[n]);
+								h2sys_up[k][n]->Add(&h2sample_sysup[n]);
+								h2sys_dn[k][n]->Add(&h2sample_sysdn[n]);
 							}
 						}
 					}	
@@ -235,6 +246,7 @@ void prepare_hist(){
 						process_id.push_back(-k);
 						TString process_name=h2dist[k]->GetName();
 						process_name.ReplaceAll("h2","");
+						cout<<"process_name: "<<process_name<<endl;
 						process_names.push_back(process_name);
 						Floor(h2dist[k]);
 						h2dist[k]->Draw("colz text");
@@ -251,53 +263,54 @@ void prepare_hist(){
 						ew_weight.push_back("1.01");
 						cout<<"after reweight there are "<<yield<<" events in "<<process_name<<" in "<<cutsName[s]<<endl;
 
-						TH1D* h1dist=new TH1D(process_name,process_name, xbin*ybin,1,xbin*ybin);
+						TH1D* h1dist=new TH1D(process_name,process_name, xbin*ybin,0,xbin*ybin);
 					 	Convert(h2dist[k],h1dist);
 						file->cd();
 						h1dist->Write();
 						delete h1dist;
-						
 						if(dosys_th){
 							for(int n=0;n<sysNames.size();n++){
 								TString pro_sysup_name=h2sys_up[k][n]->GetName();
 								TString pro_sysdn_name=h2sys_dn[k][n]->GetName();
 								pro_sysup_name.ReplaceAll("h2","");
 								pro_sysdn_name.ReplaceAll("h2","");
-								TH1D* hist1D_up=new TH1D(pro_sysup_name,pro_sysup_name, xbin*ybin,1,xbin*ybin);
+								TH1D* hist1D_up=new TH1D(pro_sysup_name,pro_sysup_name, xbin*ybin,0,xbin*ybin);
 								Convert(h2sys_up[k][n],hist1D_up);
-								TH1D* hist1D_dn=new TH1D(pro_sysdn_name,pro_sysdn_name, xbin*ybin,1,xbin*ybin);
+								TH1D* hist1D_dn=new TH1D(pro_sysdn_name,pro_sysdn_name, xbin*ybin,0,xbin*ybin);
 								Convert(h2sys_dn[k][n],hist1D_dn);
 								file->cd();
 								hist1D_up->Write();
 								hist1D_dn->Write();
-								delete hist1D_up,hist1D_dn;
+								delete hist1D_up; delete hist1D_dn;
 
 								
 							}
 						}
 
 					}
-                    delete h2sample, h2sample_sysup, h2sample_sysdn;
-
+                    delete h2sample;
+                    h2sample_sysup.clear();
+					h2sample_sysdn.clear();
 				}  //end of loop over EW weights
-                if (i==sample_id[0]) nprocess++;
+               // if (i==sample_id[0]) nprocess++;
 			}
 			else{
 				TH2D* h2sample=new TH2D(sample_name,sample_name,xbin,mtt_edges, ybin, ytt_edges);
 				h2sample->Sumw2();
-				chain->Draw("rapidity_tt:mass_tt>>"+sample_name, Form("%f*%s*%s",global_weight,cuts[s].Data(),gen_weight));
+				chain->Draw("rapidity_tt:mass_tt>>"+sample_name, Form("%f*%s*%s",global_weight,cuts[s].Data(),gen_weight.Data()));
 				if(dosys_th){	
 						for(int n=0;n< sysNames.size();n++){
 							TString h2sysName=sample_name+"_"+sysNames[n];
 							TH2D* h2tempsys_up=new TH2D(h2sysName+"_up",h2sysName+"_up",xbin,mtt_edges,ybin, ytt_edges);
 							TH2D* h2tempsys_dn=new TH2D(h2sysName+"_dn",h2sysName+"_dn",xbin,mtt_edges,ybin, ytt_edges);
+							cout<<"h2sysName: "<<h2sysName<<endl;
 			        		h2tempsys_up->Sumw2();
 			        		h2tempsys_dn->Sumw2();
-							chain->Draw("rapidity_tt:mass_tt>>"h2sysName+"_up", Form("%f*%s*%s*weight_up*(weight_name==%s)",global_weight,gen_weight,cuts[s],sysNames[n]));
-							chain->Draw("rapidity_tt:mass_tt>>"h2sysName+"_dn", Form("%f*%s*%s*weight_down*(weight_name==%s)",global_weight,gen_weight,cuts[s],sysNames[n]));
+							chain->Draw("rapidity_tt:mass_tt>>"+h2sysName+"_up", Form("%f*%s*%s*weight_up*(weight_name==\"%s\")",global_weight,gen_weight.Data(),cuts[s].Data(),sysNames[n].Data()));
+							chain->Draw("rapidity_tt:mass_tt>>"+h2sysName+"_dn", Form("%f*%s*%s*weight_down*(weight_name==\"%s\")",global_weight,gen_weight.Data(),cuts[s].Data(),sysNames[n].Data()));
 							h2sample_sysup.push_back(*h2tempsys_up);
 							h2sample_sysdn.push_back(*h2tempsys_dn);
-							delete h2tempsys_dn, h2tempsys_up;
+							delete h2tempsys_dn; delete h2tempsys_up;
 						}
 					}
 
@@ -306,7 +319,6 @@ void prepare_hist(){
 						h2dist[nsignal-1+nprocess]=(TH2D*)h2sample->Clone();
 						h2dist[nsignal-1+nprocess]->SetName(process[nprocess]+"h2");
 						h2dist[nsignal-1+nprocess]->SetTitle(process[nprocess]+"h2");
-
 						if(dosys_th){
 							for(int n=0;n<sysNames.size();n++){
 								h2sys_up[nsignal-1+nprocess][n]=(TH2D*)h2sample_sysup[n].Clone();
@@ -321,15 +333,17 @@ void prepare_hist(){
 							h2dist[nsignal-1+nprocess]->Add(h2sample);
 	                        if(dosys_th){
 								for(int n=0;n<sysNames.size();n++){
-									h2sys_up[nsignal-1+nprocess][n]->Add(h2sample_sysup[n]);
-									h2sys_dn[nsignal-1+nprocess][n]->Add(h2sample_sysdn[n]);
+									h2sys_up[nsignal-1+nprocess][n]->Add(&h2sample_sysup[n]);
+									h2sys_dn[nsignal-1+nprocess][n]->Add(&h2sample_sysdn[n]);
 								}
 							}
                         }
+                    delete h2sample;
 					if(i==sample_id[nprocess]){
 						process_id.push_back(nprocess);
 						TString process_name=h2dist[nsignal-1+nprocess]->GetName();
 						process_name.ReplaceAll("h2","");
+						cout<<"process_name: "<<process_name<<endl;
 						process_names.push_back(process_name);
 						Floor(h2dist[nsignal-1+nprocess]);
 						h2dist[nsignal-1+nprocess]->Draw("colz text");
@@ -365,8 +379,11 @@ void prepare_hist(){
 							DYJets_norm.push_back("-");
 						}
 						cout<<"after reweight there are "<<yield<<" events in "<<process_name<<" in "<<cutsName[s]<<endl;
-						TH1D* h1dist=new TH1D(process_name,process_name, xbin*ybin,1,xbin*ybin);
+						TH1D* h1dist=new TH1D(process_name,process_name, xbin*ybin,0,xbin*ybin);
 					 	Convert(h2dist[nsignal-1+nprocess],h1dist);
+					 	cout<<"events of h1: "<<h1dist->GetSumOfWeights()<<endl;
+					 	cout<<"events of h2: "<<h2dist[nsignal-1+nprocess]->GetSumOfWeights()<<endl;
+					 	cout<<"events of yield: "<<yield<<endl;
 						file->cd();
 						h1dist->Write();
 						delete h1dist;
@@ -377,29 +394,30 @@ void prepare_hist(){
 								TString pro_sysdn_name=h2sys_dn[nsignal-1+nprocess][n]->GetName();
 								pro_sysup_name.ReplaceAll("h2","");
 								pro_sysdn_name.ReplaceAll("h2","");
-								TH1D* hist1D_up=new TH1D(pro_sysup_name,pro_sysup_name, xbin*ybin,1,xbin*ybin);
+								cout<<"pro_sysup_name: "<<pro_sysup_name<<endl;
+								TH1D* hist1D_up=new TH1D(pro_sysup_name,pro_sysup_name, xbin*ybin,0,xbin*ybin);
 								Convert(h2sys_up[nsignal-1+nprocess][n],hist1D_up);
-								TH1D* hist1D_dn=new TH1D(pro_sysdn_name,pro_sysdn_name, xbin*ybin,1,xbin*ybin);
+								TH1D* hist1D_dn=new TH1D(pro_sysdn_name,pro_sysdn_name, xbin*ybin,0,xbin*ybin);
 								Convert(h2sys_dn[nsignal-1+nprocess][n],hist1D_dn);
 								file->cd();
 								hist1D_up->Write();
 								hist1D_dn->Write();
-								delete hist1D_up,hist1D_dn;
+								delete hist1D_up; delete hist1D_dn;
 
 							}
 						}
-						nprocess++;
+						//nprocess++;
 					}
-                    delete h2sample, h2sample_sysdn, h2sample_sysup;
-
+                    h2sample_sysup.clear();
+					h2sample_sysdn.clear();
 				}
 			}
 			/////////////////////////////////////////////////
 			//add experimentcal uncentainties: jes, jer and met
 			//read tree "jesUp","jesDown","jerUp","jerDown","unclusUp","unclusDown"
+			//this part code shares same nsample with previous part
 			if(dosys_ex){
-				std::vector<TString> treeNames={"jesUp","jesDown","jerUp","jerDown","unclusUp","unclusDown"};
-				std::vector<TString> sys_ex={"jes","jer","met_unclus"}; //nuisance paramters
+				
 				for(int t=0;t< treeNames.size();t++){
 					cout<<"current tree: "<<treeNames[t]<<endl;
 					TChain* chain=new TChain(treeNames[t]);
@@ -407,40 +425,36 @@ void prepare_hist(){
 					Int_t nMC, ncut;
 					nMC=chain2->GetEntries();
 					ncut=chain->GetEntries();
-					TH1D hist_mass=new TH1D("hist_mass","hist_mass",50,0,2000);
-					chain->Draw("mass_tt>>hist_mass",Form("%s*%s*%s",cuts[s],condition,gen_weight));
+					TH1D *hist_mass=new TH1D("hist_mass","hist_mass",50,0,2000);
+					chain->Draw("mass_tt>>hist_mass",Form("%s*%s*%s",cuts[s].Data(),condition.Data(),gen_weight.Data()));
 					Float_t entry_cut=hist_mass->GetSumOfWeights();
 					Float_t total_event=entry_cut*global_weight;
 					delete hist_mass;
-					if(treeNames.Contains("up")){
-						treeNames.ReplaceAll("up","Up");
-					} 
-					else if(treeNames.Contains("down")){
-						treeNames.ReplaceAll("down","Down");
-					}
+					
 					if(i <= sample_id[0]){
 						for(int k=0;k<nsignal;k++){ //loop over EW weights
 					        TString weight_EW=Form("weight_ci%d%d%d%d",Cpq3[k],Cpu[k],ReCup[k],ImCup[k]);
-					        TString weight=Form("%f*%s*%s",global_weight,weight_EW.Data(),gen_weight);
-					        TString sample_weighted=sample_name+"_"+weight_EW;
+					        TString weight=Form("%f*%s*%s",global_weight,weight_EW.Data(),gen_weight.Data());
+					        TString sample_weighted=treeNames[t]+"_"+sample_name+"_"+weight_EW;
 					        TH2D* h2sample=new TH2D(sample_weighted,sample_weighted,xbin,mtt_edges, ybin, ytt_edges);
 					        h2sample->Sumw2();
 							chain->Draw("rapidity_tt:mass_tt>>"+sample_weighted, weight+"*"+cuts[s] );
-							
+							cout<<"sample_weighted: "<<sample_weighted<<endl;
 							if(i==0){
-								h2dist[k]=(TH2D*)h2sample->Clone();
-								h2dist[k]->SetName("h2ttbar_"+weight_EW+"_"+treeNames[t]);
-								h2dist[k]->SetTitle("h2ttbar_"+weight_EW+"_"+treeNames[t]);
+								h2dist_jes[k][t]=(TH2D*)h2sample->Clone();
+								h2dist_jes[k][t]->SetName("h2ttbar_"+weight_EW+"_"+treeNames[t]);
+								h2dist_jes[k][t]->SetTitle("h2ttbar_"+weight_EW+"_"+treeNames[t]);
 			
 							}
 							else{
-								h2dist[k]->Add(h2sample);
+								h2dist_jes[k][t]->Add(h2sample);
 							}
 							if (i==sample_id[0]){
-								TString process_name=h2dist[k]->GetName();
+								TString process_name=h2dist_jes[k][t]->GetName();
 								process_name.ReplaceAll("h2","");
-								TH1D* h1dist=new TH1D(process_name,process_name, xbin*ybin,1,xbin*ybin);
-							 	Convert(h2dist[k],h1dist);
+								cout<<"process_name in sys: "<<process_name<<endl;
+								TH1D* h1dist=new TH1D(process_name,process_name, xbin*ybin,0,xbin*ybin);
+							 	Convert(h2dist_jes[k][t],h1dist);
 								file->cd();
 								h1dist->Write();
 								delete h1dist;								
@@ -451,34 +465,35 @@ void prepare_hist(){
 		                    delete h2sample;
 
 						}  //end of loop over EW weights
-		                if (i==sample_id[0]) nprocess++;
+		                if (i==sample_id[0] && t==treeNames.size()-1) nprocess++;
 					}
 					else{
-						TH2D* h2sample=new TH2D(sample_name,sample_name,xbin,mtt_edges, ybin, ytt_edges);
+						TH2D* h2sample=new TH2D(treeNames[t]+sample_name,treeNames[t]+sample_name,xbin,mtt_edges, ybin, ytt_edges);
 						h2sample->Sumw2();
-						chain->Draw("rapidity_tt:mass_tt>>"+sample_name, Form("%f*%s*%s",global_weight,cuts[s].Data(),gen_weight));
-					
+						chain->Draw("rapidity_tt:mass_tt>>"+treeNames[t]+sample_name, Form("%f*%s*%s",global_weight,cuts[s].Data(),gen_weight.Data()));
+						cout<<"sample_name with sys: "<<treeNames[t]+"_"+sample_name<<endl;
 
 						if(i>sample_id[nprocess-1] && i <= sample_id[nprocess]){
 							if(i==sample_id[nprocess-1]+1){
-								h2dist[nsignal-1+nprocess]=(TH2D*)h2sample->Clone();
-								h2dist[nsignal-1+nprocess]->SetName(process[nprocess]+"_"+treeNames[t]+"h2");
-								h2dist[nsignal-1+nprocess]->SetTitle(process[nprocess]+"_"+treeNames[t]+"h2");
+								h2dist_jes[nsignal-1+nprocess][t]=(TH2D*)h2sample->Clone();
+								h2dist_jes[nsignal-1+nprocess][t]->SetName(process[nprocess]+"_"+treeNames[t]+"h2");
+								h2dist_jes[nsignal-1+nprocess][t]->SetTitle(process[nprocess]+"_"+treeNames[t]+"h2");
 							}
 							else
 								{
-									h2dist[nsignal-1+nprocess]->Add(h2sample);
+									h2dist_jes[nsignal-1+nprocess][t]->Add(h2sample);
 			                       
 		                        }
 							if(i==sample_id[nprocess]){
-								TString process_name=h2dist[nsignal-1+nprocess]->GetName();
-								process_name.ReplaceAll("h2","");	
-								TH1D* h1dist=new TH1D(process_name,process_name, xbin*ybin,1,xbin*ybin);
-							 	Convert(h2dist[nsignal-1+nprocess],h1dist);
+								TString process_name=h2dist_jes[nsignal-1+nprocess][t]->GetName();
+								process_name.ReplaceAll("h2","");
+								cout<<"process_name in sys: "<<process_name<<endl;	
+								TH1D* h1dist=new TH1D(process_name,process_name, xbin*ybin,0,xbin*ybin);
+							 	Convert(h2dist_jes[nsignal-1+nprocess][t],h1dist);
 								file->cd();
 								h1dist->Write();
 								delete h1dist;							
-								nprocess++;
+								if(t==treeNames.size()-1) nprocess++;
 							}
 		                    delete h2sample;
 
@@ -530,39 +545,44 @@ void prepare_hist(){
 		writeline(cms_lumi,card);
 		card<<"EW_weight"<<"\t lnN \t";
 		writeline(ew_weight,card);
-		for(int k=0;k<sys_ex.size();k++){
-			sysNames.push_back(sys_ex[k]);// add exprimental nuisance pamaraters
+
+		if(dosys_ex){
+			for(int k=0;k<sys_ex.size();k++){
+				sysNames.push_back(sys_ex[k]);// add exprimental nuisance pamaraters
+				cout<<"uncentainties from expriment: "<<sys_ex[k]<<endl;
+			}
 		}
+		
 		if(dosys_th){
 			for(int n=0;n<sysNames.size();n++){
-				card<<sysNames[n]<<"\t shape \t"
+				cout<<"sysNames: "<<sysNames[n]<<endl;
+				card<<sysNames[n]<<"\t shape \t";
 				for(int p=0;p<nsignal+4;p++){
-					card<<"1"<<"\t"
+					card<<"1"<<"\t";
 				}
 				card<<endl;
 
 			}
+			//sysNames.clear();
 		}
 		//build dataset, but for expected results dataset is not needed.
 		TChain *chain_data=new TChain("mytree");
 		chain_data->Add(dir+fileNames[0]); //fake data now
-	    RooDataHist *data;
 	    TString hist_data_name="hist2D_data";
-	    TString data_name="hist_data";
-        TH2D* hist2D_data=new TH2D(hist_data_name,hist_data_name,8,mtt_edges, 9, ytt_edges);
+	    TString data_name="data_obs";
+        TH2D* hist2D_data=new TH2D(hist_data_name,hist_data_name,xbin,mtt_edges,ybin, ytt_edges);
 	    chain_data->Draw("abs(rapidity_tt):mass_tt>>"+hist_data_name);
 
-	    TH1D hist1D_data=new TH1D(data_name,data_name,xbin*ybin,1,xbin*ybin);
-	    Convert(hist2D_data,hist1D_data)
+	    TH1D* hist1D_data=new TH1D(data_name,data_name,xbin*ybin,0,xbin*ybin);
+	    Convert(hist2D_data,hist1D_data);
 	    file->cd();
 	    hist1D_data->Write();
-	    delete hist1D_data,hist2D_data;
+	    delete hist1D_data; delete hist2D_data;
 
 	    card.close();
 		file->cd();
 		file->Close();
-		delete h2dist, h2sys_up, h2sys_dn;
-	
+		
 	}// end of loop over final states
 	cout.setf(ios::fixed, ios::floatfield); // set fixed floating format
 	cout.precision(2); // for fixed format, two decimal places
