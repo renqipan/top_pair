@@ -111,7 +111,7 @@ void prepare_hist(){
 								1.21,1.21,1.21,1.21,1.21,1.21,1.21,
 								//1.0, 1.0, 1.0,1.0, 1.0, 1.0,1.0, 1.0,
 							};		
-	TString dir="/eos/user/y/yuekai/output2/";
+	TString dir="/afs/cern.ch/user/r/repan/work/top_pair/condor_semi/output2/";
 	TString process[]={"ttbar","DYJets","STop","VV","WJets","QCD"};
 	Int_t sample_id[]={2, 10, 15, 18, 25, 33};
 	Int_t Cpq3[6]={ 0, 0, 0, 0, 0, 0};
@@ -176,12 +176,16 @@ void prepare_hist(){
 				}
 
 			}
+			TString gen_weight="Generator_weight/abs(Generator_weight)";
 			Int_t nMC, ncut;
 			nMC=chain2->GetEntries();
-			ncut=chain->GetEntries();
+			ncut=chain->GetEntries();		
 			cout<<nMC<<" events simulated and "<<ncut<<" events selected in "<<fileNames[i]<<endl;
-			float global_weight=cross_sections[i]*1000*lumi/nMC*K_Factor[i];
-			TString gen_weight="Generator_weight/abs(Generator_weight)";
+			TH1D* h1nJet=new TH1D("h1nJet","h1nJet",100,0,100);
+			chain2->Draw("nJet>>h1nJet",gen_weight);
+			float nMC_total=h1nJet->GetSumOfWeights();
+			float global_weight=cross_sections[i]*1000*lumi/nMC_total*K_Factor[i];
+			delete h1nJet;
 			TString condition="((mass_tt<=2000.0)&&(abs(rapidity_tt)<=5.0)&&(likelihood <20.0))";
 			TH1D* hentry=new TH1D("hentry","",20,0,2000);
 			chain->Draw("mass_tt>>hentry",Form("%s*%s*%s",cuts[s].Data(),condition.Data(),gen_weight.Data()));
