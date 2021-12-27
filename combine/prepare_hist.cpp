@@ -25,8 +25,8 @@ void writeline(vector<float> arr , ofstream &card){
 void Floor(TH2D* histo){
 	for (int i=0;i<histo->GetNbinsX();i++){
 		for (int j=0;j<histo->GetNbinsY();j++){
-			if(!(histo->GetBinContent(i+1,j+1)>1.E-8)){
-				//histo->SetBinContent(i+1,j+1,1.E-8);
+			if(!(histo->GetBinContent(i+1,j+1)>1.E-6)){
+				//histo->SetBinContent(i+1,j+1,1.E-6);
 				float xx=histo->GetXaxis()->GetBinCenter(i+1);
 				float yy=histo->GetYaxis()->GetBinCenter(j+1);
 				cout<<"warning! in x: "<<xx<<" y: "<<yy<<" events: "<<histo->GetBinContent(i+1,j+1)<<endl;
@@ -122,7 +122,7 @@ void prepare_hist(){
 	TString outputDir="datacard2";
 
 	Double_t mtt_edges[8]={0,370,420,500,600,700,800,2000};
-	Double_t ytt_edges[8]={-5.0,-1.0,-0.5,-0.15,0.15,0.5,1.0,5.0};
+	Double_t ytt_edges[8]={-5.0,-1.2,-0.6,-0.15,0.15,0.6,1.2,5.0};
 	RooRealVar* mtt=new RooRealVar("mass_tt","mass_tt",0,2000);
 	RooRealVar* ytt=new RooRealVar("rapidity_tt","rapidity_tt",-5,5);
 	const int xbin=7, ybin=7;
