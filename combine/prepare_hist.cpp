@@ -74,7 +74,7 @@ void prepare_hist(){
                             "new_ST_tW_top_5f_inclusiveDecays_TuneCP5_13TeV-powheg.root",                                                                               
                             
                             "new_WWTo1L1Nu2Q_TuneCP5_13TeV-amcatnloFXFX.root",
-                            "new_ZZTo2L2Nu_TuneCP5_13TeV_powheg.root",
+                            "new_ZZTo2Q2L_mllmin4p0_TuneCP5_13TeV-amcatnloFXFX.root",
                             "new_WZTo1L1Nu2Q_TuneCP5_13TeV-amcatnloFXFX.root",
                             
                             "new_WJetsToLNu_HT-100To200_TuneCP5_13TeV-madgraphMLM.root",
@@ -100,7 +100,7 @@ void prepare_hist(){
 	Float_t cross_sections[nsample]={366.91, 89.05, 377.96,
 									169.9, 147.4, 41.0, 5.7, 1.4, 0.63, 0.15, 0.0036,
 									3.36, 136.02, 80.95, 35.6, 35.6,
-									45.68, 0.9738, 11.66,
+									45.68, 4.478, 11.66,
 									1345.7, 359.7, 48.9, 12.1, 5.5, 1.3, 0.032,
 								    //27990000, 1712000, 347700, 32100, 6831, 1207, 119.9, 25.2,
 								    };
@@ -128,7 +128,7 @@ void prepare_hist(){
 	const int xbin=7, ybin=7;
 	mtt->setBins(xbin);
 	ytt->setBins(ybin);
-	TString cuts[]={"(jet_num == 3 && likelihood<20.0)","(jet_num >= 4 && likelihood<20.0 )"};
+	TString cuts[]={"(jet_num == 3 && likelihood<19.0)","(jet_num >= 4 && likelihood<19.0 )"};
 	TString cutsName[]={"3jets","4jets"};
 	Float_t entries[2][nsample];// number of events in 3jets and 4jets final states
 	std::vector<TString> treeNames={"jesUp","jesDown","jerUp","jerDown","unclusUp","unclusDown"};//tree for theory uncentaintires
