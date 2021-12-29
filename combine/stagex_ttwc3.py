@@ -1,12 +1,14 @@
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
-import fnmatch 
+import fnmatch
+from math import sqrt,copysign 
+sign = lambda x: copysign(1, x) 
 
 class stagex_ttwc3(PhysicsModel):
     "Allow different signal strength fits for the stage-x model"
     def __init__(self):
 		self.POIs = ""
 		self.acttbar=False 
-		self.acggh=False 
+		self.acfcp=False 
 		self.accor=False 
 		self.options= ""
 		self.stage0= False 
@@ -44,18 +46,36 @@ class stagex_ttwc3(PhysicsModel):
 				print "muname: %s" %muname
 	
         if self.acttbar:
-			self.modelBuilder.doVar("y[0.0,-3,3]" )
-			self.modelBuilder.doVar("z[0.0,-3,3]" )
-			self.modelBuilder.doVar("k[0.0,-3,3]" )
-			# x:Cpq3, y: Cpu, z:ReCup, k: ImCup
-			self.modelBuilder.factory_("expr::r_tt_times_ci0001(\"@0*@0\", k)")
-			self.modelBuilder.factory_("expr::r_tt_times_ci0100(\"2*@0-@0*@0\", y)")
-			self.modelBuilder.factory_("expr::r_tt_times_ci0200(\"-0.5*@0+0.5*@0*@0\", y)")
-			self.modelBuilder.factory_("expr::r_tt_times_ci0010(\"2*@0-@0*@0\", z)")
-			self.modelBuilder.factory_("expr::r_tt_times_ci0020(\"-0.5*@0+0.5*@0*@0\", z)")
-			self.modelBuilder.factory_("expr::r_tt_times_ci0000(\"1-@0*@0-1.5*@1+0.5*@1*@1-1.5*@2+0.5*@2*@2\", k,y,z)")
+			if not self.acfcp:
+				# x:Cpq3, y: Cpu, z:ReCup, k: ImCup
+				self.modelBuilder.doVar("y[0.0,-3,3]" )
+				self.modelBuilder.doVar("z[0.0,-3,3]" )
+				self.modelBuilder.doVar("k[0.0,-3,3]" )
+				self.modelBuilder.factory_("expr::r_tt_times_ci0001(\"@0*@0\", k)")
+				self.modelBuilder.factory_("expr::r_tt_times_ci0100(\"2*@0-@0*@0\", y)")
+				self.modelBuilder.factory_("expr::r_tt_times_ci0200(\"-0.5*@0+0.5*@0*@0\", y)")
+				self.modelBuilder.factory_("expr::r_tt_times_ci0010(\"2*@0-@0*@0\", z)")
+				self.modelBuilder.factory_("expr::r_tt_times_ci0020(\"-0.5*@0+0.5*@0*@0\", z)")
+				self.modelBuilder.factory_("expr::r_tt_times_ci0000(\"1-@0*@0-1.5*@1+0.5*@1*@1-1.5*@2+0.5*@2*@2\", k,y,z)")
+				self.pois.append("y,z,k")
+			else:
+				self.modelBuilder.doVar("y[0.0,-3,3]" )
+				self.modelBuilder.doVar("fcp[0.0,-1.0,1.0]")
+				self.modelBuilder.doVar("mu[1.0,-10,10]")
+				self.modelBuilder.factory_("expr::r_tt_times_ci0001(\"pow(sign(@0)*sign(@1)*sqrt(abs(@0)*abs(@1)),2)\", fcp,mu)")
+				self.modelBuilder.factory_("expr::r_tt_times_ci0100(\"2*@0-@0*@0\", y)")
+				self.modelBuilder.factory_("expr::r_tt_times_ci0200(\"-0.5*@0+0.5*@0*@0\", y)")
+				self.modelBuilder.factory_("expr::r_tt_times_ci0010(\"2*(1-sign(@1)*sqrt((1-abs(@0))*abs(@1)))\
+-pow(1-sign(@1)*sqrt((1-abs(@0))*abs(@1)),2)\", fcp,mu)")
+				self.modelBuilder.factory_("expr::r_tt_times_ci0020(\"-0.5*(1-sign(@1)*sqrt((1-abs(@0))*abs(@1)))+\
+0.5*pow((1-sign(@1)*sqrt((1-abs(@0))*abs(@1))),2)\", fcp,mu)")
+				self.modelBuilder.factory_("expr::r_tt_times_ci0000(\"1-pow(sign(@0)*sign(@1)*sqrt(abs(@0)*abs(@1)),2)\
+-1.5*@2+0.5*@2*@2-1.5*(1-sign(@1)*sqrt((1-abs(@0))*abs(@1)))\
++0.5*pow((1-sign(@1)*sqrt((1-abs(@0))*abs(@1))),2)\", fcp,mu,y)")
 
-			self.pois.append("y,z,k")
+				#expr::z(\"(1-sign(@1)*sqrt((1-abs(@0))*abs(@1)))\", fcp,mu)"
+				#expr::k(\"sign(@0)*sign(@1)*sqrt(abs(@0)*abs(@1))\", fcp,mu)"
+			self.pois.append("y,fcp,mu")
 			self.POIs=",".join(self.pois)
 			self.modelBuilder.doSet("POI",self.POIs)
 			print "parameters of interest in ttbar analysis: ", self.POIs
@@ -80,8 +100,8 @@ class stagex_ttwc3(PhysicsModel):
 		    if 'doacttbar' in po: 
 			    self.acttbar= True
 			    print "doing tth AC ttbar"
-		    if 'doacggh' in po: 
-			    self.acggh= True
+		    if 'dofcp' in po: 
+			    self.acfcp= True
 			    print "doing tth AC ggH"
 		    if 'singlemu' in po: 
 			    self.singlemu= True

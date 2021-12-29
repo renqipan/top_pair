@@ -26,7 +26,7 @@ void Floor(TH2D* histo){
 	for (int i=0;i<histo->GetNbinsX();i++){
 		for (int j=0;j<histo->GetNbinsY();j++){
 			if(!(histo->GetBinContent(i+1,j+1)>1.E-6)){
-				//histo->SetBinContent(i+1,j+1,1.E-6);
+				histo->SetBinContent(i+1,j+1,1.E-6);
 				float xx=histo->GetXaxis()->GetBinCenter(i+1);
 				float yy=histo->GetYaxis()->GetBinCenter(j+1);
 				cout<<"warning! in x: "<<xx<<" y: "<<yy<<" events: "<<histo->GetBinContent(i+1,j+1)<<endl;
@@ -111,7 +111,7 @@ void prepare_hist(){
 								1.21,1.21,1.21,1.21,1.21,1.21,1.21,
 								//1.0, 1.0, 1.0,1.0, 1.0, 1.0,1.0, 1.0,
 							};		
-	TString dir="/afs/cern.ch/user/r/repan/work/top_pair/condor_semi/output2/";
+	TString dir="/eos/user/y/yuekai/output2/";
 	TString process[]={"ttbar","DYJets","STop","VV","WJets","QCD"};
 	Int_t sample_id[]={2, 10, 15, 18, 25, 33};
 	Int_t Cpq3[6]={ 0, 0, 0, 0, 0, 0};
@@ -121,11 +121,11 @@ void prepare_hist(){
 	float lumi=137.1;
 	TString outputDir="datacard2";
 
-	Double_t mtt_edges[8]={0,370,420,500,600,700,800,2000};
-	Double_t ytt_edges[8]={-5.0,-1.2,-0.6,-0.15,0.15,0.6,1.2,5.0};
+	Double_t mtt_edges[9]={0,370,420,500,600,700,800,950,2000};
+	Double_t ytt_edges[10]={-5.0,-1.4,-0.9,-0.5,-0.15,0.15,0.5,0.9,1.4,5.0};
 	RooRealVar* mtt=new RooRealVar("mass_tt","mass_tt",0,2000);
 	RooRealVar* ytt=new RooRealVar("rapidity_tt","rapidity_tt",-5,5);
-	const int xbin=7, ybin=7;
+	const int xbin=8, ybin=9;
 	mtt->setBins(xbin);
 	ytt->setBins(ybin);
 	TString cuts[]={"(jet_num == 3 && likelihood<19.0)","(jet_num >= 4 && likelihood<19.0 )"};
