@@ -380,6 +380,8 @@ void get_info_3jet_condor(TString indir, TString inputFile) {
 
   mytree->Branch("btagWeight_DeepCSVB",&btagWeight_DeepCSVB,"btagWeight_DeepCSVB/F");
   mytree->Branch("Generator_weight",&Generator_weight,"Generator_weight/F");
+  mytree->Branch("nLHEPdfWeight",&nLHEPdfWeight,"nLHEPdfWeight/I");
+  mytree->Branch("LHEPdfWeight",LHEPdfWeight,"LHEPdfWeight/F");
   mytree->Branch("weight_name",&weight_name);
   mytree->Branch("weight_up",&weight_up);
   mytree->Branch("weight_down",&weight_down);
@@ -405,6 +407,8 @@ void get_info_3jet_condor(TString indir, TString inputFile) {
   rawtree->Branch("nJet", &nJet, "nJet/I");
   rawtree->Branch("nlepton", &nlepton, "nlepton/I");
   rawtree->Branch("Jet_pt", Jet_pt, "Jet_pt[nJet]/F");
+  rawtree->Branch("Generator_weight",&Generator_weight,"Generator_weight/F");
+
   ////////////////////////////////////////////////////////////////
   // add information at reconstruction level.
   mytree->Branch("rectop_pt", &rectop_pt, "rectop_pt/F");
