@@ -72,10 +72,7 @@ class stagex_ttwc3(PhysicsModel):
 				self.modelBuilder.factory_("expr::r_tt_times_ci0000(\"1-pow(sign(@0)*sign(@1)*sqrt(abs(@0)*abs(@1)),2)\
 -1.5*@2+0.5*@2*@2-1.5*(1-sign(@1)*sqrt((1-abs(@0))*abs(@1)))\
 +0.5*pow((1-sign(@1)*sqrt((1-abs(@0))*abs(@1))),2)\", fcp,mu,y)")
-
-				#expr::z(\"(1-sign(@1)*sqrt((1-abs(@0))*abs(@1)))\", fcp,mu)"
-				#expr::k(\"sign(@0)*sign(@1)*sqrt(abs(@0)*abs(@1))\", fcp,mu)"
-			self.pois.append("y,fcp,mu")
+				self.pois.append("y,fcp,mu")
 			self.POIs=",".join(self.pois)
 			self.modelBuilder.doSet("POI",self.POIs)
 			print "parameters of interest in ttbar analysis: ", self.POIs

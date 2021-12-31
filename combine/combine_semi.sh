@@ -3,21 +3,31 @@ source env.sh
 cd $YourCombine_CMSSW_src_Dir #/directory of higgs combine analysis
 eval `scramv1 runtime -sh`
 cd $YourDatacard13TeV_Dir #/ directory of datacard
-cd datacard2/
+cd datacard3/
 rm -rf ttbar_semi.txt
 combineCards.py ttbar_3jets.txt ttbar_4jets.txt > ttbar_semi.txt
 text2workspace.py ttbar_semi.txt -o workspace_ttbar_semi.root --PO doStage0 --PO doacttbar -P HiggsAnalysis.CombinedLimit.stagex_ttwc:stagex_ttwc -m 125 --X-allow-no-background  -v 7 
-text2workspace.py ttbar_4jets.txt -o workspace_ttbar_semi_fcp.root --PO doStage0 --PO doacttbar --PO dofcp -P HiggsAnalysis.CombinedLimit.stagex_ttwc3:stagex_ttwc3 -m 125 --X-allow-no-background  -v 7 
+text2workspace.py ttbar_semi.txt -o workspace_ttbar_semi_fcp.root --PO doStage0 --PO doacttbar --PO dofcp -P HiggsAnalysis.CombinedLimit.stagex_ttwc3:stagex_ttwc3 -m 125 --X-allow-no-background  -v 7 
 
 #combine -M MultiDimFit workspace_ttbar_semi.root -S 1 -t -1 --expectSignal=1 --algo=grid --points=40 --alignEdges=1 -P x --floatOtherPOIs=1 --X-rtd TMCSO_AdaptivePseudoAsimov=10 -n ttbar_semi_x -v 3 -m 125 --setParameterRanges x=-1.0,1.0 --saveInactivePOI=1
 combine -M MultiDimFit workspace_ttbar_semi.root -S 1 -t -1 --expectSignal=1 --algo=grid --points=60 --alignEdges=1 -P y --floatOtherPOIs=1 --X-rtd TMCSO_AdaptivePseudoAsimov=10 -n ttbar_semi_y -v 3 -m 125 --setParameterRanges y=-2.0,2.0 --saveInactivePOI=1
 combine -M MultiDimFit workspace_ttbar_semi.root -S 1 -t -1 --expectSignal=1 --algo=grid --points=60 --alignEdges=1 -P z --floatOtherPOIs=1 --X-rtd TMCSO_AdaptivePseudoAsimov=10 -n ttbar_semi_z -v 3 -m 125 --setParameterRanges z=-1.0,3.0 --saveInactivePOI=1
 combine -M MultiDimFit workspace_ttbar_semi.root -S 1 -t -1 --expectSignal=1 --algo=grid --points=60 --alignEdges=1 -P k --floatOtherPOIs=1 --X-rtd TMCSO_AdaptivePseudoAsimov=10 -n ttbar_semi_k -v 3 -m 125 --setParameterRanges k=-2.0,2.0 --saveInactivePOI=1
 
+combine -M MultiDimFit workspace_ttbar_semi.root -S 1 -t -1 --expectSignal=1 --algo=grid --points=60 --alignEdges=1 -P y --floatOtherPOIs=0 --X-rtd TMCSO_AdaptivePseudoAsimov=10 -n ttbar_semi_y_fix -v 3 -m 125 --setParameterRanges y=-2.0,2.0 --saveInactivePOI=1
+combine -M MultiDimFit workspace_ttbar_semi.root -S 1 -t -1 --expectSignal=1 --algo=grid --points=60 --alignEdges=1 -P z --floatOtherPOIs=0 --X-rtd TMCSO_AdaptivePseudoAsimov=10 -n ttbar_semi_z_fix -v 3 -m 125 --setParameterRanges z=-1.0,3.0 --saveInactivePOI=1
+combine -M MultiDimFit workspace_ttbar_semi.root -S 1 -t -1 --expectSignal=1 --algo=grid --points=60 --alignEdges=1 -P k --floatOtherPOIs=0 --X-rtd TMCSO_AdaptivePseudoAsimov=10 -n ttbar_semi_k_fix -v 3 -m 125 --setParameterRanges k=-2.0,2.0 --saveInactivePOI=1
+
+
 combine -M MultiDimFit workspace_ttbar_semi.root -S 1 -t -1 --expectSignal=1 --algo=grid --points=3600 --alignEdges=1  -P k -P y --floatOtherPOIs=1 --X-rtd TMCSO_AdaptivePseudoAsimov=10 -n ttbar_semi_2Dyk -v 3 -m 125 --setParameterRanges y=-2.0,2.0:k=-2.0,2.0 --saveInactivePOI=1
 combine -M MultiDimFit workspace_ttbar_semi.root -S 1 -t -1 --expectSignal=1 --algo=grid --points=3600 --alignEdges=1  -P z -P k --floatOtherPOIs=1 --X-rtd TMCSO_AdaptivePseudoAsimov=10 -n ttbar_semi_2Dzk -v 3 -m 125 --setParameterRanges z=-1.0,3.0:k=-2.0,2.0 --saveInactivePOI=1 
 combine -M MultiDimFit workspace_ttbar_semi.root -S 1 -t -1 --expectSignal=1 --algo=grid --points=3600 --alignEdges=1  -P y -P z --floatOtherPOIs=1 --X-rtd TMCSO_AdaptivePseudoAsimov=10 -n ttbar_semi_2Dyz -v 3 -m 125 --setParameterRanges y=-2.0,2.0:z=-1.0,3.0 --saveInactivePOI=1 
-combine -M MultiDimFit workspace_ttbar_semi_fcp.root -S 1 -t -1 --expectSignal=1 --algo=grid --points=40 --alignEdges=1 -P fcp --floatOtherPOIs=1 --X-rtd TMCSO_AdaptivePseudoAsimov=10 -n ttbar_semi_fcp -v 3 -m 125 --setParameterRanges fcp=-1.0,1.0:y=0.0,0.0 --saveInactivePOI=1
+
+combine -M MultiDimFit workspace_ttbar_semi.root -S 1 -t -1 --expectSignal=1 --algo=grid --points=3600 --alignEdges=1  -P k -P y --floatOtherPOIs=0 --X-rtd TMCSO_AdaptivePseudoAsimov=10 -n ttbar_semi_2Dyk_fix -v 3 -m 125 --setParameterRanges y=-2.0,2.0:k=-2.0,2.0 --saveInactivePOI=1
+combine -M MultiDimFit workspace_ttbar_semi.root -S 1 -t -1 --expectSignal=1 --algo=grid --points=3600 --alignEdges=1  -P z -P k --floatOtherPOIs=0 --X-rtd TMCSO_AdaptivePseudoAsimov=10 -n ttbar_semi_2Dzk_fix -v 3 -m 125 --setParameterRanges z=-1.0,3.0:k=-2.0,2.0 --saveInactivePOI=1 
+combine -M MultiDimFit workspace_ttbar_semi.root -S 1 -t -1 --expectSignal=1 --algo=grid --points=3600 --alignEdges=1  -P y -P z --floatOtherPOIs=0 --X-rtd TMCSO_AdaptivePseudoAsimov=10 -n ttbar_semi_2Dyz_fix -v 3 -m 125 --setParameterRanges y=-2.0,2.0:z=-1.0,3.0 --saveInactivePOI=1 
+
+combine -M MultiDimFit workspace_ttbar_semi_fcp.root -S 1 -t -1 --expectSignal=1 --algo=grid --points=60 --alignEdges=1 -P fcp --floatOtherPOIs=1 --X-rtd TMCSO_AdaptivePseudoAsimov=10 -n ttbar_semi_fcp -v 3 -m 125 --setParameterRanges fcp=-1.0,1.0:y=0.0,0.0 --saveInactivePOI=1
 
 rename higgsCombine limit_ *.root
 rename MultiDimFit.mH125. '' *.root
