@@ -512,6 +512,29 @@ void prepare_hist(){
 
 
 		}  //end of loop over samples
+		// add LHEPDF uncentainties from an out root file
+		bool do_pdfsys=true;
+		if(do_pdfsys){
+			TString pdf_dir="/eos/user/y/yuekai/output3";
+			TString pdf_file="pdfweight_"+cutsName[s]+".root";
+			cout<<"pdf weight file: "<<pdf_file<<endl;
+			TFile *fpdf = TFile::Open(pdf_dir+"/"+pdf_file);
+		    TIter keyList(fpdf->GetListOfKeys());
+		    TKey *key;
+		    while ((key = (TKey*)keyList())) {
+		        TClass *cl = gROOT->GetClass(key->GetClassName());
+		        if (!cl->InheritsFrom("TH1D")) 
+		      		cout<<"the format is not TH1D"<<endl;
+		        else{
+		      		TH1D *hpdf = (TH1D*)key->ReadObj();
+				    file->cd();
+				    hpdf->Write();
+				    delete hpdf;
+		        }
+
+		   }
+		}
+
 			
 		ofstream card;
 		card.open (outputDir+"/"+category+".txt");
@@ -555,6 +578,10 @@ void prepare_hist(){
 				sysNames.push_back(sys_ex[k]);// add exprimental nuisance pamaraters
 				cout<<"uncentainties from expriment: "<<sys_ex[k]<<endl;
 			}
+			if(do_pdfsys){
+				sysNames.push_back("pdf");
+				cout<<"add pdf uncentainties"<<endl;
+			}
 		}
 		
 		if(dosys_th){
@@ -587,7 +614,7 @@ void prepare_hist(){
 		file->cd();
 		file->Close();
 		
-	}// end of loop over final states
+	}// end of loop over final states: cuts[]
 	cout.setf(ios::fixed, ios::floatfield); // set fixed floating format
 	cout.precision(2); // for fixed format, two decimal places
 	//cout << fixed << setprecision(2); // same effects, but using manipulators	
