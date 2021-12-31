@@ -29,8 +29,19 @@ void Floor(TH2D* histo){
 				histo->SetBinContent(i+1,j+1,1.E-6);
 				float xx=histo->GetXaxis()->GetBinCenter(i+1);
 				float yy=histo->GetYaxis()->GetBinCenter(j+1);
-				cout<<"warning! in x: "<<xx<<" y: "<<yy<<" events: "<<histo->GetBinContent(i+1,j+1)<<endl;
+				//cout<<"warning! in x: "<<xx<<" y: "<<yy<<" events: "<<histo->GetBinContent(i+1,j+1)<<endl;
 			}
+		}
+	}
+}
+
+void Floor(TH1D* histo){
+	for (int i=0;i<histo->GetNbinsX();i++){
+			if(!(histo->GetBinContent(i+1)>1.E-6)){
+				histo->SetBinContent(i+1,1.E-6);
+				float xx=histo->GetXaxis()->GetBinCenter(i+1);
+				//cout<<"warning! in x: "<<xx<<" events: "<<histo->GetBinContent(i+1)<<endl;
+			
 		}
 	}
 }
@@ -283,6 +294,8 @@ void prepare_hist(){
 								TH1D* hist1D_dn=new TH1D(pro_sysdn_name,pro_sysdn_name, xbin*ybin,0,xbin*ybin);
 								Convert(h2sys_dn[k][n],hist1D_dn);
 								file->cd();
+								Floor(hist1D_up);
+								Floor(hist1D_dn);
 								hist1D_up->Write();
 								hist1D_dn->Write();
 								delete hist1D_up; delete hist1D_dn;
@@ -404,6 +417,8 @@ void prepare_hist(){
 								TH1D* hist1D_dn=new TH1D(pro_sysdn_name,pro_sysdn_name, xbin*ybin,0,xbin*ybin);
 								Convert(h2sys_dn[nsignal-1+nprocess][n],hist1D_dn);
 								file->cd();
+								Floor(hist1D_up);
+								Floor(hist1D_dn);
 								hist1D_up->Write();
 								hist1D_dn->Write();
 								delete hist1D_up; delete hist1D_dn;
@@ -460,6 +475,7 @@ void prepare_hist(){
 								TH1D* h1dist=new TH1D(process_name,process_name, xbin*ybin,0,xbin*ybin);
 							 	Convert(h2dist_jes[k][t],h1dist);
 								file->cd();
+								Floor(h1dist);
 								h1dist->Write();
 								delete h1dist;								
 								
@@ -495,6 +511,7 @@ void prepare_hist(){
 								TH1D* h1dist=new TH1D(process_name,process_name, xbin*ybin,0,xbin*ybin);
 							 	Convert(h2dist_jes[nsignal-1+nprocess][t],h1dist);
 								file->cd();
+								Floor(h1dist);
 								h1dist->Write();
 								delete h1dist;							
 								if(t==treeNames.size()-1) nprocess++;
@@ -528,6 +545,7 @@ void prepare_hist(){
 		        else{
 		      		TH1D *hpdf = (TH1D*)key->ReadObj();
 				    file->cd();
+				   	Floor(hpdf);
 				    hpdf->Write();
 				    delete hpdf;
 		        }
