@@ -367,7 +367,7 @@ void get_info_3jet() {
   std::vector<Float_t> weight_down;
   std::vector<TString> weight_name;
   Float_t btagWeight_DeepCSVB,Generator_weight;
-  Float_t LHEScaleWeight[9], PSWeight[4],LHEPdfWeight[103];
+  Float_t LHEScaleWeight[9], PSWeight[4],LHEPdfWeight[150];
   UInt_t nLHEPdfWeight,nLHEScaleWeight,nPSWeight;
   chain.SetBranchAddress("btagWeight_DeepCSVB",&btagWeight_DeepCSVB);
   chain.SetBranchAddress("Generator_weight",&Generator_weight);
@@ -1056,6 +1056,7 @@ void get_info_3jet() {
             nBtag = 0;   // count number of bjet among all the jets
             jet_num = 0; // count number fot jets satisfy the selection criteria
             bool jet_flag=false; // if true pass the selection
+            btag_num=0;
             if(lepton_flag==true){
                 for(int i=0;i<nJet;i++){
                     mom_jets[i].SetPtEtaPhiM(Jet_pt_re[num][i],Jet_eta[i],Jet_phi[i],Jet_mass[i]);     
@@ -1068,6 +1069,7 @@ void get_info_3jet() {
                         } 
                         else
                             Jet_btaged[i] = 0;
+                        btag_num=btag_num+Jet_btaged[i];
                     }
                 }
                 if(jet_num>=njet_need&&nBtag>=2){

@@ -367,7 +367,7 @@ void get_info_3jet_condor(TString indir, TString inputFile) {
   std::vector<Float_t> weight_down;
   std::vector<TString> weight_name;
   Float_t btagWeight_DeepCSVB,Generator_weight;
-  Float_t LHEScaleWeight[9], PSWeight[4],LHEPdfWeight[103];
+  Float_t LHEScaleWeight[9], PSWeight[4],LHEPdfWeight[150];
   UInt_t nLHEPdfWeight,nLHEScaleWeight,nPSWeight;
   chain.SetBranchAddress("btagWeight_DeepCSVB",&btagWeight_DeepCSVB);
   chain.SetBranchAddress("Generator_weight",&Generator_weight);
