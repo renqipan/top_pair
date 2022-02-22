@@ -381,7 +381,7 @@ void get_info_3jet() {
   mytree->Branch("btagWeight_DeepCSVB",&btagWeight_DeepCSVB,"btagWeight_DeepCSVB/F");
   mytree->Branch("Generator_weight",&Generator_weight,"Generator_weight/F");
   mytree->Branch("nLHEPdfWeight",&nLHEPdfWeight,"nLHEPdfWeight/I");
-  mytree->Branch("LHEPdfWeight",LHEPdfWeight,"LHEPdfWeight/F");
+  mytree->Branch("LHEPdfWeight",LHEPdfWeight,"LHEPdfWeight[nLHEPdfWeight]/F");
   mytree->Branch("weight_name",&weight_name);
   mytree->Branch("weight_up",&weight_up);
   mytree->Branch("weight_down",&weight_down);
