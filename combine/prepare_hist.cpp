@@ -544,8 +544,9 @@ void prepare_hist(){
 		      		cout<<"the format is not TH1D"<<endl;
 		        else{
 		      		TH1D *hpdf = (TH1D*)key->ReadObj();
-				    file->cd();
-				   	Floor(hpdf);
+		      		cout<<"pdf hist name: "<<hpdf->GetName()<<endl;
+				    Floor(hpdf);
+				   	file->cd();
 				    hpdf->Write();
 				    delete hpdf;
 		        }
