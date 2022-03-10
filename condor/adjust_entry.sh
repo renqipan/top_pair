@@ -11,23 +11,23 @@ do
     echo "number of lines: $count"
 	if [[ $dataset =~ "TTToSemiLeptonic" ]]
 	then
-		entries=552672580
+		entries=152672580
 		flag=true
 	elif [[ $dataset =~ "TTTo2L2Nu" ]]
 	then
-		entries=120199607
+		entries=50199607
 		flag=true
 	elif [[ $dataset =~ "TTToHadronic" ]]
 	then
-		entries=520780528
+		entries=150780528
 		flag=true
 	elif [[ $dataset =~ "WJetsToLNu_HT-100To200" ]]
     then
-		entries=494360900
+		entries=194360900
 		flag=true
 	elif [[ $dataset =~ "WJetsToLNu_HT-200To400" ]]
 	then
-		entries=124278900
+		entries=94278900
 		flag=true
 	elif [[ $dataset =~ "WW_TuneCP5" ]]
 	then
@@ -39,7 +39,7 @@ do
 		flag=true
 	elif [[ $dataset =~ "DYJetsToLL_M-50_HT-70to100" ]]
 	then
-		entries=9278900
+		entries=63293289
 		flag=true
 
 	else
